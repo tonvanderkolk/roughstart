@@ -3,8 +3,8 @@ cmake_minimum_required(VERSION 3.22)
 file(READ "${CMAKE_CURRENT_SOURCE_DIR}/VERSION" ROUGHSTART_VERSION)
 string(STRIP "${ROUGHSTART_VERSION}" ROUGHSTART_VERSION)
 
-# Alleen Apple Silicon voorlopig (Universal binary is een open vraag)
-set(CMAKE_OSX_ARCHITECTURES "arm64" CACHE STRING "")
+# Universal binary: Apple Silicon en Intel
+set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64" CACHE STRING "")
 set(CMAKE_OSX_DEPLOYMENT_TARGET "12.0" CACHE STRING "")
 
 project(RoughStart VERSION ${ROUGHSTART_VERSION} LANGUAGES C CXX)

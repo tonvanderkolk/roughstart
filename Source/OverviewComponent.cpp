@@ -128,6 +128,26 @@ void OverviewComponent::sortRows()
     });
 }
 
+juce::String OverviewComponent::getCellTooltip (int row, int columnId)
+{
+    if (! juce::isPositiveAndBelow (row, (int) rows.size()))
+        return {};
+
+    const auto& r = rows[(size_t) row];
+
+    switch (columnId)
+    {
+        case trackCol:  return r.trackName;
+        case statusCol:
+            if (r.limitedByCeiling)
+                return "Auto is limited so the peak stays at the Peak ceiling. Information, not an error.";
+            if (r.lastResult == (int) RoughStartProcessor::AnalysisResult::noSignal)
+                return "No signal during the last analysis. Auto was left unchanged.";
+            return {};
+        default:        return {};
+    }
+}
+
 int OverviewComponent::getNumRows()
 {
     return (int) rows.size();
@@ -201,9 +221,20 @@ void OverviewComponent::paintCell (juce::Graphics& g, int row, int columnId, int
         else                                                    colour = ui::accent;
     }
 
-    g.setColour (colour);
-    g.setFont (juce::FontOptions (13.5f, isThis ? juce::Font::bold : juce::Font::plain));
+    const juce::Font font (juce::FontOptions (13.5f, isThis ? juce::Font::bold : juce::Font::plain));
+    g.setFont (font);
 
+    if (columnId == trackCol)
+    {
+        const int x = 6;
+        const int available = width - x - 6;
+        g.setColour (colour);
+        g.drawText (ui::fitFromStart (r.trackName, font, (float) available), x, 0, available, height,
+                    juce::Justification::centredLeft, false);
+        return;
+    }
+
+    g.setColour (colour);
     const bool numeric = columnId >= peakCol && columnId <= totalCol;
     g.drawText (cellText (r, columnId), 6, 0, width - 12, height,
                 numeric ? juce::Justification::centredRight : juce::Justification::centredLeft, true);

@@ -2,6 +2,17 @@
 
 Alle noemenswaardige wijzigingen in RoughStart. Formaat volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/), versies volgen [SemVer](https://semver.org/lang/nl/).
 
+## [0.6.0] - 2026-11-10
+
+### Toegevoegd
+- **Tooltips** op alle knoppen en instellingen, en in het overzicht op spoornaam en status. Het tooltipvenster is een kind van de editor (geen los venster, dus geen geflikker in Logic).
+- **Universal binary**: werkt op Apple Silicon en Intel. Tests en auval slagen op beide architecturen.
+- **Testpakket**: `scripts/package.sh` maakt `dist/RoughStart-<versie>.zip` met de plugin, een installatiebriefje (`docs/INSTALL.md`, NL + EN, met feedbackvragen) en de handleiding.
+
+### Gewijzigd
+- Spoorkleuren bewust niet toegevoegd: Audio Units geven in Logic alleen de spoornaam door, geen kleur (alleen VST3 en AAX doen dat).
+- Lange spoornamen in het overzicht worden van vóren afgekapt ("…Be With You_Drums"), zodat het onderscheidende einde zichtbaar blijft. De volledige naam staat in de tooltip.
+
 ## [0.5.1] - 2026-11-10
 
 ### Toegevoegd

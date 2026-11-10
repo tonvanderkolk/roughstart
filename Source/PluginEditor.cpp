@@ -50,7 +50,19 @@ RoughStartEditor::RoughStartEditor (RoughStartProcessor& p)
     }
     trackViewButton.setConnectedEdges (juce::Button::ConnectedOnRight);
     overviewButton.setConnectedEdges (juce::Button::ConnectedOnLeft);
-    helpButton.setTooltip ("How RoughStart works");
+    helpButton.setTooltip ("Open the manual: how RoughStart works.");
+    trackViewButton.setTooltip ("Settings and result for this track.");
+    overviewButton.setTooltip ("All RoughStart tracks in this project in one table.");
+    presetBox.setTooltip ("Choose a preset. Shows (custom) when the settings match no preset.");
+    presetMenuButton.setTooltip ("Save, import, export or delete presets, choose the default for new instances.");
+    modeBox.setTooltip ("Peak: aim the loudest moment at the target. RMS: aim the average level at the target.");
+    applyAllButton.setTooltip ("Copy Mode, both targets and Peak ceiling to every RoughStart in the project. Measurements and Trim stay per track.");
+    targetPeakSlider.setTooltip ("Level the loudest moment of the track should end up at.");
+    targetRmsSlider.setTooltip ("Average level the track should end up at.");
+    ceilingSlider.setTooltip ("Auto never raises the track's peak above this level.");
+    analyzeButton.setTooltip ("Measure this track while Logic plays. Stops by itself when playback stops.");
+    trimSlider.setTooltip ("Your own adjustment on top of Auto. Can be automated. Double-click for 0 dB.");
+    analyzeAllButton.setTooltip ("Measure every RoughStart track at once during the next playback.");
     helpButton.onClick = [this] { help.setVisible (! help.isVisible()); help.toFront (false); };
     addAndMakeVisible (helpButton);
 

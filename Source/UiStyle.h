@@ -15,6 +15,26 @@ namespace roughstart::ui
     inline const juce::Colour info          { 0xff7fb2e5 };   // neutrale melding, geen fout
     inline const juce::Colour dimText       { 0xffa8b0b8 };
 
+    /**
+        Kapt tekst van vóren af als hij niet past ("…Be With You_Drums"), zodat
+        het onderscheidende einde van een spoornaam zichtbaar blijft.
+    */
+    inline juce::String fitFromStart (const juce::String& text, const juce::Font& font, float maxWidth)
+    {
+        if (juce::GlyphArrangement::getStringWidth (font, text) <= maxWidth)
+            return text;
+
+        const auto ellipsis = juce::String::fromUTF8 ("\xe2\x80\xa6");
+        for (int i = 1; i < text.length(); ++i)
+        {
+            const auto candidate = ellipsis + text.substring (i).trimStart();
+            if (juce::GlyphArrangement::getStringWidth (font, candidate) <= maxWidth)
+                return candidate;
+        }
+
+        return ellipsis;
+    }
+
     inline juce::String formatDb (float db, bool withSign)
     {
         if (db <= roughstart::minusInfinityDb)

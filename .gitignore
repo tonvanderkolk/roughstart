@@ -7,3 +7,4 @@ xcuserdata/
 *.vst3
 .vscode/
 .idea/
+dist/

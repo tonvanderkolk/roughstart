@@ -98,6 +98,7 @@ private:
     std::unique_ptr<juce::FileChooser> fileChooser;
 
     HelpOverlay help;
+    juce::TooltipWindow tooltipWindow { this, 600 };   // kind van de editor, geen los venster
     InlinePrompt prompt;   // als laatste: ligt boven alles
 
     juce::String noticeText;

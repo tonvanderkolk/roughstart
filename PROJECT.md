@@ -10,7 +10,7 @@ Versie: zie `VERSION`. Achtergrond, besluiten en mijlpalen: zie `HANDOVER.md` en
 
 ## Stack
 - C++20, JUCE 9 (git-submodule in `JUCE/`), CMake + Ninja
-- macOS 12+, arm64
+- macOS 12+, Universal binary (arm64 + x86_64)
 - Bouwen kan met alleen de Command Line Tools; volledige Xcode is optioneel (debuggen)
 
 ## Bouwen
@@ -20,6 +20,12 @@ cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
 cmake --build build
 ```
 De `.component` wordt na het bouwen automatisch gekopieerd naar `~/Library/Audio/Plug-Ins/Components/`.
+
+## Testpakket voor anderen
+```bash
+./scripts/package.sh
+```
+Maakt `dist/RoughStart-<versie>.zip` met de plugin, `docs/INSTALL.md` en `docs/MANUAL.md`. Niet ondertekend: testers halen de quarantainemarkering eraf (staat in INSTALL.md).
 
 ## Testen
 ```bash

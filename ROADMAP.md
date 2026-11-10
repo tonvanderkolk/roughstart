@@ -8,6 +8,7 @@
 - [x] **v0.4 Overzicht:** overzichtsvenster met sorteerbare kolommen, presets import/export. *(getest in Logic Pro 12 op 2026-11-10; CSV-export geschrapt)*
 - [x] **v0.4.1:** knop Apply to all. *(getest in Logic Pro 12 op 2026-11-10)*
 - [x] **v0.5:** factory presets, eigen standaard voor nieuwe instances, handleiding in de plugin; v0.5.1 toont Mono/Stereo en rondt stille sporen af bij Analyze All. *(getest in Logic Pro 12 op 2026-11-10)*
+- [x] **v0.6 Testronde:** spoornamen van vóren afkappen, tooltips, Universal binary, testpakket met installatiebriefje. *(getest in Logic Pro 12 op 2026-11-10)*
 - [ ] **v1.0 Afronding:** UI polijsten, `auval` schoon, signing.
 
 ## Besluiten
@@ -17,14 +18,18 @@
 - Meting wordt vastgezet; Auto wordt afgeleid van meting + doel, dus doel wijzigen vraagt geen nieuwe analyse.
 
 ## Misschien later
+- Visuele meter: gemeten niveau, doel en plafond in één balk.
+- Eigen uitstraling: lettertype, schuiven, logo.
+- Venstergrootte schalen (100/125/150%).
 - CSV-export van het overzicht. Alleen nuttig om een mix te delen met iemand zonder RoughStart; stems exporteren of een screenshot van het overzicht dekt dat meestal al.
 - Trim aanpassen vanuit het overzicht.
 
 ## Aandachtspunten
 - Logic laadt plug-ins op sporen zonder regio's pas als er iets op komt. Die instances bestaan dan nog niet en staan niet in de registry (relevant voor het overzicht in v0.4).
 
+- Spoorkleur is in AU niet beschikbaar: Logic geeft aan Audio Units alleen de naam door.
+
 ## Open vragen
 - JUCE-licentie bij publiek delen (AGPLv3 of commerciële licentie).
 - Apple Developer ID voor signing en notarisatie.
-- Alleen arm64 of Universal binary.
 - Gedrag bij spoor zonder signaal tijdens Analyze All (voorstel: Auto ongewijzigd, markeren in overzicht).

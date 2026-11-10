@@ -26,6 +26,7 @@ private:
     void paintRowBackground (juce::Graphics&, int row, int width, int height, bool selected) override;
     void paintCell (juce::Graphics&, int row, int columnId, int width, int height, bool selected) override;
     void sortOrderChanged (int newSortColumnId, bool isForwards) override;
+    juce::String getCellTooltip (int row, int columnId) override;
 
     void timerCallback() override;
     void refresh();
