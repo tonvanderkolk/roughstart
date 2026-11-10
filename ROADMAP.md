@@ -1,6 +1,6 @@
 # Roadmap RoughStart
 
-- [ ] **v0.1 Proof of concept:** twee of meer instances in Logic 12 vinden elkaar; een knop in één instance laat alle instances reageren. *(gebouwd, test in Logic nog te doen)*
+- [x] **v0.1 Proof of concept:** twee of meer instances in Logic 12 vinden elkaar; een knop in één instance laat alle instances reageren. *(getest in Logic Pro 12 op 2026-11-10: instances vinden elkaar, Ping all werkt, spoornamen komen door)*
 - [ ] **v0.2 Eén instance:** meten (piek/RMS, stiltefilter), Auto-gain, Trim, opslaan in project.
 - [ ] **v0.3 Analyze All:** gezamenlijke analyse over alle instances, gekoppeld aan transport.
 - [ ] **v0.4 Overzicht:** overzichtsvenster met sorteerbare kolommen, CSV-export, presets import/export.
