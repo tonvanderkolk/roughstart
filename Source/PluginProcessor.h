@@ -4,7 +4,8 @@
 #include "InstanceRegistry.h"
 #include "LevelMeter.h"
 
-class RoughStartProcessor final : public juce::AudioProcessor
+class RoughStartProcessor final : public juce::AudioProcessor,
+                                  private juce::Timer
 {
 public:
     RoughStartProcessor();
@@ -67,10 +68,20 @@ public:
     float getAutoGainDb() const noexcept { return getAutoGain().gainDb; }
     float getTotalGainDb() const noexcept { return getAutoGainDb() + getTrimDb(); }
 
+    enum class AnalysisState  { idle, waitingForPlayback, measuring };
+    enum class AnalysisResult { none, stored, noSignal };
+
+    /**
+        Zet de analyse klaar. Er wordt alleen gemeten zolang de host afspeelt;
+        stopt de host (na afspelen), dan stopt de analyse vanzelf en wordt de
+        meting vastgezet. Zonder transportinfo wordt altijd gemeten.
+    */
     void startAnalysis();
     /** Stopt de analyse. Geeft false als er geen signaal was; Auto blijft dan staan. */
     bool stopAnalysis();
     bool isAnalyzing() const noexcept { return analyzing.load(); }
+    AnalysisState getAnalysisState() const noexcept;
+    AnalysisResult getLastAnalysisResult() const noexcept { return (AnalysisResult) lastResult.load(); }
 
     //==============================================================================
     InstanceRegistry& getRegistry() noexcept { return *registry; }
@@ -112,6 +123,14 @@ private:
     std::atomic<bool>  liveValid { false };
     std::atomic<float> livePeakDb { roughstart::minusInfinityDb };
     std::atomic<float> liveRmsDb  { roughstart::minusInfinityDb };
+
+    // Transport: audiothread schrijft, timer (berichtthread) leest
+    std::atomic<bool>   hostPlaying { false };
+    std::atomic<bool>   sawPlayback { false };
+    std::atomic<double> lastBlockMs { 0.0 };
+    std::atomic<int>    lastResult { (int) AnalysisResult::none };
+
+    void timerCallback() override;
 
     juce::SmoothedValue<float> smoothedGain { 1.0f };
 

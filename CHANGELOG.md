@@ -2,6 +2,14 @@
 
 Alle noemenswaardige wijzigingen in RoughStart. Formaat volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/), versies volgen [SemVer](https://semver.org/lang/nl/).
 
+## [0.2.2] - 2026-11-10
+
+### Gewijzigd
+- Analyse volgt het transport: er wordt alleen gemeten zolang Logic afspeelt. Klik je op Analyze terwijl Logic stilstaat, dan wacht de plugin tot je afspeelt ("Waiting for playback...", knop "Cancel").
+- Stopt Logic na het afspelen, dan stopt de analyse vanzelf en wordt de meting vastgezet. Handmatig Stop blijft werken.
+- Vangnet: komen er na het afspelen 1,5 seconde geen audioblokken meer binnen, dan geldt dat ook als gestopt.
+- Status (wachten, meten, opgeslagen, geen signaal) komt uit de processor, dus klopt ook als het venster dicht was.
+
 ## [0.2.1] - 2026-11-10
 
 ### Toegevoegd

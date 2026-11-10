@@ -19,6 +19,10 @@ namespace
 
     constexpr double gainRampSeconds = 0.05;
 
+    // Komen er na afspelen zo lang geen audioblokken meer, dan geldt dat ook als
+    // gestopt (vangnet voor hosts die bij stop niet meer verwerken).
+    constexpr double staleBlockMs = 1500.0;
+
     juce::String dbText (float value, int)
     {
         return juce::String (value, 1) + " dB";
@@ -72,10 +76,12 @@ RoughStartProcessor::RoughStartProcessor()
     ceilingParam    = parameters.getRawParameterValue (ids::ceiling);
 
     instanceNumber = registry->add (this);
+    startTimerHz (20);
 }
 
 RoughStartProcessor::~RoughStartProcessor()
 {
+    stopTimer();
     registry->remove (this);
 }
 
@@ -122,6 +128,8 @@ roughstart::AutoGainResult RoughStartProcessor::getAutoGain() const noexcept
 
 void RoughStartProcessor::startAnalysis()
 {
+    sawPlayback = false;
+    lastResult = (int) AnalysisResult::none;
     liveValid = false;
     livePeakDb = roughstart::minusInfinityDb;
     liveRmsDb = roughstart::minusInfinityDb;
@@ -135,12 +143,35 @@ bool RoughStartProcessor::stopAnalysis()
         return false;
 
     if (! liveValid.load())
+    {
+        lastResult = (int) AnalysisResult::noSignal;
         return false;   // geen signaal: vorige meting (en dus Auto) blijft staan
+    }
 
     storedPeakDb = livePeakDb.load();
     storedRmsDb = liveRmsDb.load();
     storedValid = true;
+    lastResult = (int) AnalysisResult::stored;
     return true;
+}
+
+RoughStartProcessor::AnalysisState RoughStartProcessor::getAnalysisState() const noexcept
+{
+    if (! analyzing.load())
+        return AnalysisState::idle;
+
+    return sawPlayback.load() ? AnalysisState::measuring : AnalysisState::waitingForPlayback;
+}
+
+void RoughStartProcessor::timerCallback()
+{
+    if (! analyzing.load() || ! sawPlayback.load())
+        return;
+
+    const bool stale = juce::Time::getMillisecondCounterHiRes() - lastBlockMs.load() > staleBlockMs;
+
+    if (! hostPlaying.load() || stale)
+        stopAnalysis();
 }
 
 //==============================================================================
@@ -174,10 +205,21 @@ void RoughStartProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
     for (auto ch = numInputs; ch < getTotalNumOutputChannels(); ++ch)
         buffer.clear (ch, 0, numSamples);
 
+    // 0. Transport volgen. Zonder transportinfo (bijv. auval) geldt: speelt.
+    bool playing = true;
+    if (auto* playHead = getPlayHead())
+        if (auto position = playHead->getPosition())
+            playing = position->getIsPlaying();
+
+    hostPlaying = playing;
+    lastBlockMs = juce::Time::getMillisecondCounterHiRes();
+
     // 1. Meten op het ingangssignaal (vóór de gain), zodat opnieuw analyseren
-    //    niet afhangt van de huidige Auto- of Trim-stand.
-    if (analyzing.load())
+    //    niet afhangt van de huidige Auto- of Trim-stand. Alleen tijdens afspelen.
+    if (analyzing.load() && playing)
     {
+        sawPlayback = true;
+
         if (resetMeterPending.exchange (false))
             meter.reset();
 

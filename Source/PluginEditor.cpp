@@ -180,17 +180,9 @@ void RoughStartEditor::resized()
 void RoughStartEditor::toggleAnalysis()
 {
     if (rsProcessor.isAnalyzing())
-    {
-        const bool gotSignal = rsProcessor.stopAnalysis();
-        statusLabel.setText (gotSignal ? "Measurement stored."
-                                       : "No signal measured, Auto unchanged.",
-                             juce::dontSendNotification);
-    }
+        rsProcessor.stopAnalysis();
     else
-    {
         rsProcessor.startAnalysis();
-        statusLabel.setText ("Measuring... play the track, then click Stop.", juce::dontSendNotification);
-    }
 
     refreshLevels();
 }
@@ -209,9 +201,29 @@ void RoughStartEditor::updateTargetVisibility()
 
 void RoughStartEditor::refreshLevels()
 {
-    const bool analyzing = rsProcessor.isAnalyzing();
+    using State = RoughStartProcessor::AnalysisState;
+    using Result = RoughStartProcessor::AnalysisResult;
 
-    analyzeButton.setButtonText (analyzing ? "Stop" : "Analyze");
+    const auto state = rsProcessor.getAnalysisState();
+    const bool analyzing = state != State::idle;
+
+    juce::String status;
+    switch (state)
+    {
+        case State::waitingForPlayback: status = "Waiting for playback..."; break;
+        case State::measuring:          status = "Measuring... stops when playback stops."; break;
+        case State::idle:
+            switch (rsProcessor.getLastAnalysisResult())
+            {
+                case Result::stored:   status = "Measurement stored."; break;
+                case Result::noSignal: status = "No signal measured, Auto unchanged."; break;
+                case Result::none:     break;
+            }
+            break;
+    }
+    statusLabel.setText (status, juce::dontSendNotification);
+
+    analyzeButton.setButtonText (state == State::waitingForPlayback ? "Cancel" : analyzing ? "Stop" : "Analyze");
     analyzeButton.setColour (juce::TextButton::buttonColourId,
                              analyzing ? analyzeColour : getLookAndFeel().findColour (juce::TextButton::buttonColourId));
 
