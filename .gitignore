@@ -1,0 +1,9 @@
+build/
+Builds/
+*.xcodeproj/
+xcuserdata/
+.DS_Store
+*.component
+*.vst3
+.vscode/
+.idea/
