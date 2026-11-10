@@ -21,6 +21,11 @@ cmake --build build
 ```
 De `.component` wordt na het bouwen automatisch gekopieerd naar `~/Library/Audio/Plug-Ins/Components/`.
 
+## Testen
+```bash
+./build/RoughStartTests_artefacts/Release/RoughStartTests
+```
+
 ## Valideren
 ```bash
 auval -v aufx RgSt TvdK
@@ -28,8 +33,9 @@ auval -v aufx RgSt TvdK
 
 ## Structuur
 - `Source/InstanceRegistry.*`: gedeelde lijst van alle instances in het hostproces (via `juce::SharedResourcePointer`). Werkt omdat Logic AUv2 in-process laadt.
-- `Source/PluginProcessor.*`: audioverwerking, spoornaam, ping-teller.
-- `Source/PluginEditor.*`: UI (aantal instances, spoornamen, "Ping all", indicator).
+- `Source/LevelMeter.h`: meting (piek/RMS, stiltefilter) en dB-rekenwerk, zonder JUCE; getest in `Tests/`.
+- `Source/PluginProcessor.*`: parameters, analyse, Auto + Trim, state, spoornaam, ping-teller.
+- `Source/PluginEditor.*`: UI (meetmethode, doel, Analyze, Auto, Trim, instances, Ping all).
 
 ## Afspraken
 - `VERSION` en `CHANGELOG.md` bij elke wijziging bijwerken.

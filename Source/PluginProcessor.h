@@ -2,6 +2,7 @@
 
 #include <juce_audio_processors/juce_audio_processors.h>
 #include "InstanceRegistry.h"
+#include "LevelMeter.h"
 
 class RoughStartProcessor final : public juce::AudioProcessor
 {
@@ -32,14 +33,44 @@ public:
     const juce::String getProgramName (int) override { return {}; }
     void changeProgramName (int, const juce::String&) override {}
 
-    void getStateInformation (juce::MemoryBlock&) override {}
-    void setStateInformation (const void*, int) override {}
+    void getStateInformation (juce::MemoryBlock&) override;
+    void setStateInformation (const void*, int) override;
 
     void updateTrackProperties (const TrackProperties& properties) override;
 
     //==============================================================================
-    InstanceRegistry& getRegistry() noexcept { return *registry; }
+    enum class Mode { peak = 0, rms = 1 };
 
+    struct Measurement
+    {
+        bool valid = false;
+        float peakDb = roughstart::minusInfinityDb;
+        float rmsDb  = roughstart::minusInfinityDb;
+    };
+
+    juce::AudioProcessorValueTreeState parameters;
+
+    Mode getMode() const noexcept;
+    float getTargetDb() const noexcept;          // doel van de actieve meetmethode
+    float getTrimDb() const noexcept;
+
+    /** Laatst vastgezette meting (Analyze & Hold). */
+    Measurement getStoredMeasurement() const noexcept;
+
+    /** Lopende meting tijdens analyse (valid = er is al niet-stil signaal gezien). */
+    Measurement getLiveMeasurement() const noexcept;
+
+    /** Auto-gain uit de vastgezette meting en het huidige doel; 0 zonder meting. */
+    float getAutoGainDb() const noexcept;
+    float getTotalGainDb() const noexcept { return getAutoGainDb() + getTrimDb(); }
+
+    void startAnalysis();
+    /** Stopt de analyse. Geeft false als er geen signaal was; Auto blijft dan staan. */
+    bool stopAnalysis();
+    bool isAnalyzing() const noexcept { return analyzing.load(); }
+
+    //==============================================================================
+    InstanceRegistry& getRegistry() noexcept { return *registry; }
     int getInstanceNumber() const noexcept { return instanceNumber; }
 
     /** Spoornaam van de host, of "Instance N" als de host die niet doorgeeft. */
@@ -50,13 +81,35 @@ public:
     juce::uint32 getPingCount() const noexcept { return pingCount.load(); }
 
 private:
+    static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
+
     juce::SharedResourcePointer<InstanceRegistry> registry;
     int instanceNumber = 0;
 
     mutable juce::CriticalSection nameLock;
     juce::String trackName;
-
     std::atomic<juce::uint32> pingCount { 0 };
+
+    // Parameters (raw pointers van de APVTS, thread-safe te lezen)
+    std::atomic<float>* modeParam = nullptr;
+    std::atomic<float>* targetPeakParam = nullptr;
+    std::atomic<float>* targetRmsParam = nullptr;
+    std::atomic<float>* trimParam = nullptr;
+
+    // Vastgezette meting
+    std::atomic<bool>  storedValid { false };
+    std::atomic<float> storedPeakDb { roughstart::minusInfinityDb };
+    std::atomic<float> storedRmsDb  { roughstart::minusInfinityDb };
+
+    // Lopende analyse: audiothread schrijft, berichtthread leest
+    roughstart::LevelMeter meter;
+    std::atomic<bool>  analyzing { false };
+    std::atomic<bool>  resetMeterPending { false };
+    std::atomic<bool>  liveValid { false };
+    std::atomic<float> livePeakDb { roughstart::minusInfinityDb };
+    std::atomic<float> liveRmsDb  { roughstart::minusInfinityDb };
+
+    juce::SmoothedValue<float> smoothedGain { 1.0f };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RoughStartProcessor)
 };

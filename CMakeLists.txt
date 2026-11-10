@@ -37,8 +37,7 @@ target_sources(RoughStart PRIVATE
 target_compile_definitions(RoughStart PUBLIC
     JUCE_WEB_BROWSER=0
     JUCE_USE_CURL=0
-    JUCE_VST3_CAN_REPLACE_VST2=0
-    JUCE_DISPLAY_SPLASH_SCREEN=0)
+    JUCE_VST3_CAN_REPLACE_VST2=0)
 
 target_link_libraries(RoughStart
     PRIVATE
@@ -47,3 +46,19 @@ target_link_libraries(RoughStart
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags
         juce::juce_recommended_warning_flags)
+
+#==============================================================================
+# Tests (los van de plugin, alleen juce_core)
+option(ROUGHSTART_BUILD_TESTS "Bouw de unit tests" ON)
+
+if(ROUGHSTART_BUILD_TESTS)
+    juce_add_console_app(RoughStartTests PRODUCT_NAME "RoughStartTests")
+    target_sources(RoughStartTests PRIVATE Tests/RoughStartTests.cpp)
+    target_compile_definitions(RoughStartTests PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+    target_link_libraries(RoughStartTests
+        PRIVATE
+            juce::juce_core
+        PUBLIC
+            juce::juce_recommended_config_flags
+            juce::juce_recommended_warning_flags)
+endif()
