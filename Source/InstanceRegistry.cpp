@@ -92,3 +92,43 @@ InstanceRegistry::BatchSummary InstanceRegistry::getBatchSummary() const
 
     return s;
 }
+
+//==============================================================================
+std::vector<InstanceRegistry::OverviewRow> InstanceRegistry::getOverview() const
+{
+    const juce::ScopedLock sl (lock);
+    std::vector<OverviewRow> rows;
+    rows.reserve (instances.size());
+
+    for (auto* instance : instances)
+    {
+        const auto m = instance->getStoredMeasurement();
+        const auto autoGain = instance->getAutoGain();
+
+        OverviewRow r;
+        r.instanceNumber   = instance->getInstanceNumber();
+        r.trackName        = instance->getDisplayName();
+        r.mode             = instance->getMode() == RoughStartProcessor::Mode::rms ? 1 : 0;
+        r.measured         = m.valid;
+        r.peakDb           = m.peakDb;
+        r.rmsDb            = m.rmsDb;
+        r.autoDb           = autoGain.gainDb;
+        r.limitedByCeiling = autoGain.limitedByCeiling;
+        r.trimDb           = instance->getTrimDb();
+        r.totalDb          = autoGain.gainDb + r.trimDb;
+        r.analysisState    = (int) instance->getAnalysisState();
+        rows.push_back (r);
+    }
+
+    return rows;
+}
+
+int InstanceRegistry::applyTargetSettingsToAll (const roughstart::TargetSettings& settings)
+{
+    const juce::ScopedLock sl (lock);
+
+    for (auto* instance : instances)
+        instance->applyTargetSettings (settings);
+
+    return (int) instances.size();
+}

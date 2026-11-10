@@ -32,7 +32,9 @@ juce_add_plugin(RoughStart
 target_sources(RoughStart PRIVATE
     Source/PluginProcessor.cpp
     Source/PluginEditor.cpp
-    Source/InstanceRegistry.cpp)
+    Source/InstanceRegistry.cpp
+    Source/PresetManager.cpp
+    Source/OverviewComponent.cpp)
 
 target_compile_definitions(RoughStart PUBLIC
     JUCE_WEB_BROWSER=0
@@ -53,7 +55,7 @@ option(ROUGHSTART_BUILD_TESTS "Bouw de unit tests" ON)
 
 if(ROUGHSTART_BUILD_TESTS)
     juce_add_console_app(RoughStartTests PRODUCT_NAME "RoughStartTests")
-    target_sources(RoughStartTests PRIVATE Tests/RoughStartTests.cpp)
+    target_sources(RoughStartTests PRIVATE Tests/RoughStartTests.cpp Source/PresetManager.cpp)
     target_compile_definitions(RoughStartTests PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
     target_link_libraries(RoughStartTests
         PRIVATE

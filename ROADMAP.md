@@ -5,7 +5,7 @@
 - [x] **v0.2.1:** piekplafond voor Auto, meeschuivende stiltedrempel, UI in het Engels. *(getest in Logic Pro 12 op 2026-11-10)*
 - [x] **v0.2.2:** analyse gekoppeld aan transport (stopt vanzelf als Logic stopt). *(getest in Logic Pro 12 op 2026-11-10)*
 - [x] **v0.3 Analyze All:** gezamenlijke analyse over alle instances, gekoppeld aan transport. *(getest in Logic Pro 12 op 2026-11-10; Stop All stopt de analyse, afspelen loopt door)*
-- [ ] **v0.4 Overzicht:** overzichtsvenster met sorteerbare kolommen, CSV-export, presets import/export.
+- [x] **v0.4 Overzicht:** overzichtsvenster met sorteerbare kolommen, presets import/export. *(getest in Logic Pro 12 op 2026-11-10; CSV-export geschrapt)*
 - [ ] **v1.0 Afronding:** UI polijsten, `auval` schoon, signing.
 
 ## Besluiten
@@ -13,6 +13,10 @@
 - Piekplafond standaard -6 dBFS; geldt alleen voor Auto, Trim mag er bewust overheen.
 - UI en parameternamen in het Engels (plugin is bedoeld om later wereldwijd te delen); documentatie blijft Nederlands.
 - Meting wordt vastgezet; Auto wordt afgeleid van meting + doel, dus doel wijzigen vraagt geen nieuwe analyse.
+
+## Misschien later
+- CSV-export van het overzicht. Alleen nuttig om een mix te delen met iemand zonder RoughStart; stems exporteren of een screenshot van het overzicht dekt dat meestal al.
+- Trim aanpassen vanuit het overzicht.
 
 ## Aandachtspunten
 - Logic laadt plug-ins op sporen zonder regio's pas als er iets op komt. Die instances bestaan dan nog niet en staan niet in de registry (relevant voor het overzicht in v0.4).

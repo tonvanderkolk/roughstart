@@ -3,6 +3,7 @@
 #include <juce_audio_processors/juce_audio_processors.h>
 #include "InstanceRegistry.h"
 #include "LevelMeter.h"
+#include "PresetManager.h"
 
 class RoughStartProcessor final : public juce::AudioProcessor,
                                   private juce::Timer
@@ -62,6 +63,13 @@ public:
     Measurement getLiveMeasurement() const noexcept;
 
     float getCeilingDb() const noexcept;
+
+    /** Doelinstellingen (methode, doelen, plafond) lezen en zetten. Zetten alleen vanaf de berichtthread. */
+    roughstart::TargetSettings getTargetSettings() const noexcept;
+    void applyTargetSettings (const roughstart::TargetSettings& settings);
+
+    /** Laatst gekozen weergave in de editor (0 = Track, 1 = Overview); niet opgeslagen. */
+    int lastEditorView = 0;
 
     /** Auto-gain uit de vastgezette meting, het doel en het plafond; 0 zonder meting. */
     roughstart::AutoGainResult getAutoGain() const noexcept;

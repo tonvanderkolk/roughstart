@@ -2,6 +2,20 @@
 
 Alle noemenswaardige wijzigingen in RoughStart. Formaat volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/), versies volgen [SemVer](https://semver.org/lang/nl/).
 
+## [0.4.0] - 2026-11-10
+
+### Toegevoegd
+- **Overview**: tweede weergave in de plugin (knoppen Track / Overview rechtsboven) met een tabel van alle RoughStart-instances: Track, Mode, Peak, RMS, Auto, Trim, Total en Status. Kolommen sorteerbaar door op de kop te klikken; niet-gemeten sporen staan bij getalkolommen altijd onderaan. Het eigen spoor is gemarkeerd. Analyze All werkt ook vanuit het overzicht.
+- **Presets** voor de doelinstellingen (methode, beide doelen, plafond), als `.rspreset`-bestanden in `~/Library/Application Support/RoughStart/Presets`.
+  - Keuzelijst toont de preset die bij de huidige instellingen past, anders "(custom)".
+  - Menu "Presets...": opslaan, instellingen op alle sporen toepassen, importeren, exporteren, verwijderen (met bevestiging), presetmap tonen, terug naar standaard.
+- Unit tests voor PresetManager (opslaan/laden, namen opschonen, import/export, ongeldige bestanden, begrenzen).
+- Naam invullen bij opslaan en bevestigen bij verwijderen gebeurt in een laag binnen de plugin zelf, niet in een los venster (een los venster flikkerde in Logic).
+
+### Gewijzigd
+- Schuiven (Target, Peak ceiling, Trim) reageren niet meer op scrollen, zodat ze niet per ongeluk verschuiven.
+- Als het plafond ingrijpt heet de status nu "Peak at ceiling", in een neutrale kleur in plaats van oranje: het is informatie, geen fout.
+
 ## [0.3.0] - 2026-11-10
 
 ### Toegevoegd

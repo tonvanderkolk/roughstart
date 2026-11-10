@@ -116,6 +116,30 @@ float RoughStartProcessor::getCeilingDb() const noexcept
     return ceilingParam->load();
 }
 
+roughstart::TargetSettings RoughStartProcessor::getTargetSettings() const noexcept
+{
+    roughstart::TargetSettings s;
+    s.mode         = getMode() == Mode::rms ? 1 : 0;
+    s.targetPeakDb = targetPeakParam->load();
+    s.targetRmsDb  = targetRmsParam->load();
+    s.ceilingDb    = ceilingParam->load();
+    return s;
+}
+
+void RoughStartProcessor::applyTargetSettings (const roughstart::TargetSettings& s)
+{
+    auto set = [this] (const juce::String& id, float value)
+    {
+        if (auto* p = parameters.getParameter (id))
+            p->setValueNotifyingHost (p->convertTo0to1 (value));
+    };
+
+    set (ids::mode, (float) s.mode);
+    set (ids::targetPeak, s.targetPeakDb);
+    set (ids::targetRms, s.targetRmsDb);
+    set (ids::ceiling, s.ceilingDb);
+}
+
 roughstart::AutoGainResult RoughStartProcessor::getAutoGain() const noexcept
 {
     if (! storedValid.load())

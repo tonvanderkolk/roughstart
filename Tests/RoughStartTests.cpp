@@ -1,5 +1,6 @@
 #include <juce_core/juce_core.h>
 #include "../Source/LevelMeter.h"
+#include "../Source/PresetManager.h"
 
 #include <vector>
 
@@ -161,6 +162,79 @@ struct LevelMeterTests final : juce::UnitTest
 };
 
 static LevelMeterTests levelMeterTests;
+
+struct PresetManagerTests final : juce::UnitTest
+{
+    PresetManagerTests() : juce::UnitTest ("PresetManager", "RoughStart") {}
+
+    void runTest() override
+    {
+        const auto dir = juce::File::getSpecialLocation (juce::File::tempDirectory)
+                             .getChildFile ("RoughStartTests_" + juce::Uuid().toString());
+        PresetManager pm (dir);
+
+        TargetSettings rms;
+        rms.mode = 1;
+        rms.targetRmsDb = -20.0f;
+        rms.ceilingDb = -8.0f;
+
+        beginTest ("Opslaan en laden geeft dezelfde instellingen");
+        {
+            expect (pm.save ("Drums RMS", rms));
+            const auto loaded = pm.load ("Drums RMS");
+            expect (loaded.has_value());
+            expect (*loaded == rms);
+            expect (pm.getPresetNames().contains ("Drums RMS"));
+        }
+
+        beginTest ("Ongeldige tekens in de naam worden verwijderd");
+        {
+            expectEquals (PresetManager::sanitiseName (" a/b:c? "), juce::String ("abc"));
+            expect (! pm.save ("///", rms));
+        }
+
+        beginTest ("Export en import, met unieke naam bij dubbel");
+        {
+            const auto exported = dir.getChildFile ("export_test.xml");
+            expect (pm.exportPreset ("Drums RMS", exported));
+
+            const auto imported = pm.importFile (exported);
+            expectEquals (imported, juce::String ("Drums RMS (2)"));
+            expect (*pm.load (imported) == rms);
+        }
+
+        beginTest ("Ongeldige bestanden worden geweigerd");
+        {
+            const auto bad = dir.getChildFile ("bad.rspreset");
+            bad.replaceWithText ("<SomethingElse/>");
+            expect (pm.importFile (bad).isEmpty());
+            expect (! pm.getPresetNames().contains ("bad"));
+        }
+
+        beginTest ("Waarden buiten bereik worden begrensd");
+        {
+            juce::XmlElement xml ("RoughStartPreset");
+            xml.setAttribute ("mode", "rms");
+            xml.setAttribute ("ceilingDb", 12.0);
+            xml.setAttribute ("targetRmsDb", -99.0);
+            const auto s = PresetManager::fromXml (xml);
+            expect (s.has_value());
+            expectEquals (s->ceilingDb, 0.0f);
+            expectEquals (s->targetRmsDb, -40.0f);
+            expectEquals (s->targetPeakDb, -12.0f);
+        }
+
+        beginTest ("Verwijderen");
+        {
+            expect (pm.remove ("Drums RMS"));
+            expect (! pm.exists ("Drums RMS"));
+        }
+
+        dir.deleteRecursively();
+    }
+};
+
+static PresetManagerTests presetManagerTests;
 
 int main()
 {

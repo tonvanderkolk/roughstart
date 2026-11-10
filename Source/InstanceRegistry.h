@@ -2,6 +2,7 @@
 
 #include <juce_core/juce_core.h>
 #include <vector>
+#include "PresetManager.h"
 
 class RoughStartProcessor;
 
@@ -50,6 +51,25 @@ public:
 
     /** Stand van de laatste Analyze All; total == 0 als er nog geen was. */
     BatchSummary getBatchSummary() const;
+
+    //==============================================================================
+    /** Eén regel in het overzichtsvenster: momentopname van één instance. */
+    struct OverviewRow
+    {
+        int instanceNumber = 0;
+        juce::String trackName;
+        int mode = 0;                 // 0 = Peak, 1 = RMS
+        bool measured = false;
+        float peakDb = 0.0f, rmsDb = 0.0f;
+        float autoDb = 0.0f, trimDb = 0.0f, totalDb = 0.0f;
+        bool limitedByCeiling = false;
+        int analysisState = 0;        // RoughStartProcessor::AnalysisState
+    };
+
+    std::vector<OverviewRow> getOverview() const;
+
+    /** Zet methode, doelen en plafond van alle instances gelijk. Alleen vanaf de berichtthread. */
+    int applyTargetSettingsToAll (const roughstart::TargetSettings& settings);
 
     //==============================================================================
     /** Verhoogt bij elke aan- of afmelding; editors gebruiken dit om te verversen. */
