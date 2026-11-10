@@ -25,7 +25,7 @@ De `.component` wordt na het bouwen automatisch gekopieerd naar `~/Library/Audio
 ```bash
 ./scripts/package.sh
 ```
-Maakt `dist/RoughStart-<versie>.zip` met de plugin, `docs/INSTALL.md` en `docs/MANUAL.md`. Niet ondertekend: testers halen de quarantainemarkering eraf (staat in INSTALL.md).
+Maakt `dist/RoughStart-<versie>.zip` met de plugin en `docs/INSTALL.md` en `docs/MANUAL.md` als PDF (vereist Google Chrome en Python-module `markdown`). Niet ondertekend: testers halen de quarantainemarkering eraf (staat in INSTALL.md).
 
 ## Testen
 ```bash

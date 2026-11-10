@@ -17,8 +17,9 @@ echo "Architecturen: $(lipo -archs "$COMPONENT/Contents/MacOS/RoughStart")"
 rm -rf "$OUT" "dist/$NAME.zip"
 mkdir -p "$OUT"
 cp -R "$COMPONENT" "$OUT/"
-cp docs/INSTALL.md "$OUT/LEESMIJ - Installeren.md"
-cp docs/MANUAL.md "$OUT/Manual.md"
+# Documentatie als PDF: opent op elke Mac (Voorvertoning), ook zonder Markdown-app
+python3 scripts/md2pdf.py docs/INSTALL.md "$OUT/LEESMIJ - Installeren.pdf"
+python3 scripts/md2pdf.py docs/MANUAL.md "$OUT/RoughStart Manual.pdf"
 
 # ditto behoudt de bundelstructuur van de .component
 ditto -c -k --norsrc --keepParent "$OUT" "dist/$NAME.zip"

@@ -7,7 +7,7 @@ Alle noemenswaardige wijzigingen in RoughStart. Formaat volgt [Keep a Changelog]
 ### Toegevoegd
 - **Tooltips** op alle knoppen en instellingen, en in het overzicht op spoornaam en status. Het tooltipvenster is een kind van de editor (geen los venster, dus geen geflikker in Logic).
 - **Universal binary**: werkt op Apple Silicon en Intel. Tests en auval slagen op beide architecturen.
-- **Testpakket**: `scripts/package.sh` maakt `dist/RoughStart-<versie>.zip` met de plugin, een installatiebriefje (`docs/INSTALL.md`, NL + EN, met feedbackvragen) en de handleiding.
+- **Testpakket**: `scripts/package.sh` maakt `dist/RoughStart-<versie>.zip` met de plugin, een installatiebriefje en de handleiding, beide als PDF (via `scripts/md2pdf.py` en Chrome headless). Het installatiebriefje (`docs/INSTALL.md`, NL + EN) heeft vier stappen met één Terminal-opdracht, die in de PDF op één regel staat zodat hij goed kopieert.
 
 ### Gewijzigd
 - Spoorkleuren bewust niet toegevoegd: Audio Units geven in Logic alleen de spoornaam door, geen kleur (alleen VST3 en AAX doen dat).

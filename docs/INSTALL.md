@@ -6,23 +6,23 @@ Bedankt dat je RoughStart wilt testen! Dit is een testversie die nog niet door A
 
 ## Installeren
 
-1. Pak het zip-bestand uit (dubbelklik).
-2. Open Terminal (Programma's > Hulpprogramma's > Terminal).
-3. Plak deze regel en druk op Enter. Hij kopieert de plugin naar de juiste map. Sleep anders `RoughStart.component` zelf naar de map `~/Library/Audio/Plug-Ins/Components` (in de Finder: Ga > Ga naar map...).
+### Stap 1: uitpakken
+Dubbelklik op het zip-bestand. Er verschijnt een map met daarin `RoughStart.component`.
 
-   ```
-   cp -R ~/Downloads/RoughStart-*/RoughStart.component ~/Library/Audio/Plug-Ins/Components/
-   ```
+### Stap 2: naar de pluginmap slepen
+Kies in de Finder het menu **Ga > Ga naar map...**, plak `~/Library/Audio/Plug-Ins/Components` en druk op Enter. Sleep `RoughStart.component` naar die map.
 
-   Staat de uitgepakte map niet in Downloads? Pas het pad dan aan, of sleep de plugin met de hand.
+### Stap 3: downloadblokkade opheffen
+Open Terminal (Programma's > Hulpprogramma's > Terminal). Kopieer de regel hieronder in zijn geheel, plak hem in Terminal en druk op Enter:
 
-4. Plak deze regel en druk op Enter. Hij haalt de downloadblokkade van macOS van de plugin af:
+```
+xattr -dr com.apple.quarantine ~/Library/Audio/Plug-Ins/Components/RoughStart.component
+```
 
-   ```
-   xattr -dr com.apple.quarantine ~/Library/Audio/Plug-Ins/Components/RoughStart.component
-   ```
+Je krijgt geen melding terug; dat is goed.
 
-5. Start Logic Pro (opnieuw). RoughStart staat bij Audio Units > TvdK > RoughStart.
+### Stap 4: Logic starten
+Start Logic Pro (opnieuw). RoughStart staat bij **Audio Units > TvdK > RoughStart**.
 
 **Ziet Logic de plugin niet, of meldt het dat hij niet werkt?** Ga in Logic naar Logic Pro > Instellingen > Plug-in Manager, zoek RoughStart, selecteer hem en klik op "Reset & Rescan Selection".
 
@@ -57,14 +57,20 @@ Vermeld je Mac (Apple Silicon of Intel), macOS-versie en Logic-versie.
 
 This test version is not yet signed by Apple, so one extra step is needed. Works on macOS 12 or later, Apple Silicon and Intel, Logic Pro.
 
-1. Unzip the file.
-2. Copy `RoughStart.component` to `~/Library/Audio/Plug-Ins/Components` (Finder: Go > Go to Folder...).
-3. Open Terminal and run:
+### Step 1: unzip
+Double-click the zip file.
 
-   ```
-   xattr -dr com.apple.quarantine ~/Library/Audio/Plug-Ins/Components/RoughStart.component
-   ```
+### Step 2: move the plug-in
+In the Finder choose **Go > Go to Folder...**, paste `~/Library/Audio/Plug-Ins/Components` and press Enter. Drag `RoughStart.component` into that folder.
 
-4. (Re)start Logic Pro. RoughStart is under Audio Units > TvdK > RoughStart. If Logic does not show it, use Plug-in Manager > Reset & Rescan Selection.
+### Step 3: remove the download block
+Open Terminal, paste this line in full and press Enter:
+
+```
+xattr -dr com.apple.quarantine ~/Library/Audio/Plug-Ins/Components/RoughStart.component
+```
+
+### Step 4: start Logic
+(Re)start Logic Pro. RoughStart is under Audio Units > TvdK > RoughStart. If Logic does not show it, use Plug-in Manager > Reset & Rescan Selection.
 
 Click **?** in the plug-in for the manual. Feedback is very welcome: what was unclear, did the balance after Analyze All make sense, what did you miss? Please mention your Mac (Apple Silicon or Intel), macOS version and Logic version.
