@@ -2,6 +2,16 @@
 
 Alle noemenswaardige wijzigingen in RoughStart. Formaat volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/), versies volgen [SemVer](https://semver.org/lang/nl/).
 
+## [0.3.0] - 2026-11-10
+
+### Toegevoegd
+- **Analyze All**: knop onderin elke instance. Zet alle RoughStart-instances in het project tegelijk in analysestand (onder één batchnummer). Ze meten tijdens het afspelen en zetten bij stop elk hun eigen meting vast.
+- **Stop All**: dezelfde knop stopt een lopende Analyze All voor alle instances.
+- Status van de batch in elke instance: wachten op afspelen, aantal sporen dat meet, en na afloop hoeveel sporen zijn opgeslagen en hoeveel geen signaal hadden (Auto ongewijzigd).
+
+### Verwijderd
+- Knop "Ping all" en de indicator uit de proof of concept (v0.1).
+
 ## [0.2.2] - 2026-11-10
 
 ### Gewijzigd

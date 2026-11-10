@@ -40,9 +40,55 @@ juce::StringArray InstanceRegistry::getTrackNames() const
     return names;
 }
 
-void InstanceRegistry::pingAll()
+//==============================================================================
+void InstanceRegistry::analyzeAll()
 {
     const juce::ScopedLock sl (lock);
+    const int batch = ++currentBatch;
+
     for (auto* instance : instances)
-        instance->receivePing();
+        instance->startAnalysis (batch);
+}
+
+void InstanceRegistry::stopAll()
+{
+    const juce::ScopedLock sl (lock);
+
+    for (auto* instance : instances)
+        if (instance->getAnalysisBatch() == currentBatch && instance->isAnalyzing())
+            instance->stopAnalysis();
+}
+
+InstanceRegistry::BatchSummary InstanceRegistry::getBatchSummary() const
+{
+    using State = RoughStartProcessor::AnalysisState;
+    using Result = RoughStartProcessor::AnalysisResult;
+
+    const juce::ScopedLock sl (lock);
+    BatchSummary s;
+
+    if (currentBatch == 0)
+        return s;
+
+    for (auto* instance : instances)
+    {
+        if (instance->getAnalysisBatch() != currentBatch)
+            continue;
+
+        ++s.total;
+
+        switch (instance->getAnalysisState())
+        {
+            case State::waitingForPlayback: ++s.waiting;   break;
+            case State::measuring:          ++s.measuring; break;
+            case State::idle:
+                if (instance->getLastAnalysisResult() == Result::stored)
+                    ++s.stored;
+                else
+                    ++s.noSignal;
+                break;
+        }
+    }
+
+    return s;
 }

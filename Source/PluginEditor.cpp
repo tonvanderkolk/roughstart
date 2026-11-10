@@ -2,8 +2,6 @@
 
 namespace
 {
-    constexpr double pingFlashMs = 700.0;
-
     const juce::Colour background   { 0xff1e2226 };
     const juce::Colour panel        { 0xff272c31 };
     const juce::Colour accent       { 0xff3ddc84 };
@@ -92,15 +90,20 @@ RoughStartEditor::RoughStartEditor (RoughStartProcessor& p)
     styleValueLabel (countLabel, 13.0f);
     addAndMakeVisible (countLabel);
 
-    pingButton.onClick = [this] { rsProcessor.getRegistry().pingAll(); };
-    addAndMakeVisible (pingButton);
+    batchLabel.setColour (juce::Label::textColourId, dimText);
+    styleValueLabel (batchLabel, 13.0f);
+    addAndMakeVisible (batchLabel);
 
-    lastSeenPing = rsProcessor.getPingCount();
+    analyzeAllButton.onClick = [this] { toggleAnalyzeAll(); };
+    analyzeAllButton.setTooltip ("Analyze every RoughStart instance in the project during the next playback.");
+    addAndMakeVisible (analyzeAllButton);
+
     refreshInstanceInfo();
     updateTargetVisibility();
     refreshLevels();
+    refreshBatchStatus();
 
-    setSize (440, 420);
+    setSize (440, 450);
     startTimerHz (30);
 }
 
@@ -114,12 +117,7 @@ void RoughStartEditor::paint (juce::Graphics& g)
     g.fillAll (background);
 
     g.setColour (panel);
-    g.fillRoundedRectangle (getLocalBounds().reduced (10).withTrimmedTop (44).withTrimmedBottom (50).toFloat(), 6.0f);
-
-    g.setColour (indicatorLit ? accent : juce::Colour (0xff3a4048));
-    g.fillEllipse (indicatorBounds.toFloat());
-    g.setColour (juce::Colours::black.withAlpha (0.5f));
-    g.drawEllipse (indicatorBounds.toFloat(), 1.5f);
+    g.fillRoundedRectangle (getLocalBounds().reduced (10).withTrimmedTop (44).withTrimmedBottom (78).toFloat(), 6.0f);
 }
 
 void RoughStartEditor::resized()
@@ -130,12 +128,12 @@ void RoughStartEditor::resized()
     titleLabel.setBounds (top.removeFromLeft (200));
     trackLabel.setBounds (top);
 
-    // Onderbalk: instances en ping
-    auto bottom = area.removeFromBottom (30);
-    indicatorBounds = bottom.removeFromRight (30).reduced (5);
-    bottom.removeFromRight (6);
-    pingButton.setBounds (bottom.removeFromRight (90));
-    countLabel.setBounds (bottom);
+    // Onderbalk: Analyze All voor alle instances
+    auto bottom = area.removeFromBottom (58);
+    auto bottomRow = bottom.removeFromTop (32);
+    analyzeAllButton.setBounds (bottomRow.removeFromRight (130));
+    countLabel.setBounds (bottomRow);
+    batchLabel.setBounds (bottom);
 
     area.removeFromBottom (20);
     area.removeFromTop (18);
@@ -266,19 +264,44 @@ void RoughStartEditor::timerCallback()
 
     updateTargetVisibility();
     refreshLevels();
+    refreshBatchStatus();
+}
 
-    const auto now = juce::Time::getMillisecondCounterHiRes();
-    const auto ping = rsProcessor.getPingCount();
-    if (ping != lastSeenPing)
-    {
-        lastSeenPing = ping;
-        pingLitUntilMs = now + pingFlashMs;
-    }
+void RoughStartEditor::toggleAnalyzeAll()
+{
+    auto& registry = rsProcessor.getRegistry();
 
-    const bool shouldBeLit = now < pingLitUntilMs;
-    if (shouldBeLit != indicatorLit)
-    {
-        indicatorLit = shouldBeLit;
-        repaint (indicatorBounds);
-    }
+    if (registry.getBatchSummary().isRunning())
+        registry.stopAll();
+    else
+        registry.analyzeAll();
+
+    refreshBatchStatus();
+    refreshLevels();
+}
+
+void RoughStartEditor::refreshBatchStatus()
+{
+    const auto s = rsProcessor.getRegistry().getBatchSummary();
+    const bool running = s.isRunning();
+
+    analyzeAllButton.setButtonText (running ? "Stop All" : "Analyze All");
+    analyzeAllButton.setColour (juce::TextButton::buttonColourId,
+                                running ? analyzeColour : getLookAndFeel().findColour (juce::TextButton::buttonColourId));
+
+    juce::String text;
+
+    if (s.total == 0)
+        text = {};
+    else if (s.waiting > 0 && s.measuring == 0)
+        text = "Analyze All: " + juce::String (s.waiting) + " tracks waiting for playback...";
+    else if (running)
+        text = "Analyze All: measuring " + juce::String (s.measuring) + " of " + juce::String (s.total)
+               + " tracks... stops when playback stops.";
+    else
+        text = "Last Analyze All: " + juce::String (s.stored) + " stored"
+               + (s.noSignal > 0 ? ", " + juce::String (s.noSignal) + " without signal (Auto unchanged)" : juce::String())
+               + ".";
+
+    batchLabel.setText (text, juce::dontSendNotification);
 }

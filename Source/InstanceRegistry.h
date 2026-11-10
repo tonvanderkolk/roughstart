@@ -11,6 +11,9 @@ class RoughStartProcessor;
     Wordt via juce::SharedResourcePointer<InstanceRegistry> gedeeld: de eerste
     instance maakt het object aan, de laatste ruimt het op. Werkt alleen als de
     host alle instances in één proces laadt (Logic doet dat voor AUv2).
+
+    Let op: Logic laadt plug-ins op sporen zonder regio's pas als er iets op
+    komt; die instances staan dan (nog) niet in de lijst.
 */
 class InstanceRegistry
 {
@@ -27,9 +30,28 @@ public:
     /** Momentopname van de spoornamen van alle instances, in aanmeldvolgorde. */
     juce::StringArray getTrackNames() const;
 
-    /** Laat de ping-indicator in alle instances oplichten. */
-    void pingAll();
+    //==============================================================================
+    /** Zet alle instances in analysestand onder één nieuw batchnummer. */
+    void analyzeAll();
 
+    /** Stopt de analyse van alle instances in de lopende batch (meting wordt vastgezet). */
+    void stopAll();
+
+    struct BatchSummary
+    {
+        int total = 0;
+        int waiting = 0;
+        int measuring = 0;
+        int stored = 0;
+        int noSignal = 0;
+
+        bool isRunning() const noexcept { return waiting + measuring > 0; }
+    };
+
+    /** Stand van de laatste Analyze All; total == 0 als er nog geen was. */
+    BatchSummary getBatchSummary() const;
+
+    //==============================================================================
     /** Verhoogt bij elke aan- of afmelding; editors gebruiken dit om te verversen. */
     juce::uint32 getChangeCount() const noexcept { return changeCount.load(); }
 
@@ -39,6 +61,7 @@ private:
     mutable juce::CriticalSection lock;
     std::vector<RoughStartProcessor*> instances;
     int nextInstanceNumber = 1;
+    int currentBatch = 0;
     std::atomic<juce::uint32> changeCount { 0 };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InstanceRegistry)

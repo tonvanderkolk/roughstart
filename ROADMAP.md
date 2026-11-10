@@ -4,7 +4,7 @@
 - [x] **v0.2 Eén instance:** meten (piek/RMS, stiltefilter), Auto-gain, Trim, opslaan in project. *(getest in Logic Pro 12 op 2026-11-10: meten, Auto, Trim en opslaan werken; RMS-modus kan clippen → piekplafond in v0.2.1)*
 - [x] **v0.2.1:** piekplafond voor Auto, meeschuivende stiltedrempel, UI in het Engels. *(getest in Logic Pro 12 op 2026-11-10)*
 - [x] **v0.2.2:** analyse gekoppeld aan transport (stopt vanzelf als Logic stopt). *(getest in Logic Pro 12 op 2026-11-10)*
-- [ ] **v0.3 Analyze All:** gezamenlijke analyse over alle instances, gekoppeld aan transport.
+- [x] **v0.3 Analyze All:** gezamenlijke analyse over alle instances, gekoppeld aan transport. *(getest in Logic Pro 12 op 2026-11-10; Stop All stopt de analyse, afspelen loopt door)*
 - [ ] **v0.4 Overzicht:** overzichtsvenster met sorteerbare kolommen, CSV-export, presets import/export.
 - [ ] **v1.0 Afronding:** UI polijsten, `auval` schoon, signing.
 

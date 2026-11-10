@@ -126,8 +126,9 @@ roughstart::AutoGainResult RoughStartProcessor::getAutoGain() const noexcept
     return roughstart::computeAutoGain (measured, getTargetDb(), peak, getCeilingDb());
 }
 
-void RoughStartProcessor::startAnalysis()
+void RoughStartProcessor::startAnalysis (int batch)
 {
+    analysisBatch = batch;
     sawPlayback = false;
     lastResult = (int) AnalysisResult::none;
     liveValid = false;

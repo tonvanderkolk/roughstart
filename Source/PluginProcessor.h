@@ -76,7 +76,10 @@ public:
         stopt de host (na afspelen), dan stopt de analyse vanzelf en wordt de
         meting vastgezet. Zonder transportinfo wordt altijd gemeten.
     */
-    void startAnalysis();
+    void startAnalysis (int batch = 0);
+
+    /** Batchnummer van de laatste analyse: 0 = losse Analyze, >0 = Analyze All. */
+    int getAnalysisBatch() const noexcept { return analysisBatch.load(); }
     /** Stopt de analyse. Geeft false als er geen signaal was; Auto blijft dan staan. */
     bool stopAnalysis();
     bool isAnalyzing() const noexcept { return analyzing.load(); }
@@ -90,9 +93,6 @@ public:
     /** Spoornaam van de host, of "Instance N" als de host die niet doorgeeft. */
     juce::String getDisplayName() const;
 
-    /** Wordt door de registry aangeroepen; mag van elke thread komen. */
-    void receivePing() noexcept { ++pingCount; }
-    juce::uint32 getPingCount() const noexcept { return pingCount.load(); }
 
 private:
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
@@ -102,7 +102,6 @@ private:
 
     mutable juce::CriticalSection nameLock;
     juce::String trackName;
-    std::atomic<juce::uint32> pingCount { 0 };
 
     // Parameters (raw pointers van de APVTS, thread-safe te lezen)
     std::atomic<float>* modeParam = nullptr;
@@ -129,6 +128,7 @@ private:
     std::atomic<bool>   sawPlayback { false };
     std::atomic<double> lastBlockMs { 0.0 };
     std::atomic<int>    lastResult { (int) AnalysisResult::none };
+    std::atomic<int>    analysisBatch { 0 };
 
     void timerCallback() override;
 
