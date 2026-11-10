@@ -29,6 +29,9 @@
 
 - Spoorkleur is in AU niet beschikbaar: Logic geeft aan Audio Units alleen de naam door.
 
+- Ableton Live (Mac) zou als AU moeten werken (laadt plug-ins in één proces), maar is nog niet getest. Onzeker: of Live spoornamen aan AU doorgeeft.
+- Windows/VST3: nodig voor Ableton-gebruikers op Windows. Bouwen via een Windows-runner in GitHub Actions.
+
 ## Open vragen
 - JUCE-licentie bij publiek delen (AGPLv3 of commerciële licentie).
 - Apple Developer ID voor signing en notarisatie.

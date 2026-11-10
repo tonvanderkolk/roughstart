@@ -2,6 +2,11 @@
 
 Alle noemenswaardige wijzigingen in RoughStart. Formaat volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/), versies volgen [SemVer](https://semver.org/lang/nl/).
 
+## [0.6.1] - 2026-11-10
+
+### Toegevoegd
+- Instructies voor **Ableton Live** (Mac) in het installatiebriefje (NL + EN) en de handleiding: Audio Units aanzetten, waar RoughStart in de browser staat, plaatsing, kopiëren naar andere sporen, Analyze All. Nog niet in Live getest; testers wordt gevraagd op spoornamen en Analyze All te letten.
+
 ## [0.6.0] - 2026-11-10
 
 ### Toegevoegd

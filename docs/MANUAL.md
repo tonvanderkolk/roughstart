@@ -9,6 +9,15 @@ RoughStart sets the level of every track before you start mixing. Put one instan
 - RoughStart works in mono and in stereo. Logic picks the right version for each track, also when you insert it on several tracks at once. The track name at the top shows which one is in use.
 - Logic only loads plug-ins on tracks that contain regions. Empty tracks do not show up until you add something to them.
 
+## Ableton Live (Mac)
+
+- Turn on Use Audio Units in Settings > Plug-Ins (Preferences in older versions) and click Rescan. RoughStart is in the browser under Plug-Ins > Audio Units > TvdK.
+- Put RoughStart as the first device on each track; on instrument tracks directly after the instrument.
+- To add it to more tracks quickly, copy the device (Cmd+C) and paste it (Cmd+V) on other tracks.
+- Open the plug-in window with the small icon in the device's title bar.
+- Analyze All works while Live plays, in Arrangement or Session view, and stops when you stop playback.
+- If the Overview shows Instance 1, Instance 2 and so on instead of track names, Live does not pass track names to Audio Units. Everything else still works.
+
 ## Quick start
 
 1. Open RoughStart on any track and choose a preset, or set Mode, Target and Peak ceiling yourself.
