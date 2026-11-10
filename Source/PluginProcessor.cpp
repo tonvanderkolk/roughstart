@@ -9,6 +9,7 @@ namespace
         const juce::String targetPeak = "targetPeak";
         const juce::String targetRms  = "targetRms";
         const juce::String trim       = "trim";
+        const juce::String ceiling    = "ceiling";
 
         const juce::Identifier stateType     { "RoughStartState" };
         const juce::Identifier measuredValid { "measuredValid" };
@@ -35,21 +36,25 @@ juce::AudioProcessorValueTreeState::ParameterLayout RoughStartProcessor::createP
                                                                .withLabel ("dB");
 
     layout.add (std::make_unique<AudioParameterChoice> (
-        ParameterID { ids::mode, 1 }, "Meetmethode", StringArray { "Piek", "RMS" }, 0,
+        ParameterID { ids::mode, 1 }, "Mode", StringArray { "Peak", "RMS" }, 0,
         AudioParameterChoiceAttributes().withAutomatable (false)));
 
     layout.add (std::make_unique<AudioParameterFloat> (
-        ParameterID { ids::targetPeak, 1 }, "Doel piek",
+        ParameterID { ids::targetPeak, 1 }, "Peak Target",
         NormalisableRange<float> (-30.0f, 0.0f, 0.5f), -12.0f, nonAutomatable));
 
     layout.add (std::make_unique<AudioParameterFloat> (
-        ParameterID { ids::targetRms, 1 }, "Doel RMS",
+        ParameterID { ids::targetRms, 1 }, "RMS Target",
         NormalisableRange<float> (-40.0f, 0.0f, 0.5f), -18.0f, nonAutomatable));
 
     layout.add (std::make_unique<AudioParameterFloat> (
         ParameterID { ids::trim, 1 }, "Trim",
         NormalisableRange<float> (-24.0f, 24.0f, 0.1f), 0.0f,
         AudioParameterFloatAttributes().withStringFromValueFunction (dbText).withLabel ("dB")));
+
+    layout.add (std::make_unique<AudioParameterFloat> (
+        ParameterID { ids::ceiling, 1 }, "Peak Ceiling",
+        NormalisableRange<float> (-24.0f, 0.0f, 0.5f), -6.0f, nonAutomatable));
 
     return layout;
 }
@@ -64,6 +69,7 @@ RoughStartProcessor::RoughStartProcessor()
     targetPeakParam = parameters.getRawParameterValue (ids::targetPeak);
     targetRmsParam  = parameters.getRawParameterValue (ids::targetRms);
     trimParam       = parameters.getRawParameterValue (ids::trim);
+    ceilingParam    = parameters.getRawParameterValue (ids::ceiling);
 
     instanceNumber = registry->add (this);
 }
@@ -99,13 +105,19 @@ RoughStartProcessor::Measurement RoughStartProcessor::getLiveMeasurement() const
     return { liveValid.load(), livePeakDb.load(), liveRmsDb.load() };
 }
 
-float RoughStartProcessor::getAutoGainDb() const noexcept
+float RoughStartProcessor::getCeilingDb() const noexcept
+{
+    return ceilingParam->load();
+}
+
+roughstart::AutoGainResult RoughStartProcessor::getAutoGain() const noexcept
 {
     if (! storedValid.load())
-        return 0.0f;
+        return {};
 
-    const auto measured = getMode() == Mode::rms ? storedRmsDb.load() : storedPeakDb.load();
-    return roughstart::computeAutoGainDb (measured, getTargetDb());
+    const auto peak = storedPeakDb.load();
+    const auto measured = getMode() == Mode::rms ? storedRmsDb.load() : peak;
+    return roughstart::computeAutoGain (measured, getTargetDb(), peak, getCeilingDb());
 }
 
 void RoughStartProcessor::startAnalysis()

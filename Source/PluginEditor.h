@@ -27,9 +27,9 @@ private:
 
     juce::Label titleLabel, trackLabel;
 
-    juce::Label modeLabel { {}, "Meetmethode" }, targetLabel { {}, "Doel" };
+    juce::Label modeLabel { {}, "Mode" }, targetLabel { {}, "Target" }, ceilingLabel { {}, "Peak ceiling" };
     juce::ComboBox modeBox;
-    juce::Slider targetPeakSlider, targetRmsSlider;
+    juce::Slider targetPeakSlider, targetRmsSlider, ceilingSlider;
 
     juce::TextButton analyzeButton { "Analyze" };
     juce::Label statusLabel;
@@ -43,7 +43,7 @@ private:
     juce::TextButton pingButton { "Ping all" };
 
     std::unique_ptr<ComboAttachment> modeAttachment;
-    std::unique_ptr<SliderAttachment> targetPeakAttachment, targetRmsAttachment, trimAttachment;
+    std::unique_ptr<SliderAttachment> targetPeakAttachment, targetRmsAttachment, ceilingAttachment, trimAttachment;
 
     juce::Rectangle<int> indicatorBounds;
     juce::uint32 lastSeenPing = 0;

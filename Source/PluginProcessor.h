@@ -60,8 +60,11 @@ public:
     /** Lopende meting tijdens analyse (valid = er is al niet-stil signaal gezien). */
     Measurement getLiveMeasurement() const noexcept;
 
-    /** Auto-gain uit de vastgezette meting en het huidige doel; 0 zonder meting. */
-    float getAutoGainDb() const noexcept;
+    float getCeilingDb() const noexcept;
+
+    /** Auto-gain uit de vastgezette meting, het doel en het plafond; 0 zonder meting. */
+    roughstart::AutoGainResult getAutoGain() const noexcept;
+    float getAutoGainDb() const noexcept { return getAutoGain().gainDb; }
     float getTotalGainDb() const noexcept { return getAutoGainDb() + getTrimDb(); }
 
     void startAnalysis();
@@ -95,6 +98,7 @@ private:
     std::atomic<float>* targetPeakParam = nullptr;
     std::atomic<float>* targetRmsParam = nullptr;
     std::atomic<float>* trimParam = nullptr;
+    std::atomic<float>* ceilingParam = nullptr;
 
     // Vastgezette meting
     std::atomic<bool>  storedValid { false };

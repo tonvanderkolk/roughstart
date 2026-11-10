@@ -93,12 +93,62 @@ struct LevelMeterTests final : juce::UnitTest
             expect (! m.hasSignal());
         }
 
+        beginTest ("Zachte staart (-40 dB onder het signaal) telt niet mee in RMS");
+        {
+            // Luid deel 0.5 (RMS -9.03) en een even lang zacht deel 0.005 (-49 dBFS,
+            // boven de absolute drempel). Zonder relatieve drempel zou de RMS
+            // rond -12 dB uitkomen.
+            auto signal = makeSine (0.5f, 1000.0, (int) sampleRate);
+            const auto quiet = makeSine (0.005f, 1000.0, (int) sampleRate);
+            signal.insert (signal.end(), quiet.begin(), quiet.end());
+
+            LevelMeter m;
+            m.prepare (sampleRate);
+            feedStereo (m, signal, 512);
+            expectWithinAbsoluteError (m.getRmsDb(), -9.03f, 0.1f);
+            expectWithinAbsoluteError (m.getPeakDb(), -6.02f, 0.05f);
+        }
+
+        beginTest ("Dynamisch signaal (-10 dB verschil) telt wel volledig mee");
+        {
+            auto signal = makeSine (0.5f, 1000.0, (int) sampleRate);
+            const auto softer = makeSine (0.158f, 1000.0, (int) sampleRate);   // -10 dB
+            signal.insert (signal.end(), softer.begin(), softer.end());
+
+            // verwachte RMS: gemiddelde vermogen van beide delen
+            const double expected = 10.0 * std::log10 ((0.125 + 0.158 * 0.158 / 2.0) / 2.0);
+
+            LevelMeter m;
+            m.prepare (sampleRate);
+            feedStereo (m, signal, 512);
+            expectWithinAbsoluteError (m.getRmsDb(), (float) expected, 0.1f);
+        }
+
         beginTest ("Auto-gain: verschil met doel, begrensd op ±24 dB");
         {
-            expectWithinAbsoluteError (computeAutoGainDb (-6.0f, -12.0f), -6.0f, 0.001f);
-            expectWithinAbsoluteError (computeAutoGainDb (-30.0f, -18.0f), 12.0f, 0.001f);
-            expectEquals (computeAutoGainDb (-80.0f, -12.0f), 24.0f);
-            expectEquals (computeAutoGainDb (0.0f, -40.0f), -24.0f);
+            constexpr float noCeiling = 100.0f;
+            expectWithinAbsoluteError (computeAutoGain (-6.0f, -12.0f, -6.0f, noCeiling).gainDb, -6.0f, 0.001f);
+            expectWithinAbsoluteError (computeAutoGain (-30.0f, -18.0f, -20.0f, noCeiling).gainDb, 12.0f, 0.001f);
+            expectEquals (computeAutoGain (-80.0f, -12.0f, -80.0f, noCeiling).gainDb, 24.0f);
+            expectEquals (computeAutoGain (0.0f, -40.0f, 0.0f, noCeiling).gainDb, -24.0f);
+        }
+
+        beginTest ("Piekplafond begrenst Auto");
+        {
+            // Drums uit de Logic-test: piek -0.8, RMS -20.6, doel RMS -18, plafond -6
+            auto r = computeAutoGain (-20.6f, -18.0f, -0.8f, -6.0f);
+            expectWithinAbsoluteError (r.gainDb, -5.2f, 0.001f);
+            expect (r.limitedByCeiling);
+
+            // Ruim onder het plafond: geen begrenzing
+            r = computeAutoGain (-30.0f, -18.0f, -20.0f, -6.0f);
+            expectWithinAbsoluteError (r.gainDb, 12.0f, 0.001f);
+            expect (! r.limitedByCeiling);
+
+            // Piekdoel boven het plafond: plafond wint
+            r = computeAutoGain (-20.0f, -3.0f, -20.0f, -6.0f);
+            expectWithinAbsoluteError (r.gainDb, 14.0f, 0.001f);
+            expect (r.limitedByCeiling);
         }
 
         beginTest ("dB-omrekening");

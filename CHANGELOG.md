@@ -2,6 +2,18 @@
 
 Alle noemenswaardige wijzigingen in RoughStart. Formaat volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/), versies volgen [SemVer](https://semver.org/lang/nl/).
 
+## [0.2.1] - 2026-11-10
+
+### Toegevoegd
+- Piekplafond (Peak Ceiling, standaard -6 dBFS, instelbaar -24 tot 0): Auto tilt de gemeten piek nooit boven het plafond. In de UI staat "(limited by ceiling)" als het plafond ingrijpt.
+- Relatieve stiltedrempel voor RMS: vensters van 50 ms die meer dan 20 dB onder het gemiddelde liggen tellen niet mee (zoals de relatieve gate in EBU R128). Uitklinkende staarten tussen drumklappen trekken de RMS niet meer omlaag.
+
+### Gewijzigd
+- UI en parameternamen in het Engels (Mode, Peak Target, RMS Target, Trim, Peak Ceiling). Parameter-ID's zijn gelijk gebleven, dus bestaande projecten laden gewoon.
+
+### Opgelost
+- RMS-modus kon op dynamisch materiaal (drums) het kanaal laten clippen.
+
 ## [0.2.0] - 2026-11-10
 
 ### Toegevoegd

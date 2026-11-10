@@ -33,9 +33,9 @@ auval -v aufx RgSt TvdK
 
 ## Structuur
 - `Source/InstanceRegistry.*`: gedeelde lijst van alle instances in het hostproces (via `juce::SharedResourcePointer`). Werkt omdat Logic AUv2 in-process laadt.
-- `Source/LevelMeter.h`: meting (piek/RMS, stiltefilter) en dB-rekenwerk, zonder JUCE; getest in `Tests/`.
+- `Source/LevelMeter.h`: meting (piek/RMS, absolute + relatieve stiltedrempel), Auto-berekening met plafond en dB-rekenwerk, zonder JUCE; getest in `Tests/`.
 - `Source/PluginProcessor.*`: parameters, analyse, Auto + Trim, state, spoornaam, ping-teller.
-- `Source/PluginEditor.*`: UI (meetmethode, doel, Analyze, Auto, Trim, instances, Ping all).
+- `Source/PluginEditor.*`: UI in het Engels (Mode, Target, Peak ceiling, Analyze, Auto, Trim, instances, Ping all).
 
 ## Afspraken
 - `VERSION` en `CHANGELOG.md` bij elke wijziging bijwerken.

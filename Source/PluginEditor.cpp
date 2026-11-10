@@ -45,13 +45,13 @@ RoughStartEditor::RoughStartEditor (RoughStartProcessor& p)
     addAndMakeVisible (trackLabel);
 
     // Meetmethode en doel
-    for (auto* l : { &modeLabel, &targetLabel, &trimLabel })
+    for (auto* l : { &modeLabel, &targetLabel, &ceilingLabel, &trimLabel })
     {
         l->setColour (juce::Label::textColourId, dimText);
         addAndMakeVisible (*l);
     }
 
-    modeBox.addItemList ({ "Piek", "RMS" }, 1);
+    modeBox.addItemList ({ "Peak", "RMS" }, 1);
     addAndMakeVisible (modeBox);
     modeAttachment = std::make_unique<ComboAttachment> (rsProcessor.parameters, "mode", modeBox);
 
@@ -61,6 +61,10 @@ RoughStartEditor::RoughStartEditor (RoughStartProcessor& p)
     addChildComponent (targetRmsSlider);
     targetPeakAttachment = std::make_unique<SliderAttachment> (rsProcessor.parameters, "targetPeak", targetPeakSlider);
     targetRmsAttachment  = std::make_unique<SliderAttachment> (rsProcessor.parameters, "targetRms", targetRmsSlider);
+
+    styleSlider (ceilingSlider);
+    addAndMakeVisible (ceilingSlider);
+    ceilingAttachment = std::make_unique<SliderAttachment> (rsProcessor.parameters, "ceiling", ceilingSlider);
 
     // Analyse
     analyzeButton.onClick = [this] { toggleAnalysis(); };
@@ -96,7 +100,7 @@ RoughStartEditor::RoughStartEditor (RoughStartProcessor& p)
     updateTargetVisibility();
     refreshLevels();
 
-    setSize (440, 380);
+    setSize (440, 420);
     startTimerHz (30);
 }
 
@@ -148,6 +152,11 @@ void RoughStartEditor::resized()
     targetLabel.setBounds (row.removeFromLeft (labelWidth));
     targetPeakSlider.setBounds (row);
     targetRmsSlider.setBounds (row);
+    area.removeFromTop (gap);
+
+    row = area.removeFromTop (rowHeight);
+    ceilingLabel.setBounds (row.removeFromLeft (labelWidth));
+    ceilingSlider.setBounds (row);
     area.removeFromTop (gap * 2);
 
     row = area.removeFromTop (rowHeight + 4);
@@ -173,14 +182,14 @@ void RoughStartEditor::toggleAnalysis()
     if (rsProcessor.isAnalyzing())
     {
         const bool gotSignal = rsProcessor.stopAnalysis();
-        statusLabel.setText (gotSignal ? "Meting vastgezet."
-                                       : "Geen signaal gemeten, Auto ongewijzigd.",
+        statusLabel.setText (gotSignal ? "Measurement stored."
+                                       : "No signal measured, Auto unchanged.",
                              juce::dontSendNotification);
     }
     else
     {
         rsProcessor.startAnalysis();
-        statusLabel.setText ("Meten... speel het spoor af en klik op Stop.", juce::dontSendNotification);
+        statusLabel.setText ("Measuring... play the track, then click Stop.", juce::dontSendNotification);
     }
 
     refreshLevels();
@@ -195,7 +204,7 @@ void RoughStartEditor::updateTargetVisibility()
     lastModeIndex = modeIndex;
     targetPeakSlider.setVisible (modeIndex == 0);
     targetRmsSlider.setVisible (modeIndex == 1);
-    targetLabel.setText (modeIndex == 0 ? "Doel (piek)" : "Doel (RMS)", juce::dontSendNotification);
+    targetLabel.setText (modeIndex == 0 ? "Target (peak)" : "Target (RMS)", juce::dontSendNotification);
 }
 
 void RoughStartEditor::refreshLevels()
@@ -207,18 +216,23 @@ void RoughStartEditor::refreshLevels()
                              analyzing ? analyzeColour : getLookAndFeel().findColour (juce::TextButton::buttonColourId));
 
     const auto m = analyzing ? rsProcessor.getLiveMeasurement() : rsProcessor.getStoredMeasurement();
-    const juce::String prefix = analyzing ? "Live: " : "Gemeten: ";
+    const juce::String prefix = analyzing ? "Live: " : "Measured: ";
 
     if (m.valid)
-        measuredLabel.setText (prefix + "piek " + formatDb (m.peakDb, false)
+        measuredLabel.setText (prefix + "peak " + formatDb (m.peakDb, false)
                                    + "  ·  RMS " + formatDb (m.rmsDb, false),
                                juce::dontSendNotification);
     else
-        measuredLabel.setText (prefix + (analyzing ? "nog geen signaal" : "nog niet geanalyseerd"),
+        measuredLabel.setText (prefix + (analyzing ? "no signal yet" : "not analyzed yet"),
                                juce::dontSendNotification);
 
-    autoLabel.setText ("Auto: " + formatDb (rsProcessor.getAutoGainDb(), true), juce::dontSendNotification);
-    totalLabel.setText ("Totaal (Auto + Trim): " + formatDb (rsProcessor.getTotalGainDb(), true),
+    const auto autoGain = rsProcessor.getAutoGain();
+    autoLabel.setText ("Auto: " + formatDb (autoGain.gainDb, true)
+                           + (autoGain.limitedByCeiling ? "  (limited by ceiling)" : ""),
+                       juce::dontSendNotification);
+    autoLabel.setColour (juce::Label::textColourId,
+                         autoGain.limitedByCeiling ? juce::Colour (0xffe8b04a) : juce::Colours::white);
+    totalLabel.setText ("Total (Auto + Trim): " + formatDb (rsProcessor.getTotalGainDb(), true),
                         juce::dontSendNotification);
 }
 
