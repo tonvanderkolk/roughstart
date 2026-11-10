@@ -111,6 +111,79 @@ namespace roughstart
         return toXml (sanitiseName (name), *settings)->writeTo (destination);
     }
 
+    //==============================================================================
+    const std::vector<PresetManager::NamedPreset>& PresetManager::getFactoryPresets()
+    {
+        auto make = [] (int mode, float peak, float rms, float ceiling)
+        {
+            TargetSettings s;
+            s.mode = mode;
+            s.targetPeakDb = peak;
+            s.targetRmsDb = rms;
+            s.ceilingDb = ceiling;
+            return s;
+        };
+
+        static const std::vector<NamedPreset> presets {
+            { "RMS -18 (standard)",   make (1, -12.0f, -18.0f, -6.0f) },
+            { "RMS -24 (dynamic)",    make (1, -12.0f, -24.0f, -6.0f) },
+            { "Peak -12 (classic)",   make (0, -12.0f, -18.0f, -6.0f) },
+        };
+
+        return presets;
+    }
+
+    std::optional<TargetSettings> PresetManager::getFactoryPreset (const juce::String& name)
+    {
+        for (const auto& p : getFactoryPresets())
+            if (p.name == name)
+                return p.settings;
+
+        return std::nullopt;
+    }
+
+    PresetManager::PresetRef PresetManager::getDefaultPreset() const
+    {
+        const PresetRef fallback { true, getFactoryPresets().front().name };
+
+        auto xml = juce::XmlDocument::parse (getSettingsFile());
+        if (xml == nullptr || ! xml->hasTagName ("RoughStartSettings"))
+            return fallback;
+
+        PresetRef ref { xml->getStringAttribute ("defaultType") != "user",
+                        xml->getStringAttribute ("defaultPreset") };
+
+        if (ref.name.isEmpty())
+            return fallback;
+
+        if (ref.factory ? ! getFactoryPreset (ref.name).has_value() : ! exists (ref.name))
+            return fallback;
+
+        return ref;
+    }
+
+    bool PresetManager::setDefaultPreset (const PresetRef& ref)
+    {
+        if (! directory.createDirectory())
+            return false;
+
+        juce::XmlElement xml ("RoughStartSettings");
+        xml.setAttribute ("defaultType", ref.factory ? "factory" : "user");
+        xml.setAttribute ("defaultPreset", ref.name);
+        return xml.writeTo (getSettingsFile());
+    }
+
+    TargetSettings PresetManager::getDefaultSettings() const
+    {
+        const auto ref = getDefaultPreset();
+
+        if (ref.factory)
+            return getFactoryPreset (ref.name).value_or (getFactoryPresets().front().settings);
+
+        return load (ref.name).value_or (getFactoryPresets().front().settings);
+    }
+
+    //==============================================================================
     std::unique_ptr<juce::XmlElement> PresetManager::toXml (const juce::String& name, const TargetSettings& s)
     {
         auto xml = std::make_unique<juce::XmlElement> (rootTag);

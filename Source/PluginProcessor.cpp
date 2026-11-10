@@ -40,7 +40,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout RoughStartProcessor::createP
                                                                .withLabel ("dB");
 
     layout.add (std::make_unique<AudioParameterChoice> (
-        ParameterID { ids::mode, 1 }, "Mode", StringArray { "Peak", "RMS" }, 0,
+        ParameterID { ids::mode, 1 }, "Mode", StringArray { "Peak", "RMS" }, 1,
         AudioParameterChoiceAttributes().withAutomatable (false)));
 
     layout.add (std::make_unique<AudioParameterFloat> (
@@ -74,6 +74,11 @@ RoughStartProcessor::RoughStartProcessor()
     targetRmsParam  = parameters.getRawParameterValue (ids::targetRms);
     trimParam       = parameters.getRawParameterValue (ids::trim);
     ceilingParam    = parameters.getRawParameterValue (ids::ceiling);
+
+    // Nieuwe instance: start met de standaardpreset van de gebruiker (of de
+    // factory-standaard). Bij het laden van een project overschrijft
+    // setStateInformation dit daarna met de opgeslagen waarden.
+    applyTargetSettings (roughstart::PresetManager().getDefaultSettings());
 
     instanceNumber = registry->add (this);
     startTimerHz (20);
@@ -190,8 +195,21 @@ RoughStartProcessor::AnalysisState RoughStartProcessor::getAnalysisState() const
 
 void RoughStartProcessor::timerCallback()
 {
-    if (! analyzing.load() || ! sawPlayback.load())
+    if (! analyzing.load())
         return;
+
+    if (! sawPlayback.load())
+    {
+        // Logic roept plug-ins op sporen zonder audio soms helemaal niet aan,
+        // dus zo'n instance ziet het afspelen nooit. Is de Analyze All waar
+        // deze instance bij hoort al afgerond op andere sporen, dan stoppen
+        // we ook (geen signaal, Auto blijft staan).
+        const int batch = analysisBatch.load();
+        if (batch > 0 && registry->hasBatchPlaybackEnded (batch))
+            stopAnalysis();
+
+        return;
+    }
 
     const bool stale = juce::Time::getMillisecondCounterHiRes() - lastBlockMs.load() > staleBlockMs;
 
@@ -203,6 +221,7 @@ void RoughStartProcessor::timerCallback()
 void RoughStartProcessor::prepareToPlay (double sampleRate, int)
 {
     setLatencySamples (0);
+    numChannels = juce::jmax (1, getMainBusNumInputChannels());
     meter.prepare (sampleRate);
     resetMeterPending = false;
 
@@ -304,6 +323,12 @@ void RoughStartProcessor::setStateInformation (const void* data, int sizeInBytes
     storedRmsDb  = (float) state.getProperty (ids::measuredRms, roughstart::minusInfinityDb);
 
     parameters.replaceState (state);
+}
+
+void RoughStartProcessor::numChannelsChanged()
+{
+    numChannels = juce::jmax (1, getMainBusNumInputChannels());
+    registry->notifyChanged();
 }
 
 void RoughStartProcessor::updateTrackProperties (const TrackProperties& properties)

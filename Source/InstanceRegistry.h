@@ -49,6 +49,12 @@ public:
         bool isRunning() const noexcept { return waiting + measuring > 0; }
     };
 
+    /**
+        True als in deze batch minstens één instance het afspelen heeft gezien
+        en inmiddels klaar is: het afspelen is dan gestopt.
+    */
+    bool hasBatchPlaybackEnded (int batch) const;
+
     /** Stand van de laatste Analyze All; total == 0 als er nog geen was. */
     BatchSummary getBatchSummary() const;
 
@@ -58,12 +64,14 @@ public:
     {
         int instanceNumber = 0;
         juce::String trackName;
+        int numChannels = 2;          // 1 = mono, 2 = stereo
         int mode = 0;                 // 0 = Peak, 1 = RMS
         bool measured = false;
         float peakDb = 0.0f, rmsDb = 0.0f;
         float autoDb = 0.0f, trimDb = 0.0f, totalDb = 0.0f;
         bool limitedByCeiling = false;
         int analysisState = 0;        // RoughStartProcessor::AnalysisState
+        int lastResult = 0;           // RoughStartProcessor::AnalysisResult
     };
 
     std::vector<OverviewRow> getOverview() const;

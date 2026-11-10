@@ -1,12 +1,13 @@
 #include "PluginEditor.h"
 #include "UiStyle.h"
+#include "BinaryData.h"
 
 using namespace roughstart;
 
 namespace
 {
     constexpr int trackWidth = 440, trackHeight = 490;
-    constexpr int overviewWidth = 720, overviewHeight = 480;
+    constexpr int overviewWidth = 760, overviewHeight = 480;
     constexpr double noticeMs = 3500.0;
 
     void styleValueLabel (juce::Label& l, float size)
@@ -24,12 +25,13 @@ namespace
         s.setScrollWheelEnabled (false);   // voorkomt per ongeluk verschuiven bij scrollen
     }
 
-    enum PresetMenuItem { saveItem = 1, applyAllItem, importItem, exportItem, deleteItem, revealItem, resetItem };
+    enum PresetMenuItem { saveItem = 1, applyAllItem, defaultItem, importItem, exportItem, deleteItem, revealItem, resetItem };
 }
 
 //==============================================================================
 RoughStartEditor::RoughStartEditor (RoughStartProcessor& p)
-    : AudioProcessorEditor (&p), rsProcessor (p), overview (p)
+    : AudioProcessorEditor (&p), rsProcessor (p), overview (p),
+      help (juce::String::fromUTF8 (BinaryData::MANUAL_md, BinaryData::MANUAL_mdSize))
 {
     // Kop
     titleLabel.setText ("RoughStart  v" JucePlugin_VersionString, juce::dontSendNotification);
@@ -48,6 +50,10 @@ RoughStartEditor::RoughStartEditor (RoughStartProcessor& p)
     }
     trackViewButton.setConnectedEdges (juce::Button::ConnectedOnRight);
     overviewButton.setConnectedEdges (juce::Button::ConnectedOnLeft);
+    helpButton.setTooltip ("How RoughStart works");
+    helpButton.onClick = [this] { help.setVisible (! help.isVisible()); help.toFront (false); };
+    addAndMakeVisible (helpButton);
+
     trackViewButton.onClick = [this] { setView (View::track); };
     overviewButton.onClick  = [this] { setView (View::overview); };
 
@@ -60,6 +66,7 @@ RoughStartEditor::RoughStartEditor (RoughStartProcessor& p)
     presetBox.setTextWhenNoChoicesAvailable ("(no presets yet)");
     presetBox.onChange = [this] { loadSelectedPreset(); };
     presetMenuButton.onClick = [this] { showPresetMenu(); };
+    applyAllButton.onClick = [this] { applySettingsToAll(); };
 
     // Meetmethode, doel, plafond
     modeBox.addItemList ({ "Peak", "RMS" }, 1);
@@ -86,7 +93,7 @@ RoughStartEditor::RoughStartEditor (RoughStartProcessor& p)
     trimAttachment = std::make_unique<SliderAttachment> (rsProcessor.parameters, "trim", trimSlider);
 
     trackViewComponents = { &presetLabel, &presetBox, &presetMenuButton,
-                            &modeLabel, &modeBox, &targetLabel, &targetPeakSlider, &targetRmsSlider,
+                            &modeLabel, &modeBox, &applyAllButton, &targetLabel, &targetPeakSlider, &targetRmsSlider,
                             &ceilingLabel, &ceilingSlider, &analyzeButton, &statusLabel,
                             &measuredLabel, &autoLabel, &trimLabel, &trimSlider, &totalLabel };
 
@@ -107,6 +114,7 @@ RoughStartEditor::RoughStartEditor (RoughStartProcessor& p)
     analyzeAllButton.onClick = [this] { toggleAnalyzeAll(); };
     addAndMakeVisible (analyzeAllButton);
 
+    addChildComponent (help);
     addChildComponent (prompt);
 
     reloadPresets();
@@ -166,6 +174,7 @@ void RoughStartEditor::paint (juce::Graphics& g)
 void RoughStartEditor::resized()
 {
     prompt.setBounds (getLocalBounds());
+    help.setBounds (getLocalBounds());
 
     auto area = getLocalBounds().reduced (16, 12);
 
@@ -173,6 +182,8 @@ void RoughStartEditor::resized()
     auto top = area.removeFromTop (28);
     overviewButton.setBounds (top.removeFromRight (90).reduced (0, 2));
     trackViewButton.setBounds (top.removeFromRight (70).reduced (0, 2));
+    top.removeFromRight (8);
+    helpButton.setBounds (top.removeFromRight (28).reduced (0, 2));
     titleLabel.setBounds (top);
     trackLabel.setBounds (area.removeFromTop (20));
 
@@ -205,6 +216,7 @@ void RoughStartEditor::resized()
     row = area.removeFromTop (rowHeight);
     modeLabel.setBounds (row.removeFromLeft (labelWidth));
     modeBox.setBounds (row.removeFromLeft (120));
+    applyAllButton.setBounds (row.removeFromRight (110));
     area.removeFromTop (gap);
 
     row = area.removeFromTop (rowHeight);
@@ -260,7 +272,9 @@ void RoughStartEditor::refreshInstanceInfo()
 {
     countLabel.setText ("Instances in project: " + juce::String (rsProcessor.getRegistry().getNumInstances()),
                         juce::dontSendNotification);
-    trackLabel.setText (rsProcessor.getDisplayName(), juce::dontSendNotification);
+    trackLabel.setText (rsProcessor.getDisplayName() + juce::String (juce::CharPointer_UTF8 ("  \xc2\xb7  "))
+                            + rsProcessor.getChannelFormatName(),
+                        juce::dontSendNotification);
 }
 
 void RoughStartEditor::updateTargetVisibility()
@@ -389,14 +403,28 @@ void RoughStartEditor::reloadPresets()
     presetCache.clear();
     presetBox.clear (juce::dontSendNotification);
 
-    int id = 1;
-    for (const auto& name : presets.getPresetNames())
+    const auto defaultRef = presets.getDefaultPreset();
+
+    auto addEntry = [this, &defaultRef] (const juce::String& name, const TargetSettings& s, bool factory)
     {
-        if (auto s = presets.load (name))
-        {
-            presetCache.emplace_back (name, *s);
-            presetBox.addItem (name, id++);
-        }
+        presetCache.push_back ({ name, s, factory });
+        const bool isDefault = defaultRef == PresetManager::PresetRef { factory, name };
+        presetBox.addItem (name + (isDefault ? "  (default)" : ""), (int) presetCache.size());
+    };
+
+    presetBox.addSectionHeading ("Factory");
+    for (const auto& f : PresetManager::getFactoryPresets())
+        addEntry (f.name, f.settings, true);
+
+    const auto userNames = presets.getPresetNames();
+    if (! userNames.isEmpty())
+    {
+        presetBox.addSeparator();
+        presetBox.addSectionHeading ("My presets");
+
+        for (const auto& name : userNames)
+            if (auto s = presets.load (name))
+                addEntry (name, *s, false);
     }
 
     syncPresetSelection();
@@ -408,52 +436,77 @@ void RoughStartEditor::syncPresetSelection()
     const auto current = rsProcessor.getTargetSettings();
 
     // Voorkeur voor de preset die al geselecteerd is (bij twee identieke presets).
-    const int selectedIndex = presetBox.getSelectedId() - 1;
-    if (juce::isPositiveAndBelow (selectedIndex, (int) presetCache.size())
-        && presetCache[(size_t) selectedIndex].second == current)
+    if (auto* selected = getSelectedEntry(); selected != nullptr && selected->settings == current)
         return;
 
+    // Eigen presets gaan voor factory presets met dezelfde waarden.
     int match = 0;
-    for (size_t i = 0; i < presetCache.size(); ++i)
+    for (int pass = 0; pass < 2 && match == 0; ++pass)
     {
-        if (presetCache[i].second == current)
+        const bool wantFactory = pass == 1;
+        for (size_t i = 0; i < presetCache.size(); ++i)
         {
-            match = (int) i + 1;
-            break;
+            if (presetCache[i].factory == wantFactory && presetCache[i].settings == current)
+            {
+                match = (int) i + 1;
+                break;
+            }
         }
     }
 
     presetBox.setSelectedId (match, juce::dontSendNotification);
 }
 
-juce::String RoughStartEditor::getSelectedPresetName() const
+const RoughStartEditor::PresetEntry* RoughStartEditor::getSelectedEntry() const
 {
     const int index = presetBox.getSelectedId() - 1;
-    return juce::isPositiveAndBelow (index, (int) presetCache.size()) ? presetCache[(size_t) index].first
-                                                                     : juce::String();
+    return juce::isPositiveAndBelow (index, (int) presetCache.size()) ? &presetCache[(size_t) index] : nullptr;
+}
+
+juce::String RoughStartEditor::getSelectedPresetName() const
+{
+    if (auto* e = getSelectedEntry())
+        return e->name;
+    return {};
 }
 
 void RoughStartEditor::loadSelectedPreset()
 {
-    const int index = presetBox.getSelectedId() - 1;
-    if (juce::isPositiveAndBelow (index, (int) presetCache.size()))
-        rsProcessor.applyTargetSettings (presetCache[(size_t) index].second);
+    if (auto* e = getSelectedEntry())
+        rsProcessor.applyTargetSettings (e->settings);
+}
+
+void RoughStartEditor::setSelectedAsDefault()
+{
+    auto* e = getSelectedEntry();
+    if (e == nullptr)
+        return;
+
+    const auto name = e->name;
+    if (presets.setDefaultPreset ({ e->factory, name }))
+    {
+        reloadPresets();
+        showNotice ("\"" + name + "\" is now the default for new instances.");
+    }
 }
 
 void RoughStartEditor::showPresetMenu()
 {
-    const bool hasSelection = getSelectedPresetName().isNotEmpty();
+    const auto* selected = getSelectedEntry();
+    const bool hasSelection = selected != nullptr;
+    const bool isUserPreset = hasSelection && ! selected->factory;
 
     juce::PopupMenu menu;
     menu.addItem (saveItem, "Save current settings as preset...");
     menu.addItem (applyAllItem, "Apply current settings to all tracks");
+    menu.addItem (defaultItem, "Use selected preset as default for new instances", hasSelection);
     menu.addSeparator();
     menu.addItem (importItem, "Import preset...");
     menu.addItem (exportItem, "Export selected preset...", hasSelection);
-    menu.addItem (deleteItem, "Delete selected preset", hasSelection);
+    menu.addItem (deleteItem, "Delete selected preset", isUserPreset);
     menu.addSeparator();
     menu.addItem (revealItem, "Show presets folder");
-    menu.addItem (resetItem, "Reset settings to defaults");
+    menu.addItem (resetItem, "Reset to default preset");
 
     juce::Component::SafePointer<RoughStartEditor> safeThis (this);
     menu.showMenuAsync (juce::PopupMenu::Options().withTargetComponent (presetMenuButton),
@@ -466,6 +519,7 @@ void RoughStartEditor::showPresetMenu()
                             {
                                 case saveItem:     safeThis->savePresetAs(); break;
                                 case applyAllItem: safeThis->applySettingsToAll(); break;
+                                case defaultItem:  safeThis->setSelectedAsDefault(); break;
                                 case importItem:   safeThis->importPreset(); break;
                                 case exportItem:   safeThis->exportSelectedPreset(); break;
                                 case deleteItem:   safeThis->deleteSelectedPreset(); break;
@@ -474,7 +528,7 @@ void RoughStartEditor::showPresetMenu()
                                     safeThis->presets.getDirectory().revealToUser();
                                     break;
                                 case resetItem:
-                                    safeThis->rsProcessor.applyTargetSettings (TargetSettings {});
+                                    safeThis->rsProcessor.applyTargetSettings (safeThis->presets.getDefaultSettings());
                                     break;
                                 default: break;
                             }
@@ -534,9 +588,12 @@ void RoughStartEditor::importPreset()
 
 void RoughStartEditor::exportSelectedPreset()
 {
-    const auto name = getSelectedPresetName();
-    if (name.isEmpty())
+    const auto* entry = getSelectedEntry();
+    if (entry == nullptr)
         return;
+
+    const auto name = entry->name;
+    const auto settings = entry->settings;
 
     const auto suggested = juce::File::getSpecialLocation (juce::File::userDesktopDirectory)
                                .getChildFile (name + PresetManager::fileExtension);
@@ -547,7 +604,7 @@ void RoughStartEditor::exportSelectedPreset()
     juce::Component::SafePointer<RoughStartEditor> safeThis (this);
     fileChooser->launchAsync (juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::canSelectFiles
                                   | juce::FileBrowserComponent::warnAboutOverwriting,
-                              [safeThis, name] (const juce::FileChooser& chooser)
+                              [safeThis, name, settings] (const juce::FileChooser& chooser)
                               {
                                   if (safeThis == nullptr)
                                       return;
@@ -559,7 +616,7 @@ void RoughStartEditor::exportSelectedPreset()
                                   if (! file.hasFileExtension (PresetManager::fileExtension))
                                       file = file.withFileExtension (PresetManager::fileExtension);
 
-                                  safeThis->showNotice (safeThis->presets.exportPreset (name, file)
+                                  safeThis->showNotice (PresetManager::toXml (name, settings)->writeTo (file)
                                                             ? "Preset exported to " + file.getFileName() + "."
                                                             : "Could not export preset.");
                               });
@@ -567,9 +624,11 @@ void RoughStartEditor::exportSelectedPreset()
 
 void RoughStartEditor::deleteSelectedPreset()
 {
-    const auto name = getSelectedPresetName();
-    if (name.isEmpty())
+    const auto* entry = getSelectedEntry();
+    if (entry == nullptr || entry->factory)
         return;
+
+    const auto name = entry->name;
 
     prompt.showConfirm ("Delete preset", "Delete preset \"" + name + "\"?\nThis cannot be undone.", "Delete",
                         [this, name]
@@ -585,5 +644,5 @@ void RoughStartEditor::deleteSelectedPreset()
 void RoughStartEditor::applySettingsToAll()
 {
     const int count = rsProcessor.getRegistry().applyTargetSettingsToAll (rsProcessor.getTargetSettings());
-    showNotice ("Settings applied to " + juce::String (count) + " tracks.");
+    showNotice ("Mode, target and ceiling applied to " + juce::String (count) + " tracks.");
 }

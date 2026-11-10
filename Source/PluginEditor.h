@@ -5,6 +5,7 @@
 #include "OverviewComponent.h"
 #include "PresetManager.h"
 #include "InlinePrompt.h"
+#include "HelpOverlay.h"
 
 class RoughStartEditor final : public juce::AudioProcessorEditor,
                                private juce::Timer
@@ -21,6 +22,14 @@ private:
     using ComboAttachment  = juce::AudioProcessorValueTreeState::ComboBoxAttachment;
 
     enum class View { track = 0, overview = 1 };
+
+    struct PresetEntry
+    {
+        juce::String name;
+        roughstart::TargetSettings settings;
+        bool factory = false;
+    };
+
 
     void timerCallback() override;
     void setView (View newView);
@@ -44,6 +53,8 @@ private:
     void applySettingsToAll();
     void showNotice (const juce::String& text);
     juce::String getSelectedPresetName() const;
+    const PresetEntry* getSelectedEntry() const;
+    void setSelectedAsDefault();
 
     RoughStartProcessor& rsProcessor;
     View view = View::track;
@@ -51,6 +62,7 @@ private:
     // Kop
     juce::Label titleLabel, trackLabel;
     juce::TextButton trackViewButton { "Track" }, overviewButton { "Overview" };
+    juce::TextButton helpButton { "?" };
 
     // Track-weergave
     juce::Label presetLabel { {}, "Preset" };
@@ -59,6 +71,7 @@ private:
 
     juce::Label modeLabel { {}, "Mode" }, targetLabel { {}, "Target" }, ceilingLabel { {}, "Peak ceiling" };
     juce::ComboBox modeBox;
+    juce::TextButton applyAllButton { "Apply to all" };
     juce::Slider targetPeakSlider, targetRmsSlider, ceilingSlider;
 
     juce::TextButton analyzeButton { "Analyze" };
@@ -81,9 +94,10 @@ private:
     std::unique_ptr<SliderAttachment> targetPeakAttachment, targetRmsAttachment, ceilingAttachment, trimAttachment;
 
     roughstart::PresetManager presets;
-    std::vector<std::pair<juce::String, roughstart::TargetSettings>> presetCache;
+    std::vector<PresetEntry> presetCache;
     std::unique_ptr<juce::FileChooser> fileChooser;
 
+    HelpOverlay help;
     InlinePrompt prompt;   // als laatste: ligt boven alles
 
     juce::String noticeText;

@@ -59,6 +59,17 @@ void InstanceRegistry::stopAll()
             instance->stopAnalysis();
 }
 
+bool InstanceRegistry::hasBatchPlaybackEnded (int batch) const
+{
+    const juce::ScopedLock sl (lock);
+
+    for (auto* instance : instances)
+        if (instance->getAnalysisBatch() == batch && instance->hasSeenPlayback() && ! instance->isAnalyzing())
+            return true;
+
+    return false;
+}
+
 InstanceRegistry::BatchSummary InstanceRegistry::getBatchSummary() const
 {
     using State = RoughStartProcessor::AnalysisState;
@@ -108,6 +119,7 @@ std::vector<InstanceRegistry::OverviewRow> InstanceRegistry::getOverview() const
         OverviewRow r;
         r.instanceNumber   = instance->getInstanceNumber();
         r.trackName        = instance->getDisplayName();
+        r.numChannels      = instance->getNumChannels();
         r.mode             = instance->getMode() == RoughStartProcessor::Mode::rms ? 1 : 0;
         r.measured         = m.valid;
         r.peakDb           = m.peakDb;
@@ -117,6 +129,7 @@ std::vector<InstanceRegistry::OverviewRow> InstanceRegistry::getOverview() const
         r.trimDb           = instance->getTrimDb();
         r.totalDb          = autoGain.gainDb + r.trimDb;
         r.analysisState    = (int) instance->getAnalysisState();
+        r.lastResult       = (int) instance->getLastAnalysisResult();
         rows.push_back (r);
     }
 

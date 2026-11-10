@@ -29,6 +29,8 @@ juce_add_plugin(RoughStart
     AU_MAIN_TYPE kAudioUnitType_Effect
     COPY_PLUGIN_AFTER_BUILD TRUE)
 
+juce_add_binary_data(RoughStartData SOURCES docs/MANUAL.md)
+
 target_sources(RoughStart PRIVATE
     Source/PluginProcessor.cpp
     Source/PluginEditor.cpp
@@ -43,6 +45,7 @@ target_compile_definitions(RoughStart PUBLIC
 
 target_link_libraries(RoughStart
     PRIVATE
+        RoughStartData
         juce::juce_audio_utils
     PUBLIC
         juce::juce_recommended_config_flags

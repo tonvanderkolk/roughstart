@@ -20,7 +20,7 @@ public:
     void visibilityChanged() override;
 
 private:
-    enum ColumnId { trackCol = 1, modeCol, peakCol, rmsCol, autoCol, trimCol, totalCol, statusCol };
+    enum ColumnId { trackCol = 1, modeCol, peakCol, rmsCol, autoCol, trimCol, totalCol, statusCol, channelsCol };
 
     int getNumRows() override;
     void paintRowBackground (juce::Graphics&, int row, int width, int height, bool selected) override;

@@ -2,6 +2,33 @@
 
 Alle noemenswaardige wijzigingen in RoughStart. Formaat volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/), versies volgen [SemVer](https://semver.org/lang/nl/).
 
+## [0.5.1] - 2026-11-10
+
+### Toegevoegd
+- Kanaalformaat zichtbaar: naast de spoornaam staat "Mono" of "Stereo", en het overzicht heeft een kolom **Ch** (sorteerbaar). Zo zie je of Logic bij het invoegen op meerdere sporen per spoor de juiste variant koos.
+
+### Opgelost
+- Bij Analyze All bleven instances op sporen zonder audio op "Waiting" staan nadat Logic gestopt was. Logic roept plug-ins op stille sporen soms helemaal niet aan, waardoor ze het afspelen nooit zien. Zodra een ander spoor uit dezelfde Analyze All klaar is, stoppen ze nu ook (geen signaal, Auto blijft staan).
+- Overzicht toont dan "No signal" (of "No signal (kept)" als er nog een oudere meting staat), in grijs.
+
+## [0.5.0] - 2026-11-10
+
+### Toegevoegd
+- **Factory presets**, altijd aanwezig en niet te wijzigen of te verwijderen: RMS -18 (standard), RMS -24 (dynamic), Peak -12 (classic). Alle met plafond -6. In de keuzelijst gescheiden van eigen presets ("Factory" / "My presets").
+- **Eigen standaard**: "Use selected preset as default for new instances" in het Presets-menu. Nieuwe instances starten met die preset; in de lijst staat "(default)" erachter. Opgeslagen in `settings.xml` in de presetmap. Wordt de eigen standaard verwijderd, dan geldt weer de factory-standaard.
+- **Handleiding** (Engels): `docs/MANUAL.md`, ingebakken in de plugin en te openen met de knop "?" rechtsboven.
+- Unit tests voor factory presets en de standaard.
+
+### Gewijzigd
+- Standaard voor nieuwe instances is nu RMS -18 met plafond -6 (was Peak -12). Bestaande projecten houden hun eigen instellingen.
+- "Reset settings to defaults" heet nu "Reset to default preset" en gebruikt de ingestelde standaard.
+- Factory presets kunnen ook geëxporteerd worden.
+
+## [0.4.1] - 2026-11-10
+
+### Toegevoegd
+- Knop **Apply to all** naast Mode: kopieert methode, beide doelen en plafond van dit spoor naar alle andere instances, zonder eerst een preset op te slaan. (Meting en Trim blijven per spoor.)
+
 ## [0.4.0] - 2026-11-10
 
 ### Toegevoegd

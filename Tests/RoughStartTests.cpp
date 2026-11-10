@@ -222,6 +222,38 @@ struct PresetManagerTests final : juce::UnitTest
             expectEquals (s->ceilingDb, 0.0f);
             expectEquals (s->targetRmsDb, -40.0f);
             expectEquals (s->targetPeakDb, -12.0f);
+            expectEquals (s->mode, 1);
+        }
+
+        beginTest ("Factory presets en standaard");
+        {
+            PresetManager fresh (dir.getChildFile ("fresh"));
+            expect (PresetManager::getFactoryPresets().size() >= 3);
+
+            // Zonder instelling: eerste factory preset (RMS -18, plafond -6)
+            const auto def = fresh.getDefaultPreset();
+            expect (def.factory);
+            const auto s = fresh.getDefaultSettings();
+            expectEquals (s.mode, 1);
+            expectEquals (s.targetRmsDb, -18.0f);
+            expectEquals (s.ceilingDb, -6.0f);
+
+            // Eigen preset als standaard
+            TargetSettings mine;
+            mine.mode = 1;
+            mine.targetRmsDb = -30.0f;
+            expect (fresh.save ("Mine", mine));
+            expect (fresh.setDefaultPreset ({ false, "Mine" }));
+            expect (fresh.getDefaultPreset() == PresetManager::PresetRef { false, "Mine" });
+            expect (fresh.getDefaultSettings() == mine);
+
+            // Settings-bestand telt niet als preset
+            expect (! fresh.getPresetNames().contains ("settings"));
+
+            // Eigen standaard verwijderd: terug naar factory
+            expect (fresh.remove ("Mine"));
+            expect (fresh.getDefaultPreset().factory);
+            expect (fresh.getDefaultSettings() == PresetManager::getFactoryPresets().front().settings);
         }
 
         beginTest ("Verwijderen");

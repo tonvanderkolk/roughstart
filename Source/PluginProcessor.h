@@ -39,6 +39,11 @@ public:
     void setStateInformation (const void*, int) override;
 
     void updateTrackProperties (const TrackProperties& properties) override;
+    void numChannelsChanged() override;
+
+    /** Aantal kanalen van het spoor (1 = mono, 2 = stereo). */
+    int getNumChannels() const noexcept { return numChannels.load(); }
+    juce::String getChannelFormatName() const { return getNumChannels() == 1 ? "Mono" : "Stereo"; }
 
     //==============================================================================
     enum class Mode { peak = 0, rms = 1 };
@@ -91,6 +96,7 @@ public:
     /** Stopt de analyse. Geeft false als er geen signaal was; Auto blijft dan staan. */
     bool stopAnalysis();
     bool isAnalyzing() const noexcept { return analyzing.load(); }
+    bool hasSeenPlayback() const noexcept { return sawPlayback.load(); }
     AnalysisState getAnalysisState() const noexcept;
     AnalysisResult getLastAnalysisResult() const noexcept { return (AnalysisResult) lastResult.load(); }
 
@@ -137,6 +143,7 @@ private:
     std::atomic<double> lastBlockMs { 0.0 };
     std::atomic<int>    lastResult { (int) AnalysisResult::none };
     std::atomic<int>    analysisBatch { 0 };
+    std::atomic<int>    numChannels { 2 };
 
     void timerCallback() override;
 

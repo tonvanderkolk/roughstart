@@ -10,7 +10,8 @@ OverviewComponent::OverviewComponent (RoughStartProcessor& o) : owner (o)
     auto& header = table.getHeader();
     constexpr int flags = juce::TableHeaderComponent::visible | juce::TableHeaderComponent::sortable;
 
-    header.addColumn ("Track",  trackCol,  170, 80, 400, flags);
+    header.addColumn ("Track",  trackCol,  160, 80, 400, flags);
+    header.addColumn ("Ch",     channelsCol, 58, 44, 80, flags);
     header.addColumn ("Mode",   modeCol,    52, 40, 80,  flags);
     header.addColumn ("Peak",   peakCol,    68, 50, 100, flags);
     header.addColumn ("RMS",    rmsCol,     68, 50, 100, flags);
@@ -105,6 +106,7 @@ void OverviewComponent::sortRows()
         {
             case trackCol:  cmp = a.trackName.compareNatural (b.trackName); break;
             case modeCol:   cmp = a.mode - b.mode; break;
+            case channelsCol: cmp = a.numChannels - b.numChannels; break;
             case statusCol: cmp = statusText (a).compareNatural (statusText (b)); break;
             case peakCol: case rmsCol:
                 if (a.measured != b.measured)
@@ -155,7 +157,10 @@ juce::String OverviewComponent::statusText (const InstanceRegistry::OverviewRow&
         case State::idle:               break;
     }
 
-    if (! r.measured)          return "Not analyzed";
+    if (! r.measured)
+        return r.lastResult == (int) RoughStartProcessor::AnalysisResult::noSignal ? "No signal" : "Not analyzed";
+    if (r.lastResult == (int) RoughStartProcessor::AnalysisResult::noSignal)
+        return "No signal (kept)";
     if (r.limitedByCeiling)    return "Peak at ceiling";
     return "OK";
 }
@@ -166,6 +171,7 @@ juce::String OverviewComponent::cellText (const InstanceRegistry::OverviewRow& r
     {
         case trackCol:  return r.trackName;
         case modeCol:   return r.mode == 1 ? "RMS" : "Peak";
+        case channelsCol: return r.numChannels == 1 ? "Mono" : "Stereo";
         case peakCol:   return r.measured ? ui::formatDb (r.peakDb, false) : "-";
         case rmsCol:    return r.measured ? ui::formatDb (r.rmsDb, false)  : "-";
         case autoCol:   return r.measured ? ui::formatDb (r.autoDb, true)  : "-";
@@ -189,7 +195,8 @@ void OverviewComponent::paintCell (juce::Graphics& g, int row, int columnId, int
     {
         const auto state = (RoughStartProcessor::AnalysisState) r.analysisState;
         if (state != RoughStartProcessor::AnalysisState::idle)  colour = ui::analyzeColour;
-        else if (! r.measured)                                  colour = ui::dimText;
+        else if (! r.measured
+                 || r.lastResult == (int) RoughStartProcessor::AnalysisResult::noSignal) colour = ui::dimText;
         else if (r.limitedByCeiling)                            colour = ui::info;
         else                                                    colour = ui::accent;
     }

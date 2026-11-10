@@ -6,6 +6,8 @@
 - [x] **v0.2.2:** analyse gekoppeld aan transport (stopt vanzelf als Logic stopt). *(getest in Logic Pro 12 op 2026-11-10)*
 - [x] **v0.3 Analyze All:** gezamenlijke analyse over alle instances, gekoppeld aan transport. *(getest in Logic Pro 12 op 2026-11-10; Stop All stopt de analyse, afspelen loopt door)*
 - [x] **v0.4 Overzicht:** overzichtsvenster met sorteerbare kolommen, presets import/export. *(getest in Logic Pro 12 op 2026-11-10; CSV-export geschrapt)*
+- [x] **v0.4.1:** knop Apply to all. *(getest in Logic Pro 12 op 2026-11-10)*
+- [x] **v0.5:** factory presets, eigen standaard voor nieuwe instances, handleiding in de plugin; v0.5.1 toont Mono/Stereo en rondt stille sporen af bij Analyze All. *(getest in Logic Pro 12 op 2026-11-10)*
 - [ ] **v1.0 Afronding:** UI polijsten, `auval` schoon, signing.
 
 ## Besluiten
