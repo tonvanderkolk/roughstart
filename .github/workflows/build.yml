@@ -31,10 +31,13 @@ jobs:
       - name: Bouwen (AU, VST3, tests, hostcontrole)
         run: |
           cmake --build build
-          cmake --build build --target RoughStartHostCheck
+          cmake --build build --target RoughStartHostCheck RoughStartAnalyzeSim
 
       - name: Unit tests
         run: ./build/RoughStartTests_artefacts/Release/RoughStartTests
+
+      - name: Analyze All-simulatie (sporen die de host tijdelijk overslaat)
+        run: ./build/RoughStartAnalyzeSim_artefacts/Release/RoughStartAnalyzeSim
 
       - name: Architecturen
         run: |

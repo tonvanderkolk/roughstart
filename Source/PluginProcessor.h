@@ -97,6 +97,11 @@ public:
     bool stopAnalysis();
     bool isAnalyzing() const noexcept { return analyzing.load(); }
     bool hasSeenPlayback() const noexcept { return sawPlayback.load(); }
+
+    /** Tijdstip (ms-teller) van het laatste blok waarin de host afspeelde, resp. stilstond. 0 = nog nooit. */
+    double getLastPlayingBlockMs() const noexcept { return lastPlayingMs.load(); }
+    double getLastStoppedBlockMs() const noexcept { return lastStoppedMs.load(); }
+    double getLastBlockMs() const noexcept { return lastBlockMs.load(); }
     AnalysisState getAnalysisState() const noexcept;
     AnalysisResult getLastAnalysisResult() const noexcept { return (AnalysisResult) lastResult.load(); }
 
@@ -141,6 +146,8 @@ private:
     std::atomic<bool>   hostPlaying { false };
     std::atomic<bool>   sawPlayback { false };
     std::atomic<double> lastBlockMs { 0.0 };
+    std::atomic<double> lastPlayingMs { 0.0 };
+    std::atomic<double> lastStoppedMs { 0.0 };
     std::atomic<int>    lastResult { (int) AnalysisResult::none };
     std::atomic<int>    analysisBatch { 0 };
     std::atomic<int>    numChannels { 2 };

@@ -49,11 +49,17 @@ public:
         bool isRunning() const noexcept { return waiting + measuring > 0; }
     };
 
+    /** True als minstens één instance in deze batch het afspelen heeft gezien. */
+    bool hasBatchSeenPlayback (int batch) const;
+
     /**
-        True als in deze batch minstens één instance het afspelen heeft gezien
-        en inmiddels klaar is: het afspelen is dan gestopt.
+        True als het transport van de host stilstaat. Over alle instances heen:
+        is de nieuwste melding "staat stil" recenter dan de nieuwste melding
+        "speelt af"? Of krijgt geen enkele instance nog audio (hosts die bij stop
+        niets meer verwerken)? Dat één instance even geen audio krijgt, telt niet:
+        Logic slaat stille sporen tijdens het afspelen soms over.
     */
-    bool hasBatchPlaybackEnded (int batch) const;
+    bool hasPlaybackStopped() const;
 
     /** Stand van de laatste Analyze All; total == 0 als er nog geen was. */
     BatchSummary getBatchSummary() const;

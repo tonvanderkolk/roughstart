@@ -51,6 +51,7 @@ auval -v aufx RgSt TvdK
 - `Source/UiStyle.h`: gedeelde kleuren, dB-opmaak en het logo.
 - `Source/RoughStartLookAndFeel.h`: eigen donkere stijl voor alle bediening.
 - `Source/MeterView.h`: de meter in de Track-weergave.
+- `Tools/AnalyzeSim.cpp`: simuleert Analyze All met sporen die de host tijdelijk overslaat (`--target RoughStartAnalyzeSim`).
 - `Tools/HostCheck.cpp`: laadt de gebouwde VST3/AU zoals een DAW en test de basis (`--target RoughStartHostCheck`).
 - `Tools/Snapshot.cpp`: rendert de editor naar PNG (`--target RoughStartSnapshot`).
 - `Source/InlinePrompt.h`: invoer/bevestiging als laag in de editor (losse vensters flikkeren in Logic).

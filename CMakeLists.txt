@@ -116,3 +116,23 @@ target_compile_definitions(RoughStartHostCheck PRIVATE
     JUCE_PLUGINHOST_VST3=1 JUCE_PLUGINHOST_AU=1)
 target_link_libraries(RoughStartHostCheck PRIVATE juce::juce_audio_utils PUBLIC juce::juce_recommended_config_flags)
 set_target_properties(RoughStartHostCheck PROPERTIES EXCLUDE_FROM_ALL TRUE)
+
+#==============================================================================
+# AnalyzeSim: speelt Analyze All na met sporen die de host tijdelijk overslaat.
+juce_add_console_app(RoughStartAnalyzeSim PRODUCT_NAME "RoughStartAnalyzeSim")
+target_sources(RoughStartAnalyzeSim PRIVATE
+    Tools/AnalyzeSim.cpp
+    Source/PluginProcessor.cpp
+    Source/PluginEditor.cpp
+    Source/InstanceRegistry.cpp
+    Source/PresetManager.cpp
+    Source/OverviewComponent.cpp)
+target_compile_definitions(RoughStartAnalyzeSim PRIVATE
+    JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0
+    JUCE_MODAL_LOOPS_PERMITTED=1
+    JucePlugin_Name="RoughStart"
+    JucePlugin_VersionString="${ROUGHSTART_VERSION}")
+target_link_libraries(RoughStartAnalyzeSim
+    PRIVATE RoughStartData juce::juce_audio_utils
+    PUBLIC juce::juce_recommended_config_flags)
+set_target_properties(RoughStartAnalyzeSim PROPERTIES EXCLUDE_FROM_ALL TRUE)

@@ -59,15 +59,39 @@ void InstanceRegistry::stopAll()
             instance->stopAnalysis();
 }
 
-bool InstanceRegistry::hasBatchPlaybackEnded (int batch) const
+namespace
+{
+    constexpr double allQuietTimeoutMs = 3000.0;  // niemand krijgt nog audio: host is gestopt
+}
+
+bool InstanceRegistry::hasBatchSeenPlayback (int batch) const
 {
     const juce::ScopedLock sl (lock);
 
     for (auto* instance : instances)
-        if (instance->getAnalysisBatch() == batch && instance->hasSeenPlayback() && ! instance->isAnalyzing())
+        if (instance->getAnalysisBatch() == batch && instance->hasSeenPlayback())
             return true;
 
     return false;
+}
+
+bool InstanceRegistry::hasPlaybackStopped() const
+{
+    const juce::ScopedLock sl (lock);
+
+    double latestPlaying = 0.0, latestStopped = 0.0, latestBlock = 0.0;
+
+    for (auto* instance : instances)
+    {
+        latestPlaying = juce::jmax (latestPlaying, instance->getLastPlayingBlockMs());
+        latestStopped = juce::jmax (latestStopped, instance->getLastStoppedBlockMs());
+        latestBlock   = juce::jmax (latestBlock,   instance->getLastBlockMs());
+    }
+
+    if (latestStopped > latestPlaying)
+        return true;   // de nieuwste melding van de host: staat stil
+
+    return juce::Time::getMillisecondCounterHiRes() - latestBlock > allQuietTimeoutMs;
 }
 
 InstanceRegistry::BatchSummary InstanceRegistry::getBatchSummary() const

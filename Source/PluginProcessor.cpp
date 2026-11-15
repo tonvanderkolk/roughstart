@@ -19,9 +19,6 @@ namespace
 
     constexpr double gainRampSeconds = 0.05;
 
-    // Komen er na afspelen zo lang geen audioblokken meer, dan geldt dat ook als
-    // gestopt (vangnet voor hosts die bij stop niet meer verwerken).
-    constexpr double staleBlockMs = 1500.0;
 
     juce::String dbText (float value, int)
     {
@@ -198,22 +195,14 @@ void RoughStartProcessor::timerCallback()
     if (! analyzing.load())
         return;
 
-    if (! sawPlayback.load())
-    {
-        // Logic roept plug-ins op sporen zonder audio soms helemaal niet aan,
-        // dus zo'n instance ziet het afspelen nooit. Is de Analyze All waar
-        // deze instance bij hoort al afgerond op andere sporen, dan stoppen
-        // we ook (geen signaal, Auto blijft staan).
-        const int batch = analysisBatch.load();
-        if (batch > 0 && registry->hasBatchPlaybackEnded (batch))
-            stopAnalysis();
+    // Logic slaat plug-ins op sporen en bussen zonder geluid soms tijdelijk over,
+    // ook midden in het nummer. Dat deze instance even geen audio krijgt, zegt dus
+    // niets over het transport. Of het afspelen gestopt is, beslist de registry op
+    // basis van alle instances (zie InstanceRegistry::hasPlaybackStopped).
+    const int batch = analysisBatch.load();
+    const bool started = batch > 0 ? registry->hasBatchSeenPlayback (batch) : sawPlayback.load();
 
-        return;
-    }
-
-    const bool stale = juce::Time::getMillisecondCounterHiRes() - lastBlockMs.load() > staleBlockMs;
-
-    if (! hostPlaying.load() || stale)
+    if (started && registry->hasPlaybackStopped())
         stopAnalysis();
 }
 
@@ -256,7 +245,9 @@ void RoughStartProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
             playing = position->getIsPlaying();
 
     hostPlaying = playing;
-    lastBlockMs = juce::Time::getMillisecondCounterHiRes();
+    const double now = juce::Time::getMillisecondCounterHiRes();
+    lastBlockMs = now;
+    (playing ? lastPlayingMs : lastStoppedMs) = now;
 
     // 1. Meten op het ingangssignaal (vóór de gain), zodat opnieuw analyseren
     //    niet afhangt van de huidige Auto- of Trim-stand. Alleen tijdens afspelen.
