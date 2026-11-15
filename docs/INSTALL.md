@@ -74,6 +74,8 @@ Klik in de plugin rechtsboven op **?** voor de handleiding. In het kort:
 3. Klik op **Analyze all**, speel het nummer af en stop.
 4. Klaar: alle sporen staan op een gelijk startniveau, je faders blijven op 0. Balanceer daarna op het gehoor met Trim.
 
+Zet RoughStart óf op de sporen óf op de bussen, niet op allebei. Wil je toch allebei, doe Analyze all dan twee keer; de handleiding legt uit waarom.
+
 ## Licentie
 
 RoughStart is gratis en open source (AGPL-3.0). De broncode staat op github.com/tonvanderkolk/roughstart.

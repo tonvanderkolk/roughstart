@@ -23,6 +23,14 @@ RoughStart sets the level of every track before you start mixing. Put one instan
 - Analyze All works while Live plays, in Arrangement or Session view, and stops when you stop playback.
 - If the Overview shows Instance 1, Instance 2 and so on instead of track names, Live does not pass track names to Audio Units. Everything else still works.
 
+## Tracks or buses
+
+- RoughStart works on tracks and on buses (aux channels, summing stacks).
+- Use it on the tracks or on the buses, not on both. A bus measures the sum of its tracks after their own RoughStart. During Analyze all the tracks still have their old Auto, so the bus would measure a level that is gone once the analysis is done.
+- On the tracks: once the tracks are set, the buses usually end up at a sensible level by themselves.
+- On the buses: handy when you work with stems or summing stacks and want to set whole groups at once.
+- Want both after all? Run Analyze all twice. The first pass sets the tracks; in the second pass the tracks measure the same again (they measure before their own gain) and the buses measure the correct sum.
+
 ## Quick start
 
 1. Open RoughStart on any track and choose a preset, or set Mode, Target and Peak ceiling yourself.

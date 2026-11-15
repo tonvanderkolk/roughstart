@@ -10,6 +10,9 @@ Alle noemenswaardige wijzigingen in RoughStart. Formaat volgt [Keep a Changelog]
 - GitHub Actions: Windows-job (bouwen, unit tests, hostcontrole) en een Windows-zip bij een release, met dezelfde PDF's en licenties.
 - Installatiebriefje en handleiding: Mac met AU en VST3, Windows-installatie, presetmap op Windows.
 
+### Documentatie
+- Handleiding: nieuw stuk "Tracks or buses". RoughStart op sporen óf bussen, niet allebei; wie het combineert doet Analyze all twee keer. Kort ook in het installatiebriefje.
+
 ### Opgelost
 - **Analyze all gaf soms "No signal" voor sporen die wel speelden.** Logic slaat plug-ins op stille sporen en bussen tijdens het afspelen tijdelijk over. RoughStart zag een gat van 1,5 seconde zonder audio als "gestopt", rondde dat spoor af, en daardoor stopten ook sporen die later in het nummer begonnen. Nu bepaalt RoughStart over alle instances heen of het transport stilstaat: de nieuwste melding "staat stil" moet recenter zijn dan de nieuwste melding "speelt af", of geen enkele instance krijgt nog audio (na 3 s). Geldt ook voor Analyze track.
 - `RoughStartAnalyzeSim` (`Tools/AnalyzeSim.cpp`) speelt dit na met een spoor met een gat, een spoor dat later begint, een leeg spoor en een host die na stop niets meer verwerkt. Draait ook in GitHub Actions.

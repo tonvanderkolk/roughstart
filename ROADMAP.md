@@ -22,6 +22,7 @@
 - Meting wordt vastgezet; Auto wordt afgeleid van meting + doel, dus doel wijzigen vraagt geen nieuwe analyse.
 
 ## Misschien later
+- Schakelaar per instance "Track"/"Bus": bussen meten bij Analyze all pas in een tweede afspeelronde. Alleen als testers sporen en bussen vaak combineren.
 - CSV-export van het overzicht. Alleen nuttig om een mix te delen met iemand zonder RoughStart; stems exporteren of een screenshot van het overzicht dekt dat meestal al.
 
 ## Aandachtspunten
