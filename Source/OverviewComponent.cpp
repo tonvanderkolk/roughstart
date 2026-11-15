@@ -163,7 +163,7 @@ void OverviewComponent::visibilityChanged()
     if (isVisible())
     {
         refresh();
-        startTimerHz (8);
+        startTimerHz (15);
     }
     else
     {
@@ -336,8 +336,8 @@ juce::String OverviewComponent::cellText (const InstanceRegistry::OverviewRow& r
         case trackCol:    return r.trackName;
         case modeCol:     return r.mode == 1 ? "RMS" : "Peak";
         case channelsCol: return r.numChannels == 1 ? "Mono" : "St";
-        case peakCol:     return r.measured ? juce::String (r.peakDb, 1) : dash;
-        case rmsCol:      return r.measured ? juce::String (r.rmsDb, 1) : dash;
+        case peakCol:     return r.liveValid ? juce::String (r.livePeakDb, 1) : r.measured ? juce::String (r.peakDb, 1) : dash;
+        case rmsCol:      return r.liveValid ? juce::String (r.liveRmsDb, 1)  : r.measured ? juce::String (r.rmsDb, 1)  : dash;
         case autoCol:     return r.measured ? (r.autoDb > 0.0f ? "+" : "") + juce::String (r.autoDb, 1) : dash;
         case totalCol:    return (r.totalDb > 0.0f ? "+" : "") + juce::String (r.totalDb, 1);
         case statusCol:   return statusText (r);
@@ -371,17 +371,25 @@ void OverviewComponent::paintLevel (juce::Graphics& g, const InstanceRegistry::O
     g.setColour (ui::control);
     g.fillRoundedRectangle (bar, 3.0f);
 
+    auto xFor = [&] (float db) { return bar.getX() + bar.getWidth() * meterProportion (db); };
+
     if (isAnalyzing (r))
     {
-        g.setColour (ui::analyzeColour.withAlpha (0.6f));
-        g.fillRoundedRectangle (bar.withWidth (bar.getWidth() * 0.15f), 3.0f);
+        // Live, zoals in de Track-weergave: oranje balk tot het lopende niveau, wit streepje = piek
+        if (r.liveValid)
+        {
+            const float level = r.mode == 1 ? r.liveRmsDb : r.livePeakDb;
+            g.setColour (ui::analyzeColour.withAlpha (0.85f));
+            g.fillRoundedRectangle (bar.withRight (xFor (level)).reduced (0.0f, 1.0f), 2.5f);
+            g.setColour (ui::text);
+            g.fillRect (juce::Rectangle<float> (xFor (r.livePeakDb) - 1.0f, bar.getY() - 1.0f, 2.0f, bar.getHeight() + 2.0f));
+        }
         return;
     }
 
     if (! r.measured)
         return;
 
-    auto xFor = [&] (float db) { return bar.getX() + bar.getWidth() * meterProportion (db); };
     const float before = r.mode == 1 ? r.rmsDb : r.peakDb;
     const float after = before + r.autoDb;
 
@@ -441,6 +449,8 @@ void OverviewComponent::paintCell (juce::Graphics& g, int row, int columnId, int
         colour = ui::dimText;
     if (numeric && ! r.measured && columnId != totalCol)
         colour = ui::faintText;
+    if (r.liveValid && (columnId == peakCol || columnId == rmsCol))
+        colour = ui::analyzeColour;   // live waarden tijdens meten
 
     g.setColour (colour);
     g.drawText (cellText (r, columnId), 6, 0, width - 12, height,

@@ -10,6 +10,9 @@ Alle noemenswaardige wijzigingen in RoughStart. Formaat volgt [Keep a Changelog]
 - GitHub Actions: Windows-job (bouwen, unit tests, hostcontrole) en een Windows-zip bij een release, met dezelfde PDF's en licenties.
 - Installatiebriefje en handleiding: Mac met AU en VST3, Windows-installatie, presetmap op Windows.
 
+### Gewijzigd (overzicht)
+- Tijdens meten tonen de kolommen Level, Peak en RMS in het overzicht de live-meting in oranje, net als de Track-weergave (was een vast oranje streepje). Overzicht ververst 15 keer per seconde.
+
 ### Documentatie
 - Handleiding: nieuw stuk "Tracks or buses". RoughStart op sporen óf bussen, niet allebei; wie het combineert doet Analyze all twee keer. Kort ook in het installatiebriefje.
 

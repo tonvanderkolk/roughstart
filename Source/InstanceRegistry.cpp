@@ -154,6 +154,11 @@ std::vector<InstanceRegistry::OverviewRow> InstanceRegistry::getOverview() const
         r.totalDb          = autoGain.gainDb + r.trimDb;
         r.analysisState    = (int) instance->getAnalysisState();
         r.lastResult       = (int) instance->getLastAnalysisResult();
+
+        const auto live    = instance->getLiveMeasurement();
+        r.liveValid        = instance->isAnalyzing() && live.valid;
+        r.livePeakDb       = live.peakDb;
+        r.liveRmsDb        = live.rmsDb;
         rows.push_back (r);
     }
 

@@ -78,6 +78,8 @@ public:
         bool limitedByCeiling = false;
         int analysisState = 0;        // RoughStartProcessor::AnalysisState
         int lastResult = 0;           // RoughStartProcessor::AnalysisResult
+        bool liveValid = false;       // tijdens meten: al signaal gezien
+        float livePeakDb = 0.0f, liveRmsDb = 0.0f;
     };
 
     std::vector<OverviewRow> getOverview() const;
