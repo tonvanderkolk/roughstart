@@ -2,7 +2,7 @@
 
 **Gain staging for every track in your session, in one click.**
 
-RoughStart is a free Audio Unit plug-in for Logic Pro (and other AU hosts on macOS). Put it first on every track, click **Analyze all**, play the song, and every track lands at the same healthy starting level. Your faders stay at 0 dB, every plug-in after RoughStart gets a sensible input level, and what you hear is already a rough mix. Then you balance by ear with Trim.
+RoughStart is a free Audio Unit plug-in for Logic Pro and other Audio Unit hosts on macOS. Put it first on every track, click **Analyze all**, play the song, and every track lands at the same healthy starting level. Your faders stay at 0 dB, every plug-in after RoughStart gets a sensible input level, and what you hear is already a rough mix. Then you balance by ear with Trim.
 
 It works on software instrument tracks too, which Logic's Normalize Region Gain does not cover.
 
@@ -24,7 +24,7 @@ It works on software instrument tracks too, which Logic's Normalize Region Gain 
 ## Requirements
 
 - macOS 12 or later, Apple Silicon or Intel
-- An Audio Unit host. Developed and tested in **Logic Pro**. Ableton Live on the Mac should work but has not been tested yet.
+- An Audio Unit host on macOS. Developed and tested in **Logic Pro**. Other AU hosts, such as GarageBand, MainStage, Ableton Live, Studio One, Reaper, Digital Performer and Bitwig, should work too but have not been tested yet. Reports are welcome.
 
 RoughStart finds its other instances inside the host process. Hosts that run each plug-in in a separate sandbox (an option in Bitwig and Reaper) still work per track, but Analyze all and the Overview only see one track.
 

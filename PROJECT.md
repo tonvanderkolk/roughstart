@@ -2,7 +2,7 @@
 
 Audio Unit-plugin (AUv2) voor Logic Pro 12 die het gainstagen van alle sporen automatiseert voordat het mixen begint. Op elk spoor staat een instance; via één "Analyze All" meten alle instances hun signaal en brengen het naar een doelniveau (Auto). Daarna balanceert de gebruiker op het gehoor met Trim, terwijl de faders op 0 blijven.
 
-Versie: zie `VERSION`. Achtergrond, besluiten en mijlpalen: zie `HANDOVER.md` en `ROADMAP.md`.
+Versie: zie `VERSION`. Besluiten en mijlpalen: zie `ROADMAP.md`.
 
 ## Codes
 - Type `aufx`, subtype `RgSt`, fabrikant `TvdK`
