@@ -122,14 +122,14 @@ OverviewComponent::OverviewComponent (RoughStartProcessor& o) : owner (o)
     constexpr int columnFlags = juce::TableHeaderComponent::visible | juce::TableHeaderComponent::sortable;
 
     header.addColumn ("Track",  trackCol,    160, 90, 400, columnFlags);
-    header.addColumn ("Ch",     channelsCol,  44, 36, 70,  flags);
-    header.addColumn ("Mode",   modeCol,      48, 40, 70,  flags);
+    header.addColumn ("Ch",     channelsCol,  44, 36, 70,  columnFlags);
+    header.addColumn ("Mode",   modeCol,      48, 40, 70,  columnFlags);
     header.addColumn ("Level",  levelCol,    110, 70, 200, columnFlags);
-    header.addColumn ("Peak",   peakCol,      56, 46, 90,  flags);
-    header.addColumn ("RMS",    rmsCol,       56, 46, 90,  flags);
-    header.addColumn ("Auto",   autoCol,      62, 50, 90,  flags);
+    header.addColumn ("Peak",   peakCol,      56, 46, 90,  columnFlags);
+    header.addColumn ("RMS",    rmsCol,       56, 46, 90,  columnFlags);
+    header.addColumn ("Auto",   autoCol,      62, 50, 90,  columnFlags);
     header.addColumn ("Trim",   trimCol,      84, 70, 110, columnFlags);
-    header.addColumn ("Total",  totalCol,     64, 50, 90,  flags);
+    header.addColumn ("Total",  totalCol,     64, 50, 90,  columnFlags);
     header.addColumn ("Status", statusCol,   100, 70, 140, columnFlags);
     header.setStretchToFitActive (true);
 
