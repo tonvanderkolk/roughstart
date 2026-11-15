@@ -2,7 +2,7 @@
 
 **Gain staging for every track in your session, in one click.**
 
-RoughStart is a free Audio Unit plug-in for Logic Pro and other Audio Unit hosts on macOS. Put it first on every track, click **Analyze all**, play the song, and every track lands at the same healthy starting level. Your faders stay at 0 dB, every plug-in after RoughStart gets a sensible input level, and what you hear is already a rough mix. Then you balance by ear with Trim.
+RoughStart is a free plug-in for Logic Pro and other DAWs: Audio Unit and VST3 on macOS, VST3 on Windows. Put it first on every track, click **Analyze all**, play the song, and every track lands at the same healthy starting level. Your faders stay at 0 dB, every plug-in after RoughStart gets a sensible input level, and what you hear is already a rough mix. Then you balance by ear with Trim.
 
 It works on software instrument tracks too, which Logic's Normalize Region Gain does not cover.
 
@@ -27,28 +27,39 @@ Like RoughStart? You can [support it with a coffee](https://buymeacoffee.com/tvd
 
 ## Requirements
 
-- macOS 12 or later, Apple Silicon or Intel
-- An Audio Unit host on macOS. Developed and tested in **Logic Pro**. Other AU hosts, such as GarageBand, MainStage, Ableton Live, Studio One, Reaper, Digital Performer and Bitwig, should work too but have not been tested yet. Reports are welcome.
+- **macOS** 12 or later, Apple Silicon or Intel: Audio Unit and VST3.
+- **Windows** 64-bit: VST3. New, and not yet tested in a DAW.
+- Developed and tested in **Logic Pro**. Other hosts, such as GarageBand, Ableton Live, Cubase, Studio One, Reaper, Digital Performer and Bitwig, should work too but have not been tested yet. Reports are welcome.
 
 RoughStart finds its other instances inside the host process. Hosts that run each plug-in in a separate sandbox (an option in Bitwig and Reaper) still work per track, but Analyze all and the Overview only see one track.
 
 ## Install
 
-1. Download the latest zip from [Releases](https://github.com/tonvanderkolk/roughstart/releases) and unzip it.
-2. Move `RoughStart.component` to `~/Library/Audio/Plug-Ins/Components` (Finder: Go > Go to Folder...).
+**Mac**
+
+1. Download the latest `-macos.zip` from [Releases](https://github.com/tonvanderkolk/roughstart/releases) and unzip it.
+2. Move `RoughStart.component` to `~/Library/Audio/Plug-Ins/Components` (Finder: Go > Go to Folder...). For VST3 hosts, also move `RoughStart.vst3` to `~/Library/Audio/Plug-Ins/VST3`.
 3. RoughStart is not signed with an Apple Developer ID, so macOS blocks it the first time. Remove that block once in Terminal:
 
    ```bash
    xattr -dr com.apple.quarantine ~/Library/Audio/Plug-Ins/Components/RoughStart.component
    ```
 
+   Do the same for `~/Library/Audio/Plug-Ins/VST3/RoughStart.vst3` if you installed the VST3.
+
 4. (Re)start your DAW. In Logic, RoughStart is under Audio Units > TvdK > RoughStart.
+
+**Windows**
+
+1. Download the latest `-windows.zip` from [Releases](https://github.com/tonvanderkolk/roughstart/releases) and extract it.
+2. Copy the `RoughStart.vst3` folder to `C:\Program Files\Common Files\VST3`.
+3. (Re)start your DAW and rescan plug-ins if needed.
 
 The zip also contains an installation guide and the manual as PDF. The manual is also built into the plug-in: click **?** at the top right.
 
 ## Build from source
 
-You need the Xcode Command Line Tools, CMake and Ninja (`brew install cmake ninja`).
+On macOS you need the Xcode Command Line Tools, CMake and Ninja (`brew install cmake ninja`). On Windows, Visual Studio 2022 with C++ and CMake (`cmake -B build -G "Visual Studio 17 2022" -A x64`, then `cmake --build build --config Release`).
 
 ```bash
 git clone --recurse-submodules https://github.com/tonvanderkolk/roughstart.git
@@ -57,7 +68,7 @@ cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
 cmake --build build
 ```
 
-The plug-in is copied to `~/Library/Audio/Plug-Ins/Components` after building. Run the unit tests with `./build/RoughStartTests_artefacts/Release/RoughStartTests` and validate with `auval -v aufx RgSt TvdK`.
+On macOS the plug-ins are copied to `~/Library/Audio/Plug-Ins` after building. Run the unit tests with `./build/RoughStartTests_artefacts/Release/RoughStartTests` and validate with `auval -v aufx RgSt TvdK`.
 
 `./scripts/package.sh` builds a release zip in `dist/` (needs Google Chrome and the Python `markdown` module for the PDFs).
 
@@ -67,7 +78,7 @@ RoughStart was built with Claude Code. Besides the source in `Source/`, the repo
 
 ## Feedback and contributions
 
-Questions, ideas and experiences are welcome in [Discussions](https://github.com/tonvanderkolk/roughstart/discussions); bug reports go in [Issues](https://github.com/tonvanderkolk/roughstart/issues). Especially useful: results in DAWs other than Logic, and a VST3 or Windows build.
+Questions, ideas and experiences are welcome in [Discussions](https://github.com/tonvanderkolk/roughstart/discussions); bug reports go in [Issues](https://github.com/tonvanderkolk/roughstart/issues). Especially useful: results in DAWs other than Logic, and on Windows.
 
 ## License
 

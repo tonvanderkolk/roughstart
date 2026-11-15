@@ -21,10 +21,13 @@ namespace roughstart
 
     juce::File PresetManager::getDefaultDirectory()
     {
-        return juce::File::getSpecialLocation (juce::File::userApplicationDataDirectory)
-                   .getChildFile ("Application Support")
-                   .getChildFile ("RoughStart")
-                   .getChildFile ("Presets");
+        // macOS: ~/Library/Application Support/RoughStart/Presets
+        // Windows: %APPDATA%\RoughStart\Presets
+        auto base = juce::File::getSpecialLocation (juce::File::userApplicationDataDirectory);
+       #if JUCE_MAC
+        base = base.getChildFile ("Application Support");
+       #endif
+        return base.getChildFile ("RoughStart").getChildFile ("Presets");
     }
 
     juce::String PresetManager::sanitiseName (const juce::String& name)

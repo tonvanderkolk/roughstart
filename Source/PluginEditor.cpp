@@ -119,7 +119,7 @@ RoughStartView::RoughStartView (RoughStartProcessor& p)
     targetPeakSlider.setTooltip ("Level the loudest moment should end up at. Drag left or right; double-click to type.");
     targetRmsSlider.setTooltip ("Average level the track should end up at. Drag left or right; double-click to type.");
     ceilingSlider.setTooltip ("Auto never raises the track's peak above this level.");
-    analyzeButton.setTooltip ("Measure only this track while Logic plays. Stops by itself when playback stops.");
+    analyzeButton.setTooltip ("Measure only this track while your DAW plays. Stops by itself when playback stops.");
     trimSlider.setTooltip ("Your own adjustment on top of Auto. Drag up or down; double-click for 0 dB. Can be automated.");
     analyzeAllButton.setTooltip ("Measure every RoughStart track at once during the next playback.");
     meter.setTooltip ("Grey: level before RoughStart. Green: level after Auto. Dashed: target. Blue: peak ceiling. White tick: peak after Auto.");

@@ -3,9 +3,11 @@ cmake_minimum_required(VERSION 3.22)
 file(READ "${CMAKE_CURRENT_SOURCE_DIR}/VERSION" ROUGHSTART_VERSION)
 string(STRIP "${ROUGHSTART_VERSION}" ROUGHSTART_VERSION)
 
-# Universal binary: Apple Silicon en Intel
-set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64" CACHE STRING "")
-set(CMAKE_OSX_DEPLOYMENT_TARGET "12.0" CACHE STRING "")
+# macOS: universal binary (Apple Silicon en Intel), macOS 12+
+if(APPLE)
+    set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64" CACHE STRING "")
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "12.0" CACHE STRING "")
+endif()
 
 project(RoughStart VERSION ${ROUGHSTART_VERSION} LANGUAGES C CXX)
 
@@ -14,12 +16,24 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_subdirectory(JUCE)
 
+# Formaten: AU (alleen macOS) en VST3 (macOS en Windows).
+# Na het bouwen kopiëren naar de pluginmap alleen op de Mac: op Windows
+# vraagt C:\Program Files\Common Files\VST3 beheerdersrechten.
+if(APPLE)
+    set(ROUGHSTART_FORMATS AU VST3)
+    set(ROUGHSTART_COPY TRUE)
+else()
+    set(ROUGHSTART_FORMATS VST3)
+    set(ROUGHSTART_COPY FALSE)
+endif()
+
 juce_add_plugin(RoughStart
     COMPANY_NAME "TvdK"
     BUNDLE_ID "com.tvdk.roughstart"
     PLUGIN_MANUFACTURER_CODE TvdK
     PLUGIN_CODE RgSt
-    FORMATS AU
+    FORMATS ${ROUGHSTART_FORMATS}
+    VST3_CATEGORIES Fx Tools
     PRODUCT_NAME "RoughStart"
     IS_SYNTH FALSE
     NEEDS_MIDI_INPUT FALSE
@@ -27,7 +41,7 @@ juce_add_plugin(RoughStart
     IS_MIDI_EFFECT FALSE
     EDITOR_WANTS_KEYBOARD_FOCUS FALSE
     AU_MAIN_TYPE kAudioUnitType_Effect
-    COPY_PLUGIN_AFTER_BUILD TRUE)
+    COPY_PLUGIN_AFTER_BUILD ${ROUGHSTART_COPY})
 
 juce_add_binary_data(RoughStartData SOURCES
     docs/MANUAL.md
@@ -92,3 +106,13 @@ target_link_libraries(RoughStartSnapshot
     PUBLIC
         juce::juce_recommended_config_flags)
 set_target_properties(RoughStartSnapshot PROPERTIES EXCLUDE_FROM_ALL TRUE)
+
+#==============================================================================
+# HostCheck: laadt de gebouwde plugin (VST3/AU) zoals een DAW en test de basis.
+juce_add_console_app(RoughStartHostCheck PRODUCT_NAME "RoughStartHostCheck")
+target_sources(RoughStartHostCheck PRIVATE Tools/HostCheck.cpp)
+target_compile_definitions(RoughStartHostCheck PRIVATE
+    JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0
+    JUCE_PLUGINHOST_VST3=1 JUCE_PLUGINHOST_AU=1)
+target_link_libraries(RoughStartHostCheck PRIVATE juce::juce_audio_utils PUBLIC juce::juce_recommended_config_flags)
+set_target_properties(RoughStartHostCheck PROPERTIES EXCLUDE_FROM_ALL TRUE)

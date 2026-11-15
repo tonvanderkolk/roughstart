@@ -1,6 +1,7 @@
 #pragma once
 
 #include <juce_core/juce_core.h>
+#include <cmath>
 #include <optional>
 
 namespace roughstart
@@ -26,7 +27,7 @@ namespace roughstart
 
     /**
         Presets als losse XML-bestanden (.rspreset) in een map, standaard
-        ~/Library/Application Support/RoughStart/Presets. Een preset is gewoon
+        ~/Library/Application Support/RoughStart/Presets (Windows: %APPDATA%\RoughStart\Presets). Een preset is gewoon
         een bestand, dus importeren/exporteren is kopiëren met controle.
     */
     class PresetManager

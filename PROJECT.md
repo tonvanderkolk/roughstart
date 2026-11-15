@@ -10,7 +10,8 @@ Versie: zie `VERSION`. Besluiten en mijlpalen: zie `ROADMAP.md`.
 
 ## Stack
 - C++20, JUCE 9 (git-submodule in `JUCE/`), CMake + Ninja
-- macOS 12+, Universal binary (arm64 + x86_64)
+- macOS 12+, Universal binary (arm64 + x86_64): AU en VST3
+- Windows 64-bit: VST3 (gebouwd in GitHub Actions)
 - Bouwen kan met alleen de Command Line Tools; volledige Xcode is optioneel (debuggen)
 
 ## Bouwen
@@ -50,6 +51,7 @@ auval -v aufx RgSt TvdK
 - `Source/UiStyle.h`: gedeelde kleuren, dB-opmaak en het logo.
 - `Source/RoughStartLookAndFeel.h`: eigen donkere stijl voor alle bediening.
 - `Source/MeterView.h`: de meter in de Track-weergave.
+- `Tools/HostCheck.cpp`: laadt de gebouwde VST3/AU zoals een DAW en test de basis (`--target RoughStartHostCheck`).
 - `Tools/Snapshot.cpp`: rendert de editor naar PNG (`--target RoughStartSnapshot`).
 - `Source/InlinePrompt.h`: invoer/bevestiging als laag in de editor (losse vensters flikkeren in Logic).
 - `Source/HelpOverlay.h`: toont de handleiding in de plugin.

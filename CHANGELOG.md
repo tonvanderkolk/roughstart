@@ -2,7 +2,18 @@
 
 Alle noemenswaardige wijzigingen in RoughStart. Formaat volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/), versies volgen [SemVer](https://semver.org/lang/nl/).
 
-## [Unreleased]
+## [0.10.0] - 2026-11-15
+
+### Toegevoegd
+- **VST3** naast AU op de Mac (voor Cubase, Bitwig en andere VST3-hosts), en **Windows (64-bit, VST3)**. De Windows-versie wordt in GitHub Actions gebouwd en getest, maar is nog niet in een DAW uitgeprobeerd.
+- `RoughStartHostCheck` (`Tools/HostCheck.cpp`): laadt de gebouwde VST3 of AU zoals een DAW en controleert laden, twee instances, mono/stereo, audio, Trim, state opslaan/terugzetten en (met `--editor`) de editor. Draait in GitHub Actions op Mac en Windows.
+- GitHub Actions: Windows-job (bouwen, unit tests, hostcontrole) en een Windows-zip bij een release, met dezelfde PDF's en licenties.
+- Installatiebriefje en handleiding: Mac met AU en VST3, Windows-installatie, presetmap op Windows.
+
+### Gewijzigd
+- Presets op Windows in `%APPDATA%\RoughStart\Presets`.
+- Mac-pakket heet nu `RoughStart-<versie>-macos.zip` en bevat ook `RoughStart.vst3`.
+- Tooltip van Analyze track noemt "your DAW" in plaats van Logic.
 
 ### Toegevoegd
 - GitHub Actions (`.github/workflows/build.yml`), naar het voorbeeld van DAW 388: bij elke push bouwen, unit tests en auval op macOS; een versielabel maakt het releasepakket en zet het in een GitHub Release.

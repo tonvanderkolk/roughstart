@@ -9,6 +9,11 @@ RoughStart sets the level of every track before you start mixing. Put one instan
 - RoughStart works in mono and in stereo. Logic picks the right version for each track, also when you insert it on several tracks at once. The track name at the top shows which one is in use.
 - Logic only loads plug-ins on tracks that contain regions. Empty tracks do not show up until you add something to them.
 
+## Formats and platforms
+
+- macOS: Audio Unit (Logic Pro, GarageBand, Ableton Live and others) and VST3 (Cubase, Bitwig and others).
+- Windows: VST3. On Windows, use Ctrl where this manual says Cmd.
+
 ## Ableton Live (Mac)
 
 - Turn on Use Audio Units in Settings > Plug-Ins (Preferences in older versions) and click Rescan. RoughStart is in the browser under Plug-Ins > Audio Units > TvdK.
