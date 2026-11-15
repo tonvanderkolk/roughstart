@@ -6,23 +6,28 @@ using namespace roughstart;
 
 namespace
 {
-    constexpr int trackWidth = 440, trackHeight = 490;
-    constexpr int overviewWidth = 760, overviewHeight = 480;
+    constexpr int trackWidth = 460, trackHeight = 540;
+    constexpr int overviewWidth = 760, overviewHeight = 500;
+    constexpr int headerHeight = 58, footerHeight = 76;
     constexpr double noticeMs = 3500.0;
 
-    void styleValueLabel (juce::Label& l, float size)
+    void styleLabel (juce::Label& l, float size, juce::Colour colour, bool bold = false,
+                     juce::Justification just = juce::Justification::centredLeft)
     {
-        l.setFont (juce::FontOptions (size));
-        l.setJustificationType (juce::Justification::centredLeft);
+        l.setFont (juce::FontOptions (size, bold ? juce::Font::bold : juce::Font::plain));
+        l.setColour (juce::Label::textColourId, colour);
+        l.setJustificationType (just);
+        l.setInterceptsMouseClicks (false, false);
     }
 
-    void styleSlider (juce::Slider& s)
+    void styleValueBox (juce::Slider& s, const juce::String& name)
     {
-        s.setSliderStyle (juce::Slider::LinearHorizontal);
-        s.setTextBoxStyle (juce::Slider::TextBoxRight, false, 72, 22);
-        s.setColour (juce::Slider::thumbColourId, ui::accent);
-        s.setColour (juce::Slider::trackColourId, ui::accent.withAlpha (0.5f));
+        s.setName (name);
+        s.setSliderStyle (juce::Slider::LinearBar);
+        s.setTextBoxStyle (juce::Slider::NoTextBox, false, 0, 0);
         s.setScrollWheelEnabled (false);   // voorkomt per ongeluk verschuiven bij scrollen
+        s.setMouseDragSensitivity (300);
+        s.setVelocityBasedMode (false);
     }
 
     enum PresetMenuItem { saveItem = 1, applyAllItem, defaultItem, importItem, exportItem, deleteItem, revealItem, resetItem };
@@ -33,81 +38,93 @@ RoughStartEditor::RoughStartEditor (RoughStartProcessor& p)
     : AudioProcessorEditor (&p), rsProcessor (p), overview (p),
       help (juce::String::fromUTF8 (BinaryData::MANUAL_md, BinaryData::MANUAL_mdSize))
 {
-    // Kop
-    titleLabel.setText ("RoughStart  v" JucePlugin_VersionString, juce::dontSendNotification);
-    titleLabel.setFont (juce::FontOptions (20.0f, juce::Font::bold));
-    addAndMakeVisible (titleLabel);
+    setLookAndFeel (&lookAndFeel);
 
-    trackLabel.setColour (juce::Label::textColourId, ui::dimText);
-    styleValueLabel (trackLabel, 13.0f);
+    // Kop: merkje + naam (getekend in paint), spoornaam, weergave-tabs, help
+    styleLabel (trackLabel, 12.5f, ui::dimText);
     addAndMakeVisible (trackLabel);
 
     for (auto* b : { &trackViewButton, &overviewButton })
     {
         b->setClickingTogglesState (false);
-        b->setColour (juce::TextButton::buttonOnColourId, ui::accent.withAlpha (0.35f));
         addAndMakeVisible (*b);
     }
     trackViewButton.setConnectedEdges (juce::Button::ConnectedOnRight);
     overviewButton.setConnectedEdges (juce::Button::ConnectedOnLeft);
-    helpButton.setTooltip ("Open the manual: how RoughStart works.");
-    trackViewButton.setTooltip ("Settings and result for this track.");
-    overviewButton.setTooltip ("All RoughStart tracks in this project in one table.");
-    presetBox.setTooltip ("Choose a preset. Shows (custom) when the settings match no preset.");
-    presetMenuButton.setTooltip ("Save, import, export or delete presets, choose the default for new instances.");
-    modeBox.setTooltip ("Peak: aim the loudest moment at the target. RMS: aim the average level at the target.");
-    applyAllButton.setTooltip ("Copy Mode, both targets and Peak ceiling to every RoughStart in the project. Measurements and Trim stay per track.");
-    targetPeakSlider.setTooltip ("Level the loudest moment of the track should end up at.");
-    targetRmsSlider.setTooltip ("Average level the track should end up at.");
-    ceilingSlider.setTooltip ("Auto never raises the track's peak above this level.");
-    analyzeButton.setTooltip ("Measure this track while Logic plays. Stops by itself when playback stops.");
-    trimSlider.setTooltip ("Your own adjustment on top of Auto. Can be automated. Double-click for 0 dB.");
-    analyzeAllButton.setTooltip ("Measure every RoughStart track at once during the next playback.");
-    helpButton.onClick = [this] { help.setVisible (! help.isVisible()); help.toFront (false); };
-    addAndMakeVisible (helpButton);
-
     trackViewButton.onClick = [this] { setView (View::track); };
     overviewButton.onClick  = [this] { setView (View::overview); };
 
-    // Labels
-    for (auto* l : { &presetLabel, &modeLabel, &targetLabel, &ceilingLabel, &trimLabel })
-        l->setColour (juce::Label::textColourId, ui::dimText);
+    helpButton.onClick = [this] { help.setVisible (! help.isVisible()); help.toFront (false); };
+    addAndMakeVisible (helpButton);
 
-    // Presets
+    // Resultaat: meting, Auto en meter
+    styleLabel (measuredLabel, 12.5f, ui::dimText);
+    styleLabel (autoCaption, 12.5f, ui::dimText, false, juce::Justification::bottomRight);
+    styleLabel (autoLabel, 26.0f, ui::text, true, juce::Justification::centredRight);
+    styleLabel (meterNote, 12.0f, ui::info, false, juce::Justification::centredRight);
+
+    // Trim (grote draaiknop) en totaal
+    trimSlider.setSliderStyle (juce::Slider::RotaryHorizontalVerticalDrag);
+    trimSlider.setRotaryParameters (juce::MathConstants<float>::pi * 1.25f, juce::MathConstants<float>::pi * 2.75f, true);
+    trimSlider.setColour (juce::Slider::textBoxOutlineColourId, juce::Colours::transparentBlack);
+    trimSlider.setTextBoxStyle (juce::Slider::TextBoxRight, false, 96, 28);
+    trimSlider.setDoubleClickReturnValue (true, 0.0);
+    trimSlider.setScrollWheelEnabled (false);
+    trimSlider.setMouseDragSensitivity (220);
+    trimAttachment = std::make_unique<SliderAttachment> (rsProcessor.parameters, "trim", trimSlider);
+    styleLabel (trimLabel, 12.5f, ui::dimText);
+    styleLabel (totalCaption, 12.5f, ui::dimText, false, juce::Justification::bottomRight);
+    styleLabel (totalLabel, 20.0f, ui::text, true, juce::Justification::centredRight);
+
+    // Instellingen: preset, Peak/RMS, doel, plafond, Apply to all
     presetBox.setTextWhenNothingSelected ("(custom)");
     presetBox.setTextWhenNoChoicesAvailable ("(no presets yet)");
     presetBox.onChange = [this] { loadSelectedPreset(); };
+    presetMenuButton.setButtonText ("Presets");
     presetMenuButton.onClick = [this] { showPresetMenu(); };
     applyAllButton.onClick = [this] { applySettingsToAll(); };
 
-    // Meetmethode, doel, plafond
-    modeBox.addItemList ({ "Peak", "RMS" }, 1);
+    modeBox.addItemList ({ "Peak", "RMS" }, 1);   // onzichtbaar; koppelt de parameter
     modeAttachment = std::make_unique<ComboAttachment> (rsProcessor.parameters, "mode", modeBox);
+    peakButton.setConnectedEdges (juce::Button::ConnectedOnRight);
+    rmsButton.setConnectedEdges (juce::Button::ConnectedOnLeft);
+    peakButton.onClick = [this] { setMode (0); };
+    rmsButton.onClick  = [this] { setMode (1); };
 
-    styleSlider (targetPeakSlider);
-    styleSlider (targetRmsSlider);
-    styleSlider (ceilingSlider);
+    styleValueBox (targetPeakSlider, "Target");
+    styleValueBox (targetRmsSlider, "Target");
+    styleValueBox (ceilingSlider, "Ceiling");
     targetPeakAttachment = std::make_unique<SliderAttachment> (rsProcessor.parameters, "targetPeak", targetPeakSlider);
     targetRmsAttachment  = std::make_unique<SliderAttachment> (rsProcessor.parameters, "targetRms", targetRmsSlider);
     ceilingAttachment    = std::make_unique<SliderAttachment> (rsProcessor.parameters, "ceiling", ceilingSlider);
 
     // Analyse
+    analyzeButton.setButtonText ("Analyze track");
     analyzeButton.onClick = [this] { toggleAnalysis(); };
-    statusLabel.setColour (juce::Label::textColourId, ui::dimText);
-    styleValueLabel (statusLabel, 13.0f);
-    styleValueLabel (measuredLabel, 14.0f);
-    styleValueLabel (autoLabel, 14.0f);
-    styleValueLabel (totalLabel, 14.0f);
+    styleLabel (statusLabel, 12.0f, ui::dimText);
 
-    // Trim
-    styleSlider (trimSlider);
-    trimSlider.setDoubleClickReturnValue (true, 0.0);
-    trimAttachment = std::make_unique<SliderAttachment> (rsProcessor.parameters, "trim", trimSlider);
+    // Tooltips
+    helpButton.setTooltip ("Open the manual: how RoughStart works.");
+    trackViewButton.setTooltip ("Settings and result for this track.");
+    overviewButton.setTooltip ("All RoughStart tracks in this project in one table.");
+    presetBox.setTooltip ("Choose a preset. Shows (custom) when the settings match no preset.");
+    presetMenuButton.setTooltip ("Save, import, export or delete presets, choose the default for new instances.");
+    peakButton.setTooltip ("Peak: aim the loudest moment of the track at the target.");
+    rmsButton.setTooltip ("RMS: aim the average level of the track at the target. Closer to how loud it sounds.");
+    applyAllButton.setTooltip ("Copy Mode, both targets and Peak ceiling to every RoughStart in the project. Measurements and Trim stay per track.");
+    targetPeakSlider.setTooltip ("Level the loudest moment should end up at. Drag left or right; double-click to type.");
+    targetRmsSlider.setTooltip ("Average level the track should end up at. Drag left or right; double-click to type.");
+    ceilingSlider.setTooltip ("Auto never raises the track's peak above this level.");
+    analyzeButton.setTooltip ("Measure only this track while Logic plays. Stops by itself when playback stops.");
+    trimSlider.setTooltip ("Your own adjustment on top of Auto. Drag up or down; double-click for 0 dB. Can be automated.");
+    analyzeAllButton.setTooltip ("Measure every RoughStart track at once during the next playback.");
+    meter.setTooltip ("Grey: level before RoughStart. Green: level after Auto. Dashed: target. Blue: peak ceiling. White tick: peak after Auto.");
 
-    trackViewComponents = { &presetLabel, &presetBox, &presetMenuButton,
-                            &modeLabel, &modeBox, &applyAllButton, &targetLabel, &targetPeakSlider, &targetRmsSlider,
-                            &ceilingLabel, &ceilingSlider, &analyzeButton, &statusLabel,
-                            &measuredLabel, &autoLabel, &trimLabel, &trimSlider, &totalLabel };
+    trackViewComponents = { &measuredLabel, &autoCaption, &autoLabel, &meter, &meterNote,
+                            &trimLabel, &trimSlider, &totalCaption, &totalLabel,
+                            &presetBox, &presetMenuButton, &peakButton, &rmsButton,
+                            &targetPeakSlider, &targetRmsSlider, &ceilingSlider, &applyAllButton,
+                            &analyzeButton, &statusLabel };
 
     for (auto* c : trackViewComponents)
         addChildComponent (c);
@@ -115,16 +132,11 @@ RoughStartEditor::RoughStartEditor (RoughStartProcessor& p)
     addChildComponent (overview);
 
     // Onderbalk
-    countLabel.setColour (juce::Label::textColourId, ui::dimText);
-    styleValueLabel (countLabel, 13.0f);
-    addAndMakeVisible (countLabel);
-
-    batchLabel.setColour (juce::Label::textColourId, ui::dimText);
-    styleValueLabel (batchLabel, 13.0f);
-    addAndMakeVisible (batchLabel);
-
+    analyzeAllButton.getProperties().set ("primary", true);
     analyzeAllButton.onClick = [this] { toggleAnalyzeAll(); };
     addAndMakeVisible (analyzeAllButton);
+    styleLabel (batchLabel, 12.0f, ui::dimText);
+    addAndMakeVisible (batchLabel);
 
     addChildComponent (help);
     addChildComponent (prompt);
@@ -141,6 +153,7 @@ RoughStartEditor::RoughStartEditor (RoughStartProcessor& p)
 RoughStartEditor::~RoughStartEditor()
 {
     stopTimer();
+    setLookAndFeel (nullptr);
 }
 
 //==============================================================================
@@ -172,14 +185,43 @@ void RoughStartEditor::setView (View newView)
     repaint();
 }
 
+void RoughStartEditor::setMode (int modeIndex)
+{
+    modeBox.setSelectedId (modeIndex + 1, juce::sendNotificationSync);
+    updateTargetVisibility();
+}
+
 void RoughStartEditor::paint (juce::Graphics& g)
 {
     g.fillAll (ui::background);
 
+    // Kop: merkje en naam
+    ui::drawLogo (g, { 18.0f, 13.0f, 18.0f, 20.0f });
+    g.setColour (ui::text);
+    g.setFont (juce::FontOptions (17.0f, juce::Font::bold));
+    g.drawText ("RoughStart", 44, 10, 140, 26, juce::Justification::centredLeft);
+
+    g.setColour (ui::border);
+    g.drawHorizontalLine (headerHeight, 0.0f, (float) getWidth());
+    g.drawHorizontalLine (getHeight() - footerHeight, 0.0f, (float) getWidth());
+
     if (view == View::track)
     {
-        g.setColour (ui::panel);
-        g.fillRoundedRectangle (getLocalBounds().reduced (10).withTrimmedTop (60).withTrimmedBottom (78).toFloat(), 6.0f);
+        // Twee kaarten: resultaat (meter + Trim) en instellingen
+        for (auto r : { resultCard, settingsCard })
+        {
+            g.setColour (ui::panel);
+            g.fillRoundedRectangle (r.toFloat(), 8.0f);
+            g.setColour (ui::border.withAlpha (0.7f));
+            g.drawRoundedRectangle (r.toFloat().reduced (0.5f), 8.0f, 1.0f);
+        }
+
+        g.setColour (ui::border);
+        g.drawHorizontalLine (trimDividerY, (float) resultCard.getX() + 14.0f, (float) resultCard.getRight() - 14.0f);
+
+        g.setColour (ui::faintText);
+        g.setFont (juce::FontOptions (11.5f));
+        g.drawText ("Settings", settingsCard.getX() + 14, settingsCard.getY() + 8, 120, 14, juce::Justification::centredLeft);
     }
 }
 
@@ -188,76 +230,91 @@ void RoughStartEditor::resized()
     prompt.setBounds (getLocalBounds());
     help.setBounds (getLocalBounds());
 
-    auto area = getLocalBounds().reduced (16, 12);
+    // Kop
+    auto header = getLocalBounds().removeFromTop (headerHeight).reduced (16, 0);
+    auto topRow = header.removeFromTop (46).withTrimmedTop (10).withHeight (26);
+    helpButton.setBounds (topRow.removeFromRight (26));
+    topRow.removeFromRight (8);
+    overviewButton.setBounds (topRow.removeFromRight (82));
+    trackViewButton.setBounds (topRow.removeFromRight (64));
+    trackLabel.setBounds (getLocalBounds().removeFromTop (headerHeight).withTrimmedTop (34).withTrimmedLeft (44).withTrimmedRight (16));
 
-    // Kop: titel + weergaveknoppen, daaronder de spoornaam
-    auto top = area.removeFromTop (28);
-    overviewButton.setBounds (top.removeFromRight (90).reduced (0, 2));
-    trackViewButton.setBounds (top.removeFromRight (70).reduced (0, 2));
-    top.removeFromRight (8);
-    helpButton.setBounds (top.removeFromRight (28).reduced (0, 2));
-    titleLabel.setBounds (top);
-    trackLabel.setBounds (area.removeFromTop (20));
+    // Onderbalk
+    auto footer = getLocalBounds().removeFromBottom (footerHeight).reduced (16, 12);
+    auto footerRow = footer.removeFromTop (34);
+    analyzeAllButton.setBounds (footerRow.removeFromRight (view == View::track ? 200 : 180));
 
-    // Onderbalk: Analyze All voor alle instances
-    auto bottom = area.removeFromBottom (58);
-    auto bottomRow = bottom.removeFromTop (32);
-    analyzeAllButton.setBounds (bottomRow.removeFromRight (130));
-    countLabel.setBounds (bottomRow);
-    batchLabel.setBounds (bottom);
+    if (view == View::track)
+    {
+        footerRow.removeFromRight (8);
+        analyzeButton.setBounds (footerRow);
+        footer.removeFromTop (4);
+        auto statusRow = footer;
+        statusLabel.setBounds (statusRow.removeFromLeft (statusRow.getWidth() / 2));
+        batchLabel.setBounds (statusRow);
+        batchLabel.setJustificationType (juce::Justification::centredRight);
+    }
+    else
+    {
+        batchLabel.setBounds (footerRow);
+        batchLabel.setJustificationType (juce::Justification::centredLeft);
+    }
 
-    area.removeFromBottom (14);
-    area.removeFromTop (12);
+    auto area = getLocalBounds().withTrimmedTop (headerHeight).withTrimmedBottom (footerHeight).reduced (12, 12);
 
     if (view == View::overview)
     {
-        overview.setBounds (area.withTrimmedLeft (-6).withTrimmedRight (-6));
+        overview.setBounds (area);
         return;
     }
 
-    area = area.reduced (10, 0);
-    constexpr int labelWidth = 100, rowHeight = 28, gap = 8;
+    // Resultaatkaart
+    resultCard = area.removeFromTop (262);
+    auto r = resultCard.reduced (14, 12);
 
-    auto row = area.removeFromTop (rowHeight);
-    presetLabel.setBounds (row.removeFromLeft (labelWidth));
-    presetMenuButton.setBounds (row.removeFromRight (90));
+    auto autoRow = r.removeFromTop (38);
+    auto autoBox = autoRow.removeFromRight (170);
+    autoCaption.setBounds (autoBox.removeFromLeft (44).withTrimmedBottom (8));
+    autoLabel.setBounds (autoBox);
+    measuredLabel.setBounds (autoRow);
+
+    r.removeFromTop (6);
+    meter.setBounds (r.removeFromTop (70));
+    meterNote.setBounds (r.removeFromTop (18));
+
+    r.removeFromTop (8);
+    trimDividerY = r.getY();
+    r.removeFromTop (10);
+
+    auto trimRow = r;
+    trimLabel.setBounds (trimRow.removeFromLeft (38));
+    trimSlider.setBounds (trimRow.removeFromLeft (190).withSizeKeepingCentre (190, juce::jmin (84, trimRow.getHeight())));
+    auto totalBox = trimRow;
+    totalCaption.setBounds (totalBox.removeFromTop (totalBox.getHeight() / 2).withTrimmedBottom (2));
+    totalLabel.setBounds (totalBox.withHeight (26));
+
+    // Instellingenkaart
+    area.removeFromTop (10);
+    settingsCard = area;
+    auto s = settingsCard.reduced (14, 0).withTrimmedTop (28).withTrimmedBottom (12);
+
+    auto row = s.removeFromTop (30);
+    applyAllButton.setBounds (row.removeFromRight (96));
+    row.removeFromRight (6);
+    presetMenuButton.setBounds (row.removeFromRight (74));
     row.removeFromRight (6);
     presetBox.setBounds (row);
-    area.removeFromTop (gap);
 
-    row = area.removeFromTop (rowHeight);
-    modeLabel.setBounds (row.removeFromLeft (labelWidth));
-    modeBox.setBounds (row.removeFromLeft (120));
-    applyAllButton.setBounds (row.removeFromRight (110));
-    area.removeFromTop (gap);
-
-    row = area.removeFromTop (rowHeight);
-    targetLabel.setBounds (row.removeFromLeft (labelWidth));
-    targetPeakSlider.setBounds (row);
-    targetRmsSlider.setBounds (row);
-    area.removeFromTop (gap);
-
-    row = area.removeFromTop (rowHeight);
-    ceilingLabel.setBounds (row.removeFromLeft (labelWidth));
+    s.removeFromTop (8);
+    row = s.removeFromTop (30);
+    peakButton.setBounds (row.removeFromLeft (52));
+    rmsButton.setBounds (row.removeFromLeft (52));
+    row.removeFromLeft (8);
+    const int half = (row.getWidth() - 6) / 2;
+    targetPeakSlider.setBounds (row.removeFromLeft (half));
+    targetRmsSlider.setBounds (targetPeakSlider.getBounds());
+    row.removeFromLeft (6);
     ceilingSlider.setBounds (row);
-    area.removeFromTop (gap * 2);
-
-    row = area.removeFromTop (rowHeight + 4);
-    analyzeButton.setBounds (row.removeFromLeft (130));
-    row.removeFromLeft (10);
-    statusLabel.setBounds (row);
-    area.removeFromTop (gap);
-
-    measuredLabel.setBounds (area.removeFromTop (22));
-    autoLabel.setBounds (area.removeFromTop (22));
-    area.removeFromTop (gap);
-
-    row = area.removeFromTop (rowHeight);
-    trimLabel.setBounds (row.removeFromLeft (labelWidth));
-    trimSlider.setBounds (row);
-    area.removeFromTop (gap);
-
-    totalLabel.setBounds (area.removeFromTop (22));
 }
 
 //==============================================================================
@@ -282,8 +339,6 @@ void RoughStartEditor::timerCallback()
 
 void RoughStartEditor::refreshInstanceInfo()
 {
-    countLabel.setText ("Instances in project: " + juce::String (rsProcessor.getRegistry().getNumInstances()),
-                        juce::dontSendNotification);
     trackLabel.setText (rsProcessor.getDisplayName() + juce::String (juce::CharPointer_UTF8 ("  \xc2\xb7  "))
                             + rsProcessor.getChannelFormatName(),
                         juce::dontSendNotification);
@@ -296,9 +351,14 @@ void RoughStartEditor::updateTargetVisibility()
         return;
 
     lastModeIndex = modeIndex;
-    targetPeakSlider.setVisible (modeIndex == 0);
-    targetRmsSlider.setVisible (modeIndex == 1);
-    targetLabel.setText (modeIndex == 0 ? "Target (peak)" : "Target (RMS)", juce::dontSendNotification);
+    peakButton.setToggleState (modeIndex == 0, juce::dontSendNotification);
+    rmsButton.setToggleState (modeIndex == 1, juce::dontSendNotification);
+
+    if (view == View::track)
+    {
+        targetPeakSlider.setVisible (modeIndex == 0);
+        targetRmsSlider.setVisible (modeIndex == 1);
+    }
 }
 
 //==============================================================================
@@ -324,41 +384,57 @@ void RoughStartEditor::refreshLevels()
     switch (state)
     {
         case State::waitingForPlayback: status = "Waiting for playback..."; break;
-        case State::measuring:          status = "Measuring... stops when playback stops."; break;
+        case State::measuring:          status = "Measuring this track..."; break;
         case State::idle:
             switch (rsProcessor.getLastAnalysisResult())
             {
                 case Result::stored:   status = "Measurement stored."; break;
-                case Result::noSignal: status = "No signal measured, Auto unchanged."; break;
+                case Result::noSignal: status = "No signal, Auto unchanged."; break;
                 case Result::none:     break;
             }
             break;
     }
     statusLabel.setText (status, juce::dontSendNotification);
 
-    analyzeButton.setButtonText (state == State::waitingForPlayback ? "Cancel" : analyzing ? "Stop" : "Analyze");
+    analyzeButton.setButtonText (state == State::waitingForPlayback ? "Cancel" : analyzing ? "Stop" : "Analyze track");
     analyzeButton.setColour (juce::TextButton::buttonColourId,
-                             analyzing ? ui::analyzeColour : getLookAndFeel().findColour (juce::TextButton::buttonColourId));
+                             analyzing ? ui::analyzeColour : lookAndFeel.findColour (juce::TextButton::buttonColourId));
 
     const auto m = analyzing ? rsProcessor.getLiveMeasurement() : rsProcessor.getStoredMeasurement();
-    const juce::String prefix = analyzing ? "Live: " : "Measured: ";
+    const auto autoGain = rsProcessor.getAutoGain();
+    const bool rms = rsProcessor.getMode() == RoughStartProcessor::Mode::rms;
 
     if (m.valid)
-        measuredLabel.setText (prefix + "peak " + ui::formatDb (m.peakDb, false)
-                                   + "  ·  RMS " + ui::formatDb (m.rmsDb, false),
+        measuredLabel.setText ((analyzing ? juce::String ("Live  ") : juce::String ("Measured  "))
+                                   + "RMS " + ui::formatDb (m.rmsDb, false)
+                                   + juce::String (juce::CharPointer_UTF8 ("  \xc2\xb7  "))
+                                   + "peak " + ui::formatDb (m.peakDb, false),
                                juce::dontSendNotification);
     else
-        measuredLabel.setText (prefix + (analyzing ? "no signal yet" : "not analyzed yet"),
+        measuredLabel.setText (analyzing ? "Play to measure..." : "Not analyzed yet. Click Analyze all and play the song.",
                                juce::dontSendNotification);
 
-    const auto autoGain = rsProcessor.getAutoGain();
-    autoLabel.setText ("Auto: " + ui::formatDb (autoGain.gainDb, true)
-                           + (autoGain.limitedByCeiling ? "  (peak at ceiling)" : ""),
+    const bool hasStored = rsProcessor.getStoredMeasurement().valid;
+    autoLabel.setText (hasStored ? ui::formatDb (autoGain.gainDb, true) : juce::String (juce::CharPointer_UTF8 ("\xe2\x80\x93")),
                        juce::dontSendNotification);
-    autoLabel.setColour (juce::Label::textColourId,
-                         autoGain.limitedByCeiling ? ui::info : juce::Colours::white);
-    totalLabel.setText ("Total (Auto + Trim): " + ui::formatDb (rsProcessor.getTotalGainDb(), true),
-                        juce::dontSendNotification);
+    autoLabel.setColour (juce::Label::textColourId, hasStored ? ui::text : ui::faintText);
+
+    meterNote.setText (hasStored && autoGain.limitedByCeiling && ! analyzing ? "Peak at ceiling" : juce::String(),
+                       juce::dontSendNotification);
+
+    totalLabel.setText (ui::formatDb (rsProcessor.getTotalGainDb(), true), juce::dontSendNotification);
+
+    MeterView::Data d;
+    d.measured = m.valid;
+    d.live = analyzing;
+    d.rmsMode = rms;
+    d.peakDb = m.peakDb;
+    d.rmsDb = m.rmsDb;
+    d.autoDb = autoGain.gainDb;
+    d.targetDb = rsProcessor.getTargetDb();
+    d.ceilingDb = rsProcessor.getCeilingDb();
+    d.limitedByCeiling = autoGain.limitedByCeiling;
+    meter.setData (d);
 }
 
 void RoughStartEditor::toggleAnalyzeAll()
@@ -378,10 +454,12 @@ void RoughStartEditor::refreshBatchStatus()
 {
     const auto s = rsProcessor.getRegistry().getBatchSummary();
     const bool running = s.isRunning();
+    const int count = rsProcessor.getRegistry().getNumInstances();
 
-    analyzeAllButton.setButtonText (running ? "Stop All" : "Analyze All");
+    analyzeAllButton.setButtonText (running ? "Stop all" : "Analyze all (" + juce::String (count) + ")");
+    analyzeAllButton.getProperties().set ("primary", ! running);
     analyzeAllButton.setColour (juce::TextButton::buttonColourId,
-                                running ? ui::analyzeColour : getLookAndFeel().findColour (juce::TextButton::buttonColourId));
+                                running ? ui::analyzeColour : lookAndFeel.findColour (juce::TextButton::buttonColourId));
 
     juce::String text;
 
@@ -390,16 +468,15 @@ void RoughStartEditor::refreshBatchStatus()
     else if (s.total == 0)
         text = {};
     else if (s.waiting > 0 && s.measuring == 0)
-        text = "Analyze All: " + juce::String (s.waiting) + " tracks waiting for playback...";
+        text = juce::String (s.waiting) + " tracks waiting for playback...";
     else if (running)
-        text = "Analyze All: measuring " + juce::String (s.measuring) + " of " + juce::String (s.total)
-               + " tracks... stops when playback stops.";
+        text = "Measuring " + juce::String (s.measuring) + " of " + juce::String (s.total) + " tracks...";
     else
-        text = "Last Analyze All: " + juce::String (s.stored) + " stored"
-               + (s.noSignal > 0 ? ", " + juce::String (s.noSignal) + " without signal (Auto unchanged)" : juce::String())
-               + ".";
+        text = "Last analyze all: " + juce::String (s.stored) + " stored"
+               + (s.noSignal > 0 ? ", " + juce::String (s.noSignal) + " without signal" : juce::String());
 
     batchLabel.setText (text, juce::dontSendNotification);
+    analyzeAllButton.repaint();
 }
 
 void RoughStartEditor::showNotice (const juce::String& text)

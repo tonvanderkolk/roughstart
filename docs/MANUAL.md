@@ -26,6 +26,15 @@ RoughStart sets the level of every track before you start mixing. Put one instan
 4. Every track now has its own Auto gain. Open Overview to see all tracks at once.
 5. Balance by ear with Trim. Faders stay at 0 dB.
 
+## Reading the meter
+
+- The Track view shows one bar on a dBFS scale.
+- Grey: the track's level before RoughStart (RMS or peak, following the Mode).
+- Green: the level after Auto.
+- Dashed green line: your target. Blue line: the Peak ceiling.
+- Thin grey tick: the track's peak before RoughStart. White tick: the peak after Auto.
+- When the white tick sits on the blue line, the ceiling is limiting Auto and the meter says Peak at ceiling.
+
 ## Peak or RMS
 
 - Peak looks at the loudest single moment of a track and puts that at the target (classic: -12 dBFS). Safe and predictable, but it says little about how loud a track sounds.
@@ -35,15 +44,15 @@ RoughStart sets the level of every track before you start mixing. Put one instan
 ## Settings
 
 - Mode: Peak or RMS.
-- Target: the level RoughStart aims for, for the chosen mode.
+- Target: the level RoughStart aims for, for the chosen mode. Drag the Target and Ceiling boxes left or right, or double-click to type a value.
 - Peak ceiling: Auto never raises a track's peak above this level (default -6 dBFS). When this happens the status shows Peak at ceiling. That is information, not an error: the track's peak simply ends up at the ceiling.
-- Trim: your own adjustment on top of Auto, -24 to +24 dB. Trim can be automated. Double-click to reset it to 0.
+- Trim: the big knob. Your own adjustment on top of Auto, -24 to +24 dB. Drag up or down; double-click to reset it to 0. Trim can be automated.
 - Auto is calculated from the stored measurement and the current Mode, Target and Peak ceiling. Changing those updates Auto right away; you do not need to analyze again.
 - Auto is limited to -24 to +24 dB.
 
 ## Analyzing
 
-- Analyze measures only this track. Analyze All measures every RoughStart instance in the project at the same time.
+- Analyze track measures only this track. Analyze all measures every RoughStart instance in the project at the same time; the button shows how many tracks it will measure.
 - Measuring only happens while Logic is playing. If you click Analyze while Logic is stopped, RoughStart waits for playback.
 - When playback stops, the analysis stops and the measurement is stored. You can also click Stop (or Stop All) yourself to measure only part of the song.
 - Silence is ignored: passages below -60 dBFS do not count. In RMS mode, short passages more than 20 dB below the track's average (such as decaying drum tails) do not count either.

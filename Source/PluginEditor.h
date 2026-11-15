@@ -6,6 +6,8 @@
 #include "PresetManager.h"
 #include "InlinePrompt.h"
 #include "HelpOverlay.h"
+#include "MeterView.h"
+#include "RoughStartLookAndFeel.h"
 
 class RoughStartEditor final : public juce::AudioProcessorEditor,
                                private juce::Timer
@@ -58,6 +60,9 @@ private:
 
     RoughStartProcessor& rsProcessor;
     View view = View::track;
+    RoughStartLookAndFeel lookAndFeel;   // vóór alle componenten: leeft het langst
+
+    void setMode (int modeIndex);
 
     // Kop
     juce::Label titleLabel, trackLabel;
@@ -77,6 +82,9 @@ private:
     juce::TextButton analyzeButton { "Analyze" };
     juce::Label statusLabel;
     juce::Label measuredLabel, autoLabel, totalLabel;
+    juce::Label autoCaption { {}, "Auto" }, totalCaption { {}, "Total gain" }, meterNote;
+    juce::TextButton peakButton { "Peak" }, rmsButton { "RMS" };
+    MeterView meter;
 
     juce::Label trimLabel { {}, "Trim" };
     juce::Slider trimSlider;
@@ -105,6 +113,8 @@ private:
     double noticeUntilMs = 0.0;
 
     juce::uint32 lastSeenChange = 0;
+    juce::Rectangle<int> resultCard, settingsCard;
+    int trimDividerY = 0;
     int lastModeIndex = -1;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RoughStartEditor)

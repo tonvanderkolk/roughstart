@@ -67,3 +67,25 @@ if(ROUGHSTART_BUILD_TESTS)
             juce::juce_recommended_config_flags
             juce::juce_recommended_warning_flags)
 endif()
+
+#==============================================================================
+# Snapshot: rendert de editor naar PNG (ontwerp bekijken zonder Logic)
+juce_add_console_app(RoughStartSnapshot PRODUCT_NAME "RoughStartSnapshot")
+target_sources(RoughStartSnapshot PRIVATE
+    Tools/Snapshot.cpp
+    Source/PluginProcessor.cpp
+    Source/PluginEditor.cpp
+    Source/InstanceRegistry.cpp
+    Source/PresetManager.cpp
+    Source/OverviewComponent.cpp)
+target_compile_definitions(RoughStartSnapshot PRIVATE
+    JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0
+    JucePlugin_Name="RoughStart"
+    JucePlugin_VersionString="${ROUGHSTART_VERSION}")
+target_link_libraries(RoughStartSnapshot
+    PRIVATE
+        RoughStartData
+        juce::juce_audio_utils
+    PUBLIC
+        juce::juce_recommended_config_flags)
+set_target_properties(RoughStartSnapshot PROPERTIES EXCLUDE_FROM_ALL TRUE)

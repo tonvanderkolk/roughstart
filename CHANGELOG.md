@@ -2,6 +2,22 @@
 
 Alle noemenswaardige wijzigingen in RoughStart. Formaat volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/), versies volgen [SemVer](https://semver.org/lang/nl/).
 
+## [0.7.0] - 2026-11-15
+
+### Gewijzigd
+- **Nieuwe Track-weergave**, donker en rustiger:
+  - Kop met merkje (golfvorm), naam, spoornaam, tabs Track/Overview en help. Versienummer niet meer in beeld.
+  - **Meter** als middelpunt: één balk op een dBFS-schaal met het niveau vóór RoughStart (grijs), na Auto (groen), het doel (gestippeld), het plafond (blauw) en de piek vóór en na. Tijdens meten een oranje live-balk.
+  - **Auto** groot rechtsboven; "Peak at ceiling" onder de meter als het plafond ingrijpt.
+  - **Trim als grote draaiknop** (slepen, dubbelklik = 0 dB) met Total gain ernaast.
+  - **Instellingen in één kaart**: preset, Presets-menu, Apply to all; Peak/RMS-schakelaar; Target en Ceiling als compacte waardevakjes (slepen of dubbelklikken om te typen).
+  - Onderbalk: **Analyze track** en **Analyze all (n)** als groene hoofdknop, met de status eronder.
+- Eigen LookAndFeel (`Source/RoughStartLookAndFeel.h`) voor knoppen, keuzelijsten, draaiknop, waardevakjes, menu's en tooltips; geldt ook voor het overzicht.
+- Handleiding: uitleg van de meter en de nieuwe bediening.
+
+### Toegevoegd
+- `RoughStartSnapshot` (ontwikkeltool, `Tools/Snapshot.cpp`): rendert de editor naar PNG om het ontwerp zonder Logic te bekijken. Bouwen met `cmake --build build --target RoughStartSnapshot`.
+
 ## [0.6.1] - 2026-11-10
 
 ### Toegevoegd

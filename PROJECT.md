@@ -44,7 +44,10 @@ auval -v aufx RgSt TvdK
 - `Source/PluginEditor.*`: UI in het Engels, weergaven Track en Overview, presetmenu, Analyze All.
 - `Source/OverviewComponent.*`: sorteerbare tabel met alle instances.
 - `Source/PresetManager.*`: presets als `.rspreset` (XML) in `~/Library/Application Support/RoughStart/Presets`, factory presets en de standaard voor nieuwe instances (`settings.xml`); zonder GUI, getest in `Tests/`.
-- `Source/UiStyle.h`: gedeelde kleuren en dB-opmaak.
+- `Source/UiStyle.h`: gedeelde kleuren, dB-opmaak en het logo.
+- `Source/RoughStartLookAndFeel.h`: eigen donkere stijl voor alle bediening.
+- `Source/MeterView.h`: de meter in de Track-weergave.
+- `Tools/Snapshot.cpp`: rendert de editor naar PNG (`--target RoughStartSnapshot`).
 - `Source/InlinePrompt.h`: invoer/bevestiging als laag in de editor (losse vensters flikkeren in Logic).
 - `Source/HelpOverlay.h`: toont de handleiding in de plugin.
 - `docs/MANUAL.md`: handleiding (Engels), via `juce_add_binary_data` in de plugin ingebakken.
