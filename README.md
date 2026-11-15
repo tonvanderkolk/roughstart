@@ -67,7 +67,7 @@ RoughStart was built with Claude Code. Besides the source in `Source/`, the repo
 
 ## Feedback and contributions
 
-Bug reports and ideas are welcome in [Issues](https://github.com/tonvanderkolk/roughstart/issues). Especially useful: results in DAWs other than Logic, and a VST3 or Windows build.
+Questions, ideas and experiences are welcome in [Discussions](https://github.com/tonvanderkolk/roughstart/discussions); bug reports go in [Issues](https://github.com/tonvanderkolk/roughstart/issues). Especially useful: results in DAWs other than Logic, and a VST3 or Windows build.
 
 ## License
 
