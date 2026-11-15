@@ -34,8 +34,8 @@ namespace
 }
 
 //==============================================================================
-RoughStartEditor::RoughStartEditor (RoughStartProcessor& p)
-    : AudioProcessorEditor (&p), rsProcessor (p), overview (p),
+RoughStartView::RoughStartView (RoughStartProcessor& p)
+    : rsProcessor (p), overview (p),
       help (juce::String::fromUTF8 (BinaryData::MANUAL_md, BinaryData::MANUAL_mdSize))
 {
     setLookAndFeel (&lookAndFeel);
@@ -56,6 +56,10 @@ RoughStartEditor::RoughStartEditor (RoughStartProcessor& p)
 
     helpButton.onClick = [this] { help.setVisible (! help.isVisible()); help.toFront (false); };
     addAndMakeVisible (helpButton);
+
+    scaleButton.setTooltip ("Window size.");
+    scaleButton.onClick = [this] { showScaleMenu(); };
+    addAndMakeVisible (scaleButton);
 
     // Resultaat: meting, Auto en meter
     styleLabel (measuredLabel, 12.5f, ui::dimText);
@@ -161,14 +165,14 @@ RoughStartEditor::RoughStartEditor (RoughStartProcessor& p)
     startTimerHz (30);
 }
 
-RoughStartEditor::~RoughStartEditor()
+RoughStartView::~RoughStartView()
 {
     stopTimer();
     setLookAndFeel (nullptr);
 }
 
 //==============================================================================
-void RoughStartEditor::setView (View newView)
+void RoughStartView::setView (View newView)
 {
     view = newView;
     rsProcessor.lastEditorView = (int) newView;
@@ -196,15 +200,40 @@ void RoughStartEditor::setView (View newView)
 
     resized();
     repaint();
+
+    if (onSizeChange)
+        onSizeChange();
 }
 
-void RoughStartEditor::setMode (int modeIndex)
+void RoughStartView::setScaleLabel (float scale)
+{
+    currentScale = scale;
+    scaleButton.setButtonText (juce::String (juce::roundToInt (scale * 100.0f)) + "%");
+}
+
+void RoughStartView::showScaleMenu()
+{
+    juce::PopupMenu menu;
+    menu.addSectionHeader ("Window size");
+    for (int pct : { 100, 125, 150, 175 })
+        menu.addItem (pct, juce::String (pct) + "%", true, juce::roundToInt (currentScale * 100.0f) == pct);
+
+    juce::Component::SafePointer<RoughStartView> safeThis (this);
+    menu.showMenuAsync (juce::PopupMenu::Options().withTargetComponent (scaleButton),
+                        [safeThis] (int result)
+                        {
+                            if (safeThis != nullptr && result > 0 && safeThis->onScaleRequested)
+                                safeThis->onScaleRequested ((float) result / 100.0f);
+                        });
+}
+
+void RoughStartView::setMode (int modeIndex)
 {
     modeBox.setSelectedId (modeIndex + 1, juce::sendNotificationSync);
     updateTargetVisibility();
 }
 
-void RoughStartEditor::paint (juce::Graphics& g)
+void RoughStartView::paint (juce::Graphics& g)
 {
     g.fillAll (ui::background);
 
@@ -238,7 +267,7 @@ void RoughStartEditor::paint (juce::Graphics& g)
     }
 }
 
-void RoughStartEditor::resized()
+void RoughStartView::resized()
 {
     prompt.setBounds (getLocalBounds());
     help.setBounds (getLocalBounds());
@@ -247,6 +276,8 @@ void RoughStartEditor::resized()
     auto header = getLocalBounds().removeFromTop (headerHeight).reduced (16, 0);
     auto topRow = header.removeFromTop (46).withTrimmedTop (10).withHeight (26);
     helpButton.setBounds (topRow.removeFromRight (26));
+    topRow.removeFromRight (6);
+    scaleButton.setBounds (topRow.removeFromRight (48));
     topRow.removeFromRight (8);
     overviewButton.setBounds (topRow.removeFromRight (82));
     trackViewButton.setBounds (topRow.removeFromRight (64));
@@ -334,7 +365,7 @@ void RoughStartEditor::resized()
 }
 
 //==============================================================================
-void RoughStartEditor::timerCallback()
+void RoughStartView::timerCallback()
 {
     const auto change = rsProcessor.getRegistry().getChangeCount();
     if (change != lastSeenChange)
@@ -353,14 +384,14 @@ void RoughStartEditor::timerCallback()
     refreshBatchStatus();
 }
 
-void RoughStartEditor::refreshInstanceInfo()
+void RoughStartView::refreshInstanceInfo()
 {
     trackLabel.setText (rsProcessor.getDisplayName() + juce::String (juce::CharPointer_UTF8 ("  \xc2\xb7  "))
                             + rsProcessor.getChannelFormatName(),
                         juce::dontSendNotification);
 }
 
-void RoughStartEditor::updateTargetVisibility()
+void RoughStartView::updateTargetVisibility()
 {
     const int modeIndex = rsProcessor.getMode() == RoughStartProcessor::Mode::rms ? 1 : 0;
     if (modeIndex == lastModeIndex)
@@ -378,7 +409,7 @@ void RoughStartEditor::updateTargetVisibility()
 }
 
 //==============================================================================
-void RoughStartEditor::toggleAnalysis()
+void RoughStartView::toggleAnalysis()
 {
     if (rsProcessor.isAnalyzing())
         rsProcessor.stopAnalysis();
@@ -388,7 +419,7 @@ void RoughStartEditor::toggleAnalysis()
     refreshLevels();
 }
 
-void RoughStartEditor::refreshLevels()
+void RoughStartView::refreshLevels()
 {
     using State = RoughStartProcessor::AnalysisState;
     using Result = RoughStartProcessor::AnalysisResult;
@@ -453,7 +484,7 @@ void RoughStartEditor::refreshLevels()
     meter.setData (d);
 }
 
-void RoughStartEditor::undoTrim (bool redo)
+void RoughStartView::undoTrim (bool redo)
 {
     auto& undo = rsProcessor.getRegistry().getUndoManager();
     if (redo ? undo.redo() : undo.undo())
@@ -461,7 +492,7 @@ void RoughStartEditor::undoTrim (bool redo)
     refreshBatchStatus();
 }
 
-bool RoughStartEditor::keyPressed (const juce::KeyPress& key)
+bool RoughStartView::keyPressed (const juce::KeyPress& key)
 {
     if (view == View::overview && key.getModifiers().isCommandDown() && key.getKeyCode() == 'Z')
     {
@@ -472,7 +503,7 @@ bool RoughStartEditor::keyPressed (const juce::KeyPress& key)
     return false;
 }
 
-void RoughStartEditor::toggleAnalyzeAll()
+void RoughStartView::toggleAnalyzeAll()
 {
     auto& registry = rsProcessor.getRegistry();
 
@@ -485,7 +516,7 @@ void RoughStartEditor::toggleAnalyzeAll()
     refreshLevels();
 }
 
-void RoughStartEditor::refreshBatchStatus()
+void RoughStartView::refreshBatchStatus()
 {
     const auto s = rsProcessor.getRegistry().getBatchSummary();
     const bool running = s.isRunning();
@@ -521,7 +552,7 @@ void RoughStartEditor::refreshBatchStatus()
     analyzeAllButton.repaint();
 }
 
-void RoughStartEditor::showNotice (const juce::String& text)
+void RoughStartView::showNotice (const juce::String& text)
 {
     noticeText = text;
     noticeUntilMs = juce::Time::getMillisecondCounterHiRes() + noticeMs;
@@ -529,7 +560,7 @@ void RoughStartEditor::showNotice (const juce::String& text)
 }
 
 //==============================================================================
-void RoughStartEditor::reloadPresets()
+void RoughStartView::reloadPresets()
 {
     presetCache.clear();
     presetBox.clear (juce::dontSendNotification);
@@ -561,7 +592,7 @@ void RoughStartEditor::reloadPresets()
     syncPresetSelection();
 }
 
-void RoughStartEditor::syncPresetSelection()
+void RoughStartView::syncPresetSelection()
 {
     // Toon de preset die precies overeenkomt met de huidige instellingen, anders "(custom)".
     const auto current = rsProcessor.getTargetSettings();
@@ -588,26 +619,26 @@ void RoughStartEditor::syncPresetSelection()
     presetBox.setSelectedId (match, juce::dontSendNotification);
 }
 
-const RoughStartEditor::PresetEntry* RoughStartEditor::getSelectedEntry() const
+const RoughStartView::PresetEntry* RoughStartView::getSelectedEntry() const
 {
     const int index = presetBox.getSelectedId() - 1;
     return juce::isPositiveAndBelow (index, (int) presetCache.size()) ? &presetCache[(size_t) index] : nullptr;
 }
 
-juce::String RoughStartEditor::getSelectedPresetName() const
+juce::String RoughStartView::getSelectedPresetName() const
 {
     if (auto* e = getSelectedEntry())
         return e->name;
     return {};
 }
 
-void RoughStartEditor::loadSelectedPreset()
+void RoughStartView::loadSelectedPreset()
 {
     if (auto* e = getSelectedEntry())
         rsProcessor.applyTargetSettings (e->settings);
 }
 
-void RoughStartEditor::setSelectedAsDefault()
+void RoughStartView::setSelectedAsDefault()
 {
     auto* e = getSelectedEntry();
     if (e == nullptr)
@@ -621,7 +652,7 @@ void RoughStartEditor::setSelectedAsDefault()
     }
 }
 
-void RoughStartEditor::showPresetMenu()
+void RoughStartView::showPresetMenu()
 {
     const auto* selected = getSelectedEntry();
     const bool hasSelection = selected != nullptr;
@@ -639,7 +670,7 @@ void RoughStartEditor::showPresetMenu()
     menu.addItem (revealItem, "Show presets folder");
     menu.addItem (resetItem, "Reset to default preset");
 
-    juce::Component::SafePointer<RoughStartEditor> safeThis (this);
+    juce::Component::SafePointer<RoughStartView> safeThis (this);
     menu.showMenuAsync (juce::PopupMenu::Options().withTargetComponent (presetMenuButton),
                         [safeThis] (int result)
                         {
@@ -666,7 +697,7 @@ void RoughStartEditor::showPresetMenu()
                         });
 }
 
-void RoughStartEditor::savePresetAs()
+void RoughStartView::savePresetAs()
 {
     // Het prompt is een kind van de editor, dus 'this' leeft zolang de callback kan komen.
     prompt.showTextInput ("Save preset", "Name for this preset:", getSelectedPresetName(), "Save",
@@ -688,13 +719,13 @@ void RoughStartEditor::savePresetAs()
                           });
 }
 
-void RoughStartEditor::importPreset()
+void RoughStartView::importPreset()
 {
     fileChooser = std::make_unique<juce::FileChooser> ("Import RoughStart preset",
                                                        juce::File::getSpecialLocation (juce::File::userDocumentsDirectory),
                                                        juce::String ("*") + PresetManager::fileExtension);
 
-    juce::Component::SafePointer<RoughStartEditor> safeThis (this);
+    juce::Component::SafePointer<RoughStartView> safeThis (this);
     fileChooser->launchAsync (juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
                               [safeThis] (const juce::FileChooser& chooser)
                               {
@@ -717,7 +748,7 @@ void RoughStartEditor::importPreset()
                               });
 }
 
-void RoughStartEditor::exportSelectedPreset()
+void RoughStartView::exportSelectedPreset()
 {
     const auto* entry = getSelectedEntry();
     if (entry == nullptr)
@@ -732,7 +763,7 @@ void RoughStartEditor::exportSelectedPreset()
     fileChooser = std::make_unique<juce::FileChooser> ("Export RoughStart preset", suggested,
                                                        juce::String ("*") + PresetManager::fileExtension);
 
-    juce::Component::SafePointer<RoughStartEditor> safeThis (this);
+    juce::Component::SafePointer<RoughStartView> safeThis (this);
     fileChooser->launchAsync (juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::canSelectFiles
                                   | juce::FileBrowserComponent::warnAboutOverwriting,
                               [safeThis, name, settings] (const juce::FileChooser& chooser)
@@ -753,7 +784,7 @@ void RoughStartEditor::exportSelectedPreset()
                               });
 }
 
-void RoughStartEditor::deleteSelectedPreset()
+void RoughStartView::deleteSelectedPreset()
 {
     const auto* entry = getSelectedEntry();
     if (entry == nullptr || entry->factory)
@@ -772,8 +803,35 @@ void RoughStartEditor::deleteSelectedPreset()
                         });
 }
 
-void RoughStartEditor::applySettingsToAll()
+void RoughStartView::applySettingsToAll()
 {
     const int count = rsProcessor.getRegistry().applyTargetSettingsToAll (rsProcessor.getTargetSettings());
     showNotice ("Mode, target and ceiling applied to " + juce::String (count) + " tracks.");
+}
+
+//==============================================================================
+RoughStartEditor::RoughStartEditor (RoughStartProcessor& p)
+    : AudioProcessorEditor (&p), view (p)
+{
+    scale = PresetManager().getUiScale();
+    view.setScaleLabel (scale);
+    view.onSizeChange = [this] { applyScale(); };
+    view.onScaleRequested = [this] (float newScale)
+    {
+        scale = newScale;
+        view.setScaleLabel (scale);
+        PresetManager().setUiScale (scale);   // geldt voor alle instances en volgende sessies
+        applyScale();
+    };
+
+    addAndMakeVisible (view);
+    applyScale();
+}
+
+void RoughStartEditor::applyScale()
+{
+    view.setTopLeftPosition (0, 0);
+    view.setTransform (juce::AffineTransform::scale (scale));
+    setSize (juce::roundToInt ((float) view.getWidth() * scale),
+             juce::roundToInt ((float) view.getHeight() * scale));
 }

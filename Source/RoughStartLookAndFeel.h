@@ -2,6 +2,7 @@
 
 #include <juce_gui_basics/juce_gui_basics.h>
 #include "UiStyle.h"
+#include "BinaryData.h"
 
 /**
     Eigen donkere stijl voor RoughStart: platte knoppen met afgeronde hoeken,
@@ -44,6 +45,20 @@ public:
         setColour (juce::TooltipWindow::textColourId, text);
         setColour (juce::TooltipWindow::outlineColourId, border);
         setColour (juce::ScrollBar::thumbColourId, border.brighter (0.3f));
+    }
+
+    //==============================================================================
+    // Inter (SIL Open Font License, Resources/fonts) voor alle tekst, zodat
+    // RoughStart op elke Mac hetzelfde oogt.
+    juce::Typeface::Ptr getTypefaceForFont (const juce::Font& f) override
+    {
+        static auto regular = juce::Typeface::createSystemTypefaceFor (BinaryData::InterRegular_ttf, BinaryData::InterRegular_ttfSize);
+        static auto bold    = juce::Typeface::createSystemTypefaceFor (BinaryData::InterBold_ttf, BinaryData::InterBold_ttfSize);
+
+        if (f.getTypefaceName() == juce::Font::getDefaultSansSerifFontName() && regular != nullptr)
+            return f.isBold() && bold != nullptr ? bold : regular;
+
+        return LookAndFeel_V4::getTypefaceForFont (f);
     }
 
     //==============================================================================

@@ -41,7 +41,7 @@ auval -v aufx RgSt TvdK
 - `Source/InstanceRegistry.*`: gedeelde lijst van alle instances in het hostproces (via `juce::SharedResourcePointer`), plus Analyze All / Stop All en de batchstatus. Werkt omdat Logic AUv2 in-process laadt.
 - `Source/LevelMeter.h`: meting (piek/RMS, absolute + relatieve stiltedrempel), Auto-berekening met plafond en dB-rekenwerk, zonder JUCE; getest in `Tests/`.
 - `Source/PluginProcessor.*`: parameters, analyse, Auto + Trim, state, spoornaam, ping-teller.
-- `Source/PluginEditor.*`: UI in het Engels, weergaven Track en Overview, presetmenu, Analyze All.
+- `Source/PluginEditor.*`: `RoughStartView` (interface op 100%) en `RoughStartEditor` (plug-invenster, schaalt de view); UI in het Engels, weergaven Track en Overview, presetmenu, Analyze All.
 - `Source/OverviewComponent.*`: sorteerbare tabel met alle instances.
 - `Source/PresetManager.*`: presets als `.rspreset` (XML) in `~/Library/Application Support/RoughStart/Presets`, factory presets en de standaard voor nieuwe instances (`settings.xml`); zonder GUI, getest in `Tests/`.
 - `Source/UiStyle.h`: gedeelde kleuren, dB-opmaak en het logo.
@@ -50,6 +50,7 @@ auval -v aufx RgSt TvdK
 - `Tools/Snapshot.cpp`: rendert de editor naar PNG (`--target RoughStartSnapshot`).
 - `Source/InlinePrompt.h`: invoer/bevestiging als laag in de editor (losse vensters flikkeren in Logic).
 - `Source/HelpOverlay.h`: toont de handleiding in de plugin.
+- `Resources/fonts/`: lettertype Inter (SIL OFL 1.1, licentie erbij), ingebakken via BinaryData.
 - `docs/MANUAL.md`: handleiding (Engels), via `juce_add_binary_data` in de plugin ingebakken.
 
 ## Afspraken

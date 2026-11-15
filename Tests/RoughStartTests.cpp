@@ -247,6 +247,12 @@ struct PresetManagerTests final : juce::UnitTest
             expect (fresh.getDefaultPreset() == PresetManager::PresetRef { false, "Mine" });
             expect (fresh.getDefaultSettings() == mine);
 
+            // Venstergrootte naast de standaard bewaren
+            expectEquals (fresh.getUiScale(), 1.0f);
+            expect (fresh.setUiScale (1.5f));
+            expectEquals (fresh.getUiScale(), 1.5f);
+            expect (fresh.getDefaultPreset() == PresetManager::PresetRef { false, "Mine" });
+
             // Settings-bestand telt niet als preset
             expect (! fresh.getPresetNames().contains ("settings"));
 

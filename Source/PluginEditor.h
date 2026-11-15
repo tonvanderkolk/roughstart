@@ -9,12 +9,22 @@
 #include "MeterView.h"
 #include "RoughStartLookAndFeel.h"
 
-class RoughStartEditor final : public juce::AudioProcessorEditor,
-                               private juce::Timer
+/**
+    De volledige RoughStart-interface op 100%. RoughStartEditor (hieronder)
+    zet hem in het plug-invenster en schaalt hem naar 100/125/150/175%.
+*/
+class RoughStartView final : public juce::Component,
+                             private juce::Timer
 {
 public:
-    explicit RoughStartEditor (RoughStartProcessor&);
-    ~RoughStartEditor() override;
+    explicit RoughStartView (RoughStartProcessor&);
+    ~RoughStartView() override;
+
+    /** Wordt aangeroepen als de view van grootte verandert (Track/Overview). */
+    std::function<void()> onSizeChange;
+    /** Wordt aangeroepen als de gebruiker een andere schaal kiest. */
+    std::function<void (float)> onScaleRequested;
+    void setScaleLabel (float scale);
 
     void paint (juce::Graphics&) override;
     void resized() override;
@@ -69,6 +79,9 @@ private:
     juce::Label titleLabel, trackLabel;
     juce::TextButton trackViewButton { "Track" }, overviewButton { "Overview" };
     juce::TextButton helpButton { "?" };
+    juce::TextButton scaleButton { "100%" };
+    float currentScale = 1.0f;
+    void showScaleMenu();
 
     // Track-weergave
     juce::Label presetLabel { {}, "Preset" };
@@ -119,6 +132,24 @@ private:
     juce::Rectangle<int> resultCard, settingsCard;
     int trimDividerY = 0;
     int lastModeIndex = -1;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RoughStartView)
+};
+
+//==============================================================================
+/** Het plug-invenster: bevat RoughStartView en schaalt die naar de gekozen grootte. */
+class RoughStartEditor final : public juce::AudioProcessorEditor
+{
+public:
+    explicit RoughStartEditor (RoughStartProcessor&);
+
+    void resized() override {}
+
+private:
+    void applyScale();
+
+    RoughStartView view;
+    float scale = 1.0f;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RoughStartEditor)
 };

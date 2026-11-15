@@ -78,6 +78,8 @@ RoughStart sets the level of every track before you start mixing. Put one instan
 
 ## Good to know
 
+- Window size: click the percentage at the top right to choose 100, 125, 150 or 175%. The choice applies to every RoughStart and is remembered.
+
 - All settings and measurements are saved in the Logic project.
 - RoughStart adds no latency and almost no CPU load, even with 80 instances.
 - Gain changes are smoothed over 50 ms, so there are no clicks.

@@ -167,10 +167,36 @@ namespace roughstart
         if (! directory.createDirectory())
             return false;
 
-        juce::XmlElement xml ("RoughStartSettings");
+        auto xml = readSettings();
         xml.setAttribute ("defaultType", ref.factory ? "factory" : "user");
         xml.setAttribute ("defaultPreset", ref.name);
-        return xml.writeTo (getSettingsFile());
+        return writeSettings (xml);
+    }
+
+    juce::XmlElement PresetManager::readSettings() const
+    {
+        if (auto xml = juce::XmlDocument::parse (getSettingsFile()))
+            if (xml->hasTagName ("RoughStartSettings"))
+                return *xml;
+
+        return juce::XmlElement ("RoughStartSettings");
+    }
+
+    bool PresetManager::writeSettings (const juce::XmlElement& xml)
+    {
+        return directory.createDirectory() && xml.writeTo (getSettingsFile());
+    }
+
+    float PresetManager::getUiScale() const
+    {
+        return juce::jlimit (1.0f, 2.0f, (float) readSettings().getDoubleAttribute ("uiScale", 1.0));
+    }
+
+    bool PresetManager::setUiScale (float scale)
+    {
+        auto xml = readSettings();
+        xml.setAttribute ("uiScale", (double) juce::jlimit (1.0f, 2.0f, scale));
+        return writeSettings (xml);
     }
 
     TargetSettings PresetManager::getDefaultSettings() const

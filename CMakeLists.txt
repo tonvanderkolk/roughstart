@@ -29,7 +29,10 @@ juce_add_plugin(RoughStart
     AU_MAIN_TYPE kAudioUnitType_Effect
     COPY_PLUGIN_AFTER_BUILD TRUE)
 
-juce_add_binary_data(RoughStartData SOURCES docs/MANUAL.md)
+juce_add_binary_data(RoughStartData SOURCES
+    docs/MANUAL.md
+    Resources/fonts/Inter-Regular.ttf
+    Resources/fonts/Inter-Bold.ttf)
 
 target_sources(RoughStart PRIVATE
     Source/PluginProcessor.cpp

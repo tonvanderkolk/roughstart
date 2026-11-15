@@ -2,6 +2,17 @@
 
 Alle noemenswaardige wijzigingen in RoughStart. Formaat volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/), versies volgen [SemVer](https://semver.org/lang/nl/).
 
+## [0.9.0] - 2026-11-15
+
+### Toegevoegd
+- **Venstergrootte**: knop met percentage rechtsboven (100, 125, 150 of 175%). De keuze geldt voor alle instances en wordt onthouden (`uiScale` in `settings.xml`).
+- **Lettertype Inter** (Regular en Bold, SIL Open Font License 1.1) ingebakken in de plugin, zodat RoughStart op elke Mac hetzelfde oogt. Bestanden en licentie in `Resources/fonts/`.
+- Unit test: venstergrootte wordt naast de standaardpreset bewaard.
+
+### Gewijzigd
+- De editor is opgesplitst in `RoughStartView` (de interface op 100%) en `RoughStartEditor` (het plug-invenster dat de view schaalt).
+- `settings.xml` wordt bij wijzigen eerst gelezen, zodat standaardpreset en venstergrootte elkaar niet overschrijven.
+
 ## [0.8.0] - 2026-11-15
 
 ### Toegevoegd

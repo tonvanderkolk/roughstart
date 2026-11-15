@@ -80,6 +80,10 @@ namespace roughstart
         /** Instellingen voor een nieuwe instance. Bestaat de eigen standaard niet meer, dan de factory-standaard. */
         TargetSettings getDefaultSettings() const;
 
+        /** Venstergrootte (1.0 = 100%), voor alle instances; standaard 1.0. */
+        float getUiScale() const;
+        bool setUiScale (float scale);
+
         static std::unique_ptr<juce::XmlElement> toXml (const juce::String& name, const TargetSettings& settings);
         static std::optional<TargetSettings> fromXml (const juce::XmlElement& xml);
         static juce::String sanitiseName (const juce::String& name);
@@ -87,6 +91,8 @@ namespace roughstart
     private:
         juce::File getFile (const juce::String& name) const;
         juce::File getSettingsFile() const { return directory.getChildFile ("settings.xml"); }
+        juce::XmlElement readSettings() const;
+        bool writeSettings (const juce::XmlElement& xml);
 
         juce::File directory;
     };
