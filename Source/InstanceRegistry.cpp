@@ -145,3 +145,55 @@ int InstanceRegistry::applyTargetSettingsToAll (const roughstart::TargetSettings
 
     return (int) instances.size();
 }
+
+void InstanceRegistry::setTrimDb (int instanceNumber, float trimDb)
+{
+    const juce::ScopedLock sl (lock);
+
+    for (auto* instance : instances)
+        if (instance->getInstanceNumber() == instanceNumber)
+            if (auto* p = instance->parameters.getParameter ("trim"))
+                p->setValueNotifyingHost (p->convertTo0to1 (trimDb));
+}
+
+void InstanceRegistry::setTrimGesture (int instanceNumber, bool starting)
+{
+    const juce::ScopedLock sl (lock);
+
+    for (auto* instance : instances)
+        if (instance->getInstanceNumber() == instanceNumber)
+            if (auto* p = instance->parameters.getParameter ("trim"))
+            {
+                if (starting) p->beginChangeGesture();
+                else          p->endChangeGesture();
+            }
+}
+
+namespace
+{
+    /** Eén Trim-wijziging vanuit het overzicht; zoekt de instance op volgnummer. */
+    class TrimChangeAction final : public juce::UndoableAction
+    {
+    public:
+        TrimChangeAction (InstanceRegistry& r, int instance, float from, float to)
+            : registry (r), instanceNumber (instance), oldDb (from), newDb (to) {}
+
+        bool perform() override { registry.setTrimDb (instanceNumber, newDb); return true; }
+        bool undo() override    { registry.setTrimDb (instanceNumber, oldDb); return true; }
+        int getSizeInUnits() override { return 1; }
+
+    private:
+        InstanceRegistry& registry;
+        int instanceNumber;
+        float oldDb, newDb;
+    };
+}
+
+void InstanceRegistry::recordTrimChange (int instanceNumber, float oldDb, float newDb)
+{
+    if (std::abs (oldDb - newDb) < 0.01f)
+        return;
+
+    undoManager.beginNewTransaction ("Trim");
+    undoManager.perform (new TrimChangeAction (*this, instanceNumber, oldDb, newDb));
+}

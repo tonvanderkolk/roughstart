@@ -18,6 +18,7 @@ public:
 
     void paint (juce::Graphics&) override;
     void resized() override;
+    bool keyPressed (const juce::KeyPress&) override;
 
 private:
     using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
@@ -97,6 +98,8 @@ private:
     // Onderbalk (beide weergaven)
     juce::Label countLabel, batchLabel;
     juce::TextButton analyzeAllButton { "Analyze All" };
+    juce::TextButton undoButton { "Undo" }, redoButton { "Redo" };
+    void undoTrim (bool redo);
 
     std::unique_ptr<ComboAttachment> modeAttachment;
     std::unique_ptr<SliderAttachment> targetPeakAttachment, targetRmsAttachment, ceilingAttachment, trimAttachment;

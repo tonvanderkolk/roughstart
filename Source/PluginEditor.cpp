@@ -7,7 +7,7 @@ using namespace roughstart;
 namespace
 {
     constexpr int trackWidth = 460, trackHeight = 540;
-    constexpr int overviewWidth = 760, overviewHeight = 500;
+    constexpr int overviewWidth = 860, overviewHeight = 520;
     constexpr int headerHeight = 58, footerHeight = 76;
     constexpr double noticeMs = 3500.0;
 
@@ -135,6 +135,17 @@ RoughStartEditor::RoughStartEditor (RoughStartProcessor& p)
     analyzeAllButton.getProperties().set ("primary", true);
     analyzeAllButton.onClick = [this] { toggleAnalyzeAll(); };
     addAndMakeVisible (analyzeAllButton);
+
+    undoButton.setConnectedEdges (juce::Button::ConnectedOnRight);
+    redoButton.setConnectedEdges (juce::Button::ConnectedOnLeft);
+    undoButton.onClick = [this] { undoTrim (false); };
+    redoButton.onClick = [this] { undoTrim (true); };
+    undoButton.setTooltip ("Undo the last Trim change made in this table (Cmd+Z).");
+    redoButton.setTooltip ("Redo the last undone Trim change (Cmd+Shift+Z).");
+    addChildComponent (undoButton);
+    addChildComponent (redoButton);
+    setWantsKeyboardFocus (true);
+
     styleLabel (batchLabel, 12.0f, ui::dimText);
     addAndMakeVisible (batchLabel);
 
@@ -172,6 +183,8 @@ void RoughStartEditor::setView (View newView)
         updateTargetVisibility();
 
     overview.setVisible (! isTrack);
+    undoButton.setVisible (! isTrack);
+    redoButton.setVisible (! isTrack);
 
     trackViewButton.setToggleState (isTrack, juce::dontSendNotification);
     overviewButton.setToggleState (! isTrack, juce::dontSendNotification);
@@ -256,6 +269,9 @@ void RoughStartEditor::resized()
     }
     else
     {
+        undoButton.setBounds (footerRow.removeFromLeft (58));
+        redoButton.setBounds (footerRow.removeFromLeft (58));
+        footerRow.removeFromLeft (12);
         batchLabel.setBounds (footerRow);
         batchLabel.setJustificationType (juce::Justification::centredLeft);
     }
@@ -437,6 +453,25 @@ void RoughStartEditor::refreshLevels()
     meter.setData (d);
 }
 
+void RoughStartEditor::undoTrim (bool redo)
+{
+    auto& undo = rsProcessor.getRegistry().getUndoManager();
+    if (redo ? undo.redo() : undo.undo())
+        showNotice (redo ? "Trim change redone." : "Trim change undone.");
+    refreshBatchStatus();
+}
+
+bool RoughStartEditor::keyPressed (const juce::KeyPress& key)
+{
+    if (view == View::overview && key.getModifiers().isCommandDown() && key.getKeyCode() == 'Z')
+    {
+        undoTrim (key.getModifiers().isShiftDown());
+        return true;
+    }
+
+    return false;
+}
+
 void RoughStartEditor::toggleAnalyzeAll()
 {
     auto& registry = rsProcessor.getRegistry();
@@ -474,6 +509,13 @@ void RoughStartEditor::refreshBatchStatus()
     else
         text = "Last analyze all: " + juce::String (s.stored) + " stored"
                + (s.noSignal > 0 ? ", " + juce::String (s.noSignal) + " without signal" : juce::String());
+
+    auto& undo = rsProcessor.getRegistry().getUndoManager();
+    undoButton.setEnabled (undo.canUndo());
+    redoButton.setEnabled (undo.canRedo());
+
+    if (text.isEmpty() && view == View::overview)
+        text = "Drag a Trim value to balance by ear. Double-click resets it to 0.";
 
     batchLabel.setText (text, juce::dontSendNotification);
     analyzeAllButton.repaint();

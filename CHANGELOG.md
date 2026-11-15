@@ -2,6 +2,19 @@
 
 Alle noemenswaardige wijzigingen in RoughStart. Formaat volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/), versies volgen [SemVer](https://semver.org/lang/nl/).
 
+## [0.8.0] - 2026-11-15
+
+### Toegevoegd
+- **Trim in het overzicht**: slepen in het Trim-vakje, dubbelklik zet op 0, Alt-klik om te typen. Wijzigingen gaan als echte parameterwijziging naar de juiste instance (met begin/einde van de gebaar voor undo en automatisering). Tijdens slepen blijft de volgorde van de tabel staan.
+- **Mini-meter per spoor** (kolom Level): grijs vóór, groen na Auto, wit streepje voor de piek na Auto. Sorteerbaar op het niveau na Auto.
+- **Statuslabels** als gekleurde pil: OK (groen), Ceiling (blauw), No signal / Not analyzed (grijs), Waiting / Measuring (oranje).
+- Hint onderin het overzicht over Trim slepen.
+- **Undo/Redo voor Trim in het overzicht**: eigen gedeelde undo-geschiedenis (alle sporen), met knoppen onderin en Cmd+Z / Cmd+Shift+Z. Nodig omdat Logic's Undo per plug-invenster werkt en wijzigingen aan andere sporen niet terugdraait.
+
+### Gewijzigd
+- Overzicht breder (860 px), hogere regels, getallen zonder "dB" erachter (staat in de handleiding), kanalen als "St"/"Mono".
+- `RoughStartSnapshot` rendert nu ook een overzicht met zes sporen.
+
 ## [0.7.0] - 2026-11-15
 
 ### Gewijzigd

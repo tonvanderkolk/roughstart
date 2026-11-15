@@ -61,9 +61,12 @@ RoughStart sets the level of every track before you start mixing. Put one instan
 
 ## Overview
 
-- Click Overview (top right) to see every RoughStart instance in the project: Track, Ch (Mono or Stereo), Mode, Peak, RMS, Auto, Trim, Total and Status.
+- Click Overview (top right) to see every RoughStart instance in the project: Track, Ch (Mono or Stereo), Mode, Level, Peak, RMS, Auto, Trim, Total and Status. Numbers are in dB.
 - Click a column header to sort; click again to reverse. Tracks that have not been analyzed always sort to the bottom.
 - The track you opened RoughStart on is highlighted.
+- Level shows a small meter per track: grey before RoughStart, green after Auto, white tick for the peak after Auto.
+- Trim can be changed right in the table: drag the value left or right, double-click to reset it to 0, or Alt-click to type a value. You can balance the whole song from this one window. Undo and Redo next to Analyze all (or Cmd+Z / Cmd+Shift+Z while the RoughStart window is active) step back through Trim changes made in the table, across all tracks. Logic's own Undo in the plug-in window header only covers that one track.
+- Status: OK, Ceiling (peak at the Peak ceiling), No signal, Not analyzed, or Waiting/Measuring during an analysis.
 
 ## Presets
 

@@ -56,6 +56,47 @@ int main (int argc, char** argv)
         save (*ed, dir.getChildFile ("track_measured.png"));
     }
 
+    // Extra sporen voor het overzicht
+    struct Fake { const char* name; float loud, quiet; int every; bool mono; bool analyze; float trim; };
+    const Fake fakes[] = {
+        { "YachtPop 2 - Be With You_Bass",   0.34f, 0.10f, 4,  false, true,  -1.0f },
+        { "YachtPop 2 - Be With You_Guitar", 0.64f, 0.04f, 12, false, true,   0.0f },
+        { "YachtPop 2 - Be With You_Vocals", 0.79f, 0.09f, 10, false, true,   2.0f },
+        { "Fender Pbass 66",                 0.75f, 0.14f, 6,  true,  true,   0.0f },
+        { "Jazz Organ",                      0.0f,  0.0f,  1,  false, false,  0.0f },
+    };
+    std::vector<std::unique_ptr<juce::AudioProcessor>> others;
+    for (const auto& f : fakes)
+    {
+        others.emplace_back (createPluginFilter());
+        auto& o = dynamic_cast<RoughStartProcessor&> (*others.back());
+        const int ch = f.mono ? 1 : 2;
+        juce::AudioProcessor::BusesLayout layout;
+        layout.inputBuses.add (f.mono ? juce::AudioChannelSet::mono() : juce::AudioChannelSet::stereo());
+        layout.outputBuses.add (f.mono ? juce::AudioChannelSet::mono() : juce::AudioChannelSet::stereo());
+        o.setBusesLayout (layout);
+        o.prepareToPlay (48000.0, 512);
+        juce::AudioProcessor::TrackProperties tp;
+        tp.name = f.name;
+        o.updateTrackProperties (tp);
+
+        if (f.analyze)
+        {
+            o.startAnalysis();
+            juce::AudioBuffer<float> b2 (ch, 512);
+            for (int b = 0; b < 400; ++b)
+            {
+                for (int c = 0; c < ch; ++c)
+                    for (int i = 0; i < 512; ++i)
+                        b2.setSample (c, i, (rnd.nextFloat() * 2.0f - 1.0f) * ((b % f.every == 0 && i < 60) ? f.loud : f.quiet));
+                o.processBlock (b2, midi);
+            }
+            o.stopAnalysis();
+        }
+        if (auto* t = o.parameters.getParameter ("trim"))
+            t->setValueNotifyingHost (t->convertTo0to1 (f.trim));
+    }
+
     p.lastEditorView = 1;
     {
         std::unique_ptr<juce::AudioProcessorEditor> ed (p.createEditor());

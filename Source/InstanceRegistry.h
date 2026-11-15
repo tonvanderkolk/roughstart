@@ -1,6 +1,6 @@
 #pragma once
 
-#include <juce_core/juce_core.h>
+#include <juce_data_structures/juce_data_structures.h>
 #include <vector>
 #include "PresetManager.h"
 
@@ -79,6 +79,21 @@ public:
     /** Zet methode, doelen en plafond van alle instances gelijk. Alleen vanaf de berichtthread. */
     int applyTargetSettingsToAll (const roughstart::TargetSettings& settings);
 
+    /** Zet Trim van één instance (op volgnummer). Alleen vanaf de berichtthread. */
+    void setTrimDb (int instanceNumber, float trimDb);
+
+    /** Begin/einde van een sleepbeweging op Trim (voor automatisering in de host). */
+    void setTrimGesture (int instanceNumber, bool starting);
+
+    /**
+        Legt een afgeronde Trim-wijziging vast in de gedeelde undo-geschiedenis.
+        Logic's eigen Undo geldt per plug-invenster, dus wijzigingen vanuit het
+        overzicht aan andere sporen krijgen hier hun eigen undo.
+    */
+    void recordTrimChange (int instanceNumber, float oldDb, float newDb);
+
+    juce::UndoManager& getUndoManager() noexcept { return undoManager; }
+
     //==============================================================================
     /** Verhoogt bij elke aan- of afmelding; editors gebruiken dit om te verversen. */
     juce::uint32 getChangeCount() const noexcept { return changeCount.load(); }
@@ -91,6 +106,7 @@ private:
     int nextInstanceNumber = 1;
     int currentBatch = 0;
     std::atomic<juce::uint32> changeCount { 0 };
+    juce::UndoManager undoManager { 0, 200 };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InstanceRegistry)
 };

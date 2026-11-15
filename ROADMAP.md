@@ -10,7 +10,7 @@
 - [x] **v0.5:** factory presets, eigen standaard voor nieuwe instances, handleiding in de plugin; v0.5.1 toont Mono/Stereo en rondt stille sporen af bij Analyze All. *(getest in Logic Pro 12 op 2026-11-10)*
 - [x] **v0.6 Testronde:** spoornamen van vóren afkappen, tooltips, Universal binary, testpakket met installatiebriefje. *(getest in Logic Pro 12 op 2026-11-10)*
 - [x] **v0.7 Track-weergave:** nieuwe donkere indeling met meter, Trim-knop, instellingenkaart. *(getest in Logic Pro op 2026-11-15)*
-- [ ] **v0.8 Overzicht:** Trim in de tabel, mini-meters, statuslabels.
+- [x] **v0.8 Overzicht:** Trim in de tabel, mini-meters, statuslabels. Plus eigen Undo/Redo voor Trim. *(getest in Logic Pro op 2026-11-15)*
 - [ ] **v0.9 Afwerking:** eigen lettertype, venstergrootte schalen.
 - [ ] **v1.0 Afronding:** UI polijsten, `auval` schoon, signing.
 
