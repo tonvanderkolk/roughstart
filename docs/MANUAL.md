@@ -84,3 +84,9 @@ RoughStart sets the level of every track before you start mixing. Put one instan
 - RoughStart adds no latency and almost no CPU load, even with 80 instances.
 - Gain changes are smoothed over 50 ms, so there are no clicks.
 - If you send a project to someone who does not have RoughStart, the gain is gone. Bounce or export the tracks first so the gain is part of the audio.
+
+## License
+
+- RoughStart is free and open-source software, licensed under the GNU Affero General Public License v3.0 (AGPL-3.0). You can use it for free, also commercially, and share it. The source code is on GitHub: github.com/tonvanderkolk/roughstart.
+- RoughStart is built with the JUCE framework (AGPL-3.0) and uses the Inter typeface (SIL Open Font License 1.1).
+- RoughStart comes without any warranty.

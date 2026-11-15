@@ -47,6 +47,10 @@ Klik in de plugin rechtsboven op **?** voor de handleiding. In het kort:
 3. Klik op **Analyze All**, speel het nummer af en stop.
 4. Klaar: alle sporen staan op een gelijk startniveau, je faders blijven op 0. Balanceer daarna op het gehoor met Trim.
 
+## Licentie
+
+RoughStart is gratis en open source (AGPL-3.0). De broncode staat op github.com/tonvanderkolk/roughstart.
+
 ## Verwijderen
 
 Gooi `~/Library/Audio/Plug-Ins/Components/RoughStart.component` in de prullenmand. Je presets staan in `~/Library/Application Support/RoughStart`.

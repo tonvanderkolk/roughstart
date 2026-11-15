@@ -2,6 +2,12 @@
 
 Alle noemenswaardige wijzigingen in RoughStart. Formaat volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/), versies volgen [SemVer](https://semver.org/lang/nl/).
 
+## [0.9.1] - 2026-11-15
+
+### Toegevoegd
+- Licentie: RoughStart is open source onder AGPL-3.0 (`LICENSE`). Vermeld in handleiding, installatiebriefje en testpakket (met de licenties van RoughStart en Inter).
+- Engelse `README.md` voor de openbare repo: wat het doet, schermafbeeldingen, installeren, bouwen vanaf de broncode, licenties.
+
 ## [0.9.0] - 2026-11-15
 
 ### Toegevoegd

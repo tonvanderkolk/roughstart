@@ -15,6 +15,7 @@
 - [ ] **v1.0 Afronding:** UI polijsten, `auval` schoon, signing.
 
 ## Besluiten
+- Gratis en open source onder AGPL-3.0 (zoals JUCE bij open-sourcegebruik vereist). Repo wordt openbaar na akkoord van Ton.
 - Auto-bereik ±24 dB, stiltedrempel -60 dBFS absoluut en -20 dB relatief voor RMS (vensters van 50 ms).
 - Piekplafond standaard -6 dBFS; geldt alleen voor Auto, Trim mag er bewust overheen.
 - UI en parameternamen in het Engels (plugin is bedoeld om later wereldwijd te delen); documentatie blijft Nederlands.
@@ -32,6 +33,5 @@
 - Windows/VST3: nodig voor Ableton-gebruikers op Windows. Bouwen via een Windows-runner in GitHub Actions.
 
 ## Open vragen
-- JUCE-licentie bij publiek delen (AGPLv3 of commerciële licentie).
 - Apple Developer ID voor signing en notarisatie.
 - Gedrag bij spoor zonder signaal tijdens Analyze All (voorstel: Auto ongewijzigd, markeren in overzicht).
