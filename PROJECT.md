@@ -27,6 +27,9 @@ De `.component` wordt na het bouwen automatisch gekopieerd naar `~/Library/Audio
 ```
 Maakt `dist/RoughStart-<versie>.zip` met de plugin en `docs/INSTALL.md` en `docs/MANUAL.md` als PDF (vereist Google Chrome en Python-module `markdown`). Niet ondertekend: testers halen de quarantainemarkering eraf (staat in INSTALL.md).
 
+## Automatisch bouwen (GitHub Actions)
+`.github/workflows/build.yml`: bij elke push naar main en elke pull request bouwen, unit tests en auval op macOS. Een versielabel (`git tag v1.0.0 && git push --tags`) maakt het releasepakket en zet het in een GitHub Release; via Actions > build > Run workflow kun je het pakket ook zonder release laten bouwen.
+
 ## Testen
 ```bash
 ./build/RoughStartTests_artefacts/Release/RoughStartTests

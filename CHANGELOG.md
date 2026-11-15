@@ -2,6 +2,11 @@
 
 Alle noemenswaardige wijzigingen in RoughStart. Formaat volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/), versies volgen [SemVer](https://semver.org/lang/nl/).
 
+## [Unreleased]
+
+### Toegevoegd
+- GitHub Actions (`.github/workflows/build.yml`), naar het voorbeeld van DAW 388: bij elke push bouwen, unit tests en auval op macOS; een versielabel maakt het releasepakket en zet het in een GitHub Release.
+
 ## [0.9.1] - 2026-11-15
 
 ### Toegevoegd
