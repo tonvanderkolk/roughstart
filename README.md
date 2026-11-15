@@ -6,6 +6,10 @@ RoughStart is a free Audio Unit plug-in for Logic Pro and other Audio Unit hosts
 
 It works on software instrument tracks too, which Logic's Normalize Region Gain does not cover.
 
+A hobby project by Ton van der Kolk. Free and open source. The development notes are in Dutch.
+
+Like RoughStart? You can [support it with a coffee](https://buymeacoffee.com/tvdk71).
+
 ![Track view](docs/screenshots/track_measured.png)
 
 ![Overview](docs/screenshots/overview.png)
@@ -32,7 +36,7 @@ RoughStart finds its other instances inside the host process. Hosts that run eac
 
 1. Download the latest zip from [Releases](https://github.com/tonvanderkolk/roughstart/releases) and unzip it.
 2. Move `RoughStart.component` to `~/Library/Audio/Plug-Ins/Components` (Finder: Go > Go to Folder...).
-3. RoughStart is not yet signed by Apple, so remove the download block once in Terminal:
+3. RoughStart is not signed with an Apple Developer ID, so macOS blocks it the first time. Remove that block once in Terminal:
 
    ```bash
    xattr -dr com.apple.quarantine ~/Library/Audio/Plug-Ins/Components/RoughStart.component
@@ -57,15 +61,19 @@ The plug-in is copied to `~/Library/Audio/Plug-Ins/Components` after building. R
 
 `./scripts/package.sh` builds a release zip in `dist/` (needs Google Chrome and the Python `markdown` module for the PDFs).
 
+## About this repository
+
+RoughStart was built with Claude Code. Besides the source in `Source/`, the repository keeps the working notes of that process, in Dutch: `PROJECT.md` (the technical description), `ROADMAP.md` (milestones and decisions) and `CHANGELOG.md` (every version). The manual is `docs/MANUAL.md`; it is also built into the plug-in.
+
 ## Feedback and contributions
 
 Bug reports and ideas are welcome in [Issues](https://github.com/tonvanderkolk/roughstart/issues). Especially useful: results in DAWs other than Logic, and a VST3 or Windows build.
 
-Development notes, the roadmap and the changelog are in Dutch (`ROADMAP.md`, `CHANGELOG.md`, `PROJECT.md`).
-
 ## License
 
-RoughStart is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License v3.0. See [LICENSE](LICENSE).
+Copyright (c) 2026 Ton van der Kolk.
+
+RoughStart is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License v3.0. See [LICENSE](LICENSE). RoughStart uses the AGPL rather than a permissive licence because the JUCE framework it is built on requires it for open-source use.
 
 - Built with [JUCE](https://juce.com), used under the AGPL-3.0.
 - Uses the [Inter](https://github.com/rsms/inter) typeface, SIL Open Font License 1.1 (`Resources/fonts/Inter-LICENSE.txt`).
