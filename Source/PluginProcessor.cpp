@@ -251,8 +251,8 @@ void RoughStartProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
 
     // 0. Transport volgen. Zonder transportinfo (bijv. auval) geldt: speelt.
     bool playing = true;
-    if (auto* playHead = getPlayHead())
-        if (auto position = playHead->getPosition())
+    if (auto* host = getPlayHead())
+        if (auto position = host->getPosition())
             playing = position->getIsPlaying();
 
     hostPlaying = playing;
