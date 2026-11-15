@@ -78,7 +78,7 @@ jobs:
           submodules: true
 
       - name: Configureren (64-bit)
-        run: cmake -B build -G "Visual Studio 17 2022" -A x64
+        run: cmake -B build -A x64
 
       - name: Bouwen (VST3, tests, hostcontrole)
         run: cmake --build build --config Release --target RoughStart_VST3 RoughStartTests RoughStartHostCheck

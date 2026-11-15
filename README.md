@@ -59,7 +59,7 @@ The zip also contains an installation guide and the manual as PDF. The manual is
 
 ## Build from source
 
-On macOS you need the Xcode Command Line Tools, CMake and Ninja (`brew install cmake ninja`). On Windows, Visual Studio 2022 with C++ and CMake (`cmake -B build -G "Visual Studio 17 2022" -A x64`, then `cmake --build build --config Release`).
+On macOS you need the Xcode Command Line Tools, CMake and Ninja (`brew install cmake ninja`). On Windows, Visual Studio with C++ and CMake (`cmake -B build -A x64`, then `cmake --build build --config Release`).
 
 ```bash
 git clone --recurse-submodules https://github.com/tonvanderkolk/roughstart.git
