@@ -12,7 +12,7 @@
 - [x] **v0.7 Track-weergave:** nieuwe donkere indeling met meter, Trim-knop, instellingenkaart. *(getest in Logic Pro op 2026-11-15)*
 - [x] **v0.8 Overzicht:** Trim in de tabel, mini-meters, statuslabels. Plus eigen Undo/Redo voor Trim. *(getest in Logic Pro op 2026-11-15)*
 - [x] **v0.9 Afwerking:** eigen lettertype (Inter), venstergrootte schalen. *(getest in Logic Pro op 2026-11-15)*
-- [ ] **v0.11 Groepen (fase 1):** groep per spoor, Apply to group, Group-kolom, presets per soort bron. *(getest in Logic Pro op 2026-11-16)*
+- [x] **v0.11 Groepen (fase 1):** groep per spoor, Apply to group, Group-kolom, presets per soort bron. *(getest in Logic Pro op 2026-11-16)*
 - [ ] **v0.12 Groepen (fase 2, idee):** gekoppeld groepsprofiel (aanpassen op één spoor geldt voor de hele groep), Analyze all per groep, eventueel groep voorstellen op spoornaam.
 - [ ] **v1.0 Afronding:** UI polijsten, `auval` schoon, signing.
 
