@@ -23,7 +23,7 @@ public:
     void visibilityChanged() override;
 
 private:
-    enum ColumnId { trackCol = 1, modeCol, peakCol, rmsCol, autoCol, trimCol, totalCol, statusCol, channelsCol, levelCol };
+    enum ColumnId { trackCol = 1, modeCol, peakCol, rmsCol, autoCol, trimCol, totalCol, statusCol, channelsCol, levelCol, groupCol };
 
     class TrimCell;
 

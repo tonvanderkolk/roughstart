@@ -131,6 +131,11 @@ namespace roughstart
             { "RMS -18 (standard)",   make (1, -12.0f, -18.0f, -6.0f) },
             { "RMS -24 (dynamic)",    make (1, -12.0f, -24.0f, -6.0f) },
             { "Peak -12 (classic)",   make (0, -12.0f, -18.0f, -6.0f) },
+            // Startpunten per soort bron, bedoeld om met Apply to group per groep te zetten
+            { "Drums (Peak -10)",     make (0, -10.0f, -20.0f, -6.0f) },
+            { "Bass (RMS -18)",       make (1, -12.0f, -18.0f, -6.0f) },
+            { "Keys/Pads (RMS -20)",  make (1, -12.0f, -20.0f, -6.0f) },
+            { "Vocals (RMS -18)",     make (1, -12.0f, -18.0f, -6.0f) },
         };
 
         return presets;

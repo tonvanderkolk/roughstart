@@ -39,6 +39,20 @@ RoughStart sets the level of every track before you start mixing. Put one instan
 4. Every track now has its own Auto gain. Open Overview to see all tracks at once.
 5. Balance by ear with Trim. Faders stay at 0 dB.
 
+## Groups
+
+Drums, keys and vocals often need different settings: drums have peaks far above their average, a pad or a compressed vocal does not. Groups let each kind of source have its own settings.
+
+1. In the Track view, choose a group under Group: Drums, Bass, Guitars, Keys, Vocals, FX, or New group... for your own name. Tracks without a group show No group.
+2. Set Mode, Target and Peak ceiling for that kind of source, for example with the preset Drums (Peak -10).
+3. Click Apply to group. Every RoughStart in the same group now uses those settings. Other groups stay as they are.
+4. Do the same for the other groups, then run Analyze all once for the whole song.
+
+- The group is stored in the project, per track. It is not a parameter, so it cannot be automated.
+- Apply to all still sets every track in the project, whatever its group.
+- Groups are meant for RoughStart on tracks. RoughStart on a bus already works as one setting for the whole group (see Tracks or buses).
+- In the Overview the Group column shows each track's group. Sort on it to see the groups together; tracks without a group sort to the bottom.
+
 ## Reading the meter
 
 - The Track view shows one bar on a dBFS scale.
@@ -74,7 +88,7 @@ RoughStart sets the level of every track before you start mixing. Put one instan
 
 ## Overview
 
-- Click Overview (top right) to see every RoughStart instance in the project: Track, Ch (Mono or Stereo), Mode, Level, Peak, RMS, Auto, Trim, Total and Status. Numbers are in dB.
+- Click Overview (top right) to see every RoughStart instance in the project: Track, Group, Ch (Mono or Stereo), Mode, Level, Peak, RMS, Auto, Trim, Total and Status. Numbers are in dB.
 - Click a column header to sort; click again to reverse. Tracks that have not been analyzed always sort to the bottom.
 - The track you opened RoughStart on is highlighted.
 - Level shows a small meter per track: grey before RoughStart, green after Auto, white tick for the peak after Auto. While analyzing, Level and the Peak and RMS columns show the live measurement in orange.
@@ -84,7 +98,7 @@ RoughStart sets the level of every track before you start mixing. Put one instan
 ## Presets
 
 - A preset stores Mode, both targets and Peak ceiling. It does not store measurements or Trim.
-- Factory presets are always available: RMS -18 (standard), RMS -24 (dynamic) and Peak -12 (classic).
+- Factory presets are always available: RMS -18 (standard), RMS -24 (dynamic) and Peak -12 (classic). There are also starting points per kind of source, meant for groups: Drums (Peak -10), Bass (RMS -18), Keys/Pads (RMS -20) and Vocals (RMS -18).
 - Presets... menu: save your own presets, apply settings to all tracks, choose the default for new instances, import, export and delete presets.
 - Use selected preset as default for new instances: every RoughStart you add from then on starts with that preset.
 - Your own presets are files ending in .rspreset in ~/Library/Application Support/RoughStart/Presets. Share them with Export and Import.

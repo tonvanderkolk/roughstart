@@ -112,6 +112,9 @@ public:
     /** Spoornaam van de host, of "Instance N" als de host die niet doorgeeft. */
     juce::String getDisplayName() const;
 
+    /** Groep van dit spoor (bijvoorbeeld "Drums"); leeg = geen groep. Opgeslagen in de sessie. */
+    juce::String getGroup() const;
+    void setGroup (const juce::String& newGroup);
 
 private:
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
@@ -121,6 +124,7 @@ private:
 
     mutable juce::CriticalSection nameLock;
     juce::String trackName;
+    juce::String group;
 
     // Parameters (raw pointers van de APVTS, thread-safe te lezen)
     std::atomic<float>* modeParam = nullptr;

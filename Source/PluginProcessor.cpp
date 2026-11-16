@@ -15,6 +15,7 @@ namespace
         const juce::Identifier measuredValid { "measuredValid" };
         const juce::Identifier measuredPeak  { "measuredPeakDb" };
         const juce::Identifier measuredRms   { "measuredRmsDb" };
+        const juce::Identifier group         { "group" };
     }
 
     constexpr double gainRampSeconds = 0.05;
@@ -296,6 +297,7 @@ void RoughStartProcessor::getStateInformation (juce::MemoryBlock& destData)
     state.setProperty (ids::measuredValid, storedValid.load(), nullptr);
     state.setProperty (ids::measuredPeak, storedPeakDb.load(), nullptr);
     state.setProperty (ids::measuredRms, storedRmsDb.load(), nullptr);
+    state.setProperty (ids::group, getGroup(), nullptr);
 
     if (auto xml = state.createXml())
         copyXmlToBinary (*xml, destData);
@@ -312,6 +314,8 @@ void RoughStartProcessor::setStateInformation (const void* data, int sizeInBytes
     storedValid  = (bool) state.getProperty (ids::measuredValid, false);
     storedPeakDb = (float) state.getProperty (ids::measuredPeak, roughstart::minusInfinityDb);
     storedRmsDb  = (float) state.getProperty (ids::measuredRms, roughstart::minusInfinityDb);
+    setGroup (state.getProperty (ids::group, juce::String()).toString());
+    state.removeProperty (ids::group, nullptr);
 
     parameters.replaceState (state);
 }
@@ -335,6 +339,24 @@ juce::String RoughStartProcessor::getDisplayName() const
 {
     const juce::ScopedLock sl (nameLock);
     return trackName.isNotEmpty() ? trackName : "Instance " + juce::String (instanceNumber);
+}
+
+juce::String RoughStartProcessor::getGroup() const
+{
+    const juce::ScopedLock sl (nameLock);
+    return group;
+}
+
+void RoughStartProcessor::setGroup (const juce::String& newGroup)
+{
+    const auto cleaned = newGroup.trim().substring (0, 40);
+    {
+        const juce::ScopedLock sl (nameLock);
+        if (group == cleaned)
+            return;
+        group = cleaned;
+    }
+    registry->notifyChanged();
 }
 
 juce::AudioProcessorEditor* RoughStartProcessor::createEditor()

@@ -6,8 +6,8 @@ using namespace roughstart;
 
 namespace
 {
-    constexpr int trackWidth = 460, trackHeight = 540;
-    constexpr int overviewWidth = 860, overviewHeight = 520;
+    constexpr int trackWidth = 460, trackHeight = 578;
+    constexpr int overviewWidth = 940, overviewHeight = 520;
     constexpr int headerHeight = 58, footerHeight = 76;
     constexpr double noticeMs = 3500.0;
 
@@ -28,6 +28,15 @@ namespace
         s.setScrollWheelEnabled (false);   // voorkomt per ongeluk verschuiven bij scrollen
         s.setMouseDragSensitivity (300);
         s.setVelocityBasedMode (false);
+    }
+
+    constexpr int noGroupId = 1, newGroupId = 1000;
+
+    /** Vaste suggesties in de groepslijst, ook als ze nog niet in het project voorkomen. */
+    const juce::StringArray& suggestedGroups()
+    {
+        static const juce::StringArray names { "Drums", "Bass", "Guitars", "Keys", "Vocals", "FX" };
+        return names;
     }
 
     enum PresetMenuItem { saveItem = 1, applyAllItem, defaultItem, importItem, exportItem, deleteItem, revealItem, resetItem };
@@ -87,6 +96,9 @@ RoughStartView::RoughStartView (RoughStartProcessor& p)
     presetMenuButton.setButtonText ("Presets");
     presetMenuButton.onClick = [this] { showPresetMenu(); };
     applyAllButton.onClick = [this] { applySettingsToAll(); };
+    applyGroupButton.onClick = [this] { applySettingsToGroup(); };
+    styleLabel (groupLabel, 12.5f, ui::dimText);
+    groupBox.onChange = [this] { groupBoxChanged(); };
 
     modeBox.addItemList ({ "Peak", "RMS" }, 1);   // onzichtbaar; koppelt de parameter
     modeAttachment = std::make_unique<ComboAttachment> (rsProcessor.parameters, "mode", modeBox);
@@ -122,12 +134,15 @@ RoughStartView::RoughStartView (RoughStartProcessor& p)
     analyzeButton.setTooltip ("Measure only this track while your DAW plays. Stops by itself when playback stops.");
     trimSlider.setTooltip ("Your own adjustment on top of Auto. Drag up or down; double-click for 0 dB. Can be automated.");
     analyzeAllButton.setTooltip ("Measure every RoughStart track at once during the next playback.");
+    groupBox.setTooltip ("Put this track in a group, for example Drums or Vocals, so a group can get its own settings.");
+    applyGroupButton.setTooltip ("Copy Mode, both targets and Peak ceiling to every RoughStart in the same group. Measurements and Trim stay per track.");
     meter.setTooltip ("Grey: level before RoughStart. Green: level after Auto. Dashed: target. Blue: peak ceiling. White tick: peak after Auto.");
 
     trackViewComponents = { &measuredLabel, &autoCaption, &autoLabel, &meter, &meterNote,
                             &trimLabel, &trimSlider, &totalCaption, &totalLabel,
                             &presetBox, &presetMenuButton, &peakButton, &rmsButton,
                             &targetPeakSlider, &targetRmsSlider, &ceilingSlider, &applyAllButton,
+                            &groupLabel, &groupBox, &applyGroupButton,
                             &analyzeButton, &statusLabel };
 
     for (auto* c : trackViewComponents)
@@ -158,6 +173,7 @@ RoughStartView::RoughStartView (RoughStartProcessor& p)
 
     reloadPresets();
     refreshInstanceInfo();
+    refreshGroupBox();
     refreshLevels();
     refreshBatchStatus();
 
@@ -362,6 +378,13 @@ void RoughStartView::resized()
     targetRmsSlider.setBounds (targetPeakSlider.getBounds());
     row.removeFromLeft (6);
     ceilingSlider.setBounds (row);
+
+    s.removeFromTop (8);
+    row = s.removeFromTop (30);
+    groupLabel.setBounds (row.removeFromLeft (46));
+    applyGroupButton.setBounds (row.removeFromRight (110));
+    row.removeFromRight (6);
+    groupBox.setBounds (row);
 }
 
 //==============================================================================
@@ -372,6 +395,7 @@ void RoughStartView::timerCallback()
     {
         lastSeenChange = change;
         refreshInstanceInfo();
+        refreshGroupBox();
     }
 
     if (view == View::track)
@@ -807,6 +831,96 @@ void RoughStartView::applySettingsToAll()
 {
     const int count = rsProcessor.getRegistry().applyTargetSettingsToAll (rsProcessor.getTargetSettings());
     showNotice ("Mode, target and ceiling applied to " + juce::String (count) + " tracks.");
+}
+
+void RoughStartView::applySettingsToGroup()
+{
+    const auto group = rsProcessor.getGroup();
+    if (group.isEmpty())
+    {
+        showNotice ("This track is not in a group. Choose one under Group first.");
+        return;
+    }
+
+    const int count = rsProcessor.getRegistry().applyTargetSettingsToGroup (group, rsProcessor.getTargetSettings());
+    showNotice ("Mode, target and ceiling applied to " + juce::String (count)
+                + (count == 1 ? " track" : " tracks") + " in " + group + ".");
+}
+
+//==============================================================================
+void RoughStartView::refreshGroupBox()
+{
+    if (groupBox.isPopupActive())
+        return;
+
+    auto names = rsProcessor.getRegistry().getGroupNames();
+    for (const auto& n : suggestedGroups())
+        names.addIfNotAlreadyThere (n);
+
+    const auto current = rsProcessor.getGroup();
+    if (current.isNotEmpty())
+        names.addIfNotAlreadyThere (current);
+
+    // Suggesties in vaste volgorde, eigen namen daarachter
+    juce::StringArray ordered;
+    for (const auto& n : suggestedGroups())
+        ordered.add (n);
+    names.sortNatural();
+    for (const auto& n : names)
+        ordered.addIfNotAlreadyThere (n);
+
+    if (ordered == groupChoices && groupBox.getNumItems() > 0)
+    {
+        const int id = current.isEmpty() ? noGroupId : groupChoices.indexOf (current) + 2;
+        if (groupBox.getSelectedId() != id)
+            groupBox.setSelectedId (id, juce::dontSendNotification);
+        applyGroupButton.setEnabled (current.isNotEmpty());
+        return;
+    }
+
+    groupChoices = ordered;
+    groupBox.clear (juce::dontSendNotification);
+    groupBox.addItem ("No group", noGroupId);
+    groupBox.addSeparator();
+    for (int i = 0; i < groupChoices.size(); ++i)
+        groupBox.addItem (groupChoices[i], i + 2);
+    groupBox.addSeparator();
+    groupBox.addItem ("New group...", newGroupId);
+
+    groupBox.setSelectedId (current.isEmpty() ? noGroupId : groupChoices.indexOf (current) + 2,
+                            juce::dontSendNotification);
+    applyGroupButton.setEnabled (current.isNotEmpty());
+}
+
+void RoughStartView::groupBoxChanged()
+{
+    const int id = groupBox.getSelectedId();
+
+    if (id == newGroupId)
+    {
+        refreshGroupBox();   // zet de keuze terug tot er een naam is
+        askNewGroup();
+        return;
+    }
+
+    rsProcessor.setGroup (id == noGroupId ? juce::String() : groupChoices[id - 2]);
+    refreshGroupBox();
+}
+
+void RoughStartView::askNewGroup()
+{
+    // Het prompt is een kind van de editor, dus 'this' leeft zolang de callback kan komen.
+    prompt.showTextInput ("New group", "Name for the group, for example Percussion:", {}, "Create",
+                          [this] (const juce::String& text)
+                          {
+                              const auto name = text.trim();
+                              if (name.isEmpty())
+                                  return;
+
+                              rsProcessor.setGroup (name);
+                              refreshGroupBox();
+                              showNotice ("Track added to group \"" + rsProcessor.getGroup() + "\".");
+                          });
 }
 
 //==============================================================================

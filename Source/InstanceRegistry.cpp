@@ -143,6 +143,7 @@ std::vector<InstanceRegistry::OverviewRow> InstanceRegistry::getOverview() const
         OverviewRow r;
         r.instanceNumber   = instance->getInstanceNumber();
         r.trackName        = instance->getDisplayName();
+        r.group            = instance->getGroup();
         r.numChannels      = instance->getNumChannels();
         r.mode             = instance->getMode() == RoughStartProcessor::Mode::rms ? 1 : 0;
         r.measured         = m.valid;
@@ -173,6 +174,42 @@ int InstanceRegistry::applyTargetSettingsToAll (const roughstart::TargetSettings
         instance->applyTargetSettings (settings);
 
     return (int) instances.size();
+}
+
+int InstanceRegistry::applyTargetSettingsToGroup (const juce::String& group, const roughstart::TargetSettings& settings)
+{
+    if (group.isEmpty())
+        return 0;
+
+    const juce::ScopedLock sl (lock);
+    int count = 0;
+
+    for (auto* instance : instances)
+    {
+        if (instance->getGroup() == group)
+        {
+            instance->applyTargetSettings (settings);
+            ++count;
+        }
+    }
+
+    return count;
+}
+
+juce::StringArray InstanceRegistry::getGroupNames() const
+{
+    const juce::ScopedLock sl (lock);
+    juce::StringArray names;
+
+    for (auto* instance : instances)
+    {
+        const auto g = instance->getGroup();
+        if (g.isNotEmpty())
+            names.addIfNotAlreadyThere (g);
+    }
+
+    names.sortNatural();
+    return names;
 }
 
 void InstanceRegistry::setTrimDb (int instanceNumber, float trimDb)

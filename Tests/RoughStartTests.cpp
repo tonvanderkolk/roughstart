@@ -230,6 +230,17 @@ struct PresetManagerTests final : juce::UnitTest
             PresetManager fresh (dir.getChildFile ("fresh"));
             expect (PresetManager::getFactoryPresets().size() >= 3);
 
+            // Presets per soort bron (voor groepen): aanwezig, unieke namen
+            juce::StringArray factoryNames;
+            for (const auto& p : PresetManager::getFactoryPresets())
+            {
+                expect (! factoryNames.contains (p.name), "Dubbele factory preset: " + p.name);
+                factoryNames.add (p.name);
+            }
+            expect (PresetManager::getFactoryPreset ("Drums (Peak -10)").has_value());
+            expectEquals (PresetManager::getFactoryPreset ("Drums (Peak -10)")->mode, 0);
+            expectEquals (PresetManager::getFactoryPreset ("Keys/Pads (RMS -20)")->targetRmsDb, -20.0f);
+
             // Zonder instelling: eerste factory preset (RMS -18, plafond -6)
             const auto def = fresh.getDefaultPreset();
             expect (def.factory);

@@ -2,6 +2,17 @@
 
 Alle noemenswaardige wijzigingen in RoughStart. Formaat volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/), versies volgen [SemVer](https://semver.org/lang/nl/).
 
+## [0.11.0] - 2026-11-16
+
+### Toegevoegd
+- **Groepen.** Per spoor een groep kiezen (Drums, Bass, Guitars, Keys, Vocals, FX of een eigen naam) in de Track-weergave. Knop **Apply to group** zet Mode, doelen en plafond voor alle sporen in dezelfde groep; andere groepen blijven ongemoeid. De groep wordt per spoor in het project opgeslagen en is geen parameter (niet automatiseerbaar).
+- Overzicht: kolom **Group**, sorteerbaar; sporen zonder groep onderaan. Overzichtsvenster 80 px breder.
+- Factory presets per soort bron: Drums (Peak -10), Bass (RMS -18), Keys/Pads (RMS -20), Vocals (RMS -18).
+- `RoughStartSnapshot` controleert nu ook Apply to group en het opslaan van de groep.
+
+### Gewijzigd
+- Track-weergave 38 px hoger voor de groepsregel.
+
 ## [0.10.0] - 2026-11-15
 
 ### Toegevoegd

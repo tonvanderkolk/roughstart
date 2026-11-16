@@ -122,6 +122,7 @@ OverviewComponent::OverviewComponent (RoughStartProcessor& o) : owner (o)
     constexpr int columnFlags = juce::TableHeaderComponent::visible | juce::TableHeaderComponent::sortable;
 
     header.addColumn ("Track",  trackCol,    160, 90, 400, columnFlags);
+    header.addColumn ("Group",  groupCol,     80, 50, 200, columnFlags);
     header.addColumn ("Ch",     channelsCol,  44, 36, 70,  columnFlags);
     header.addColumn ("Mode",   modeCol,      48, 40, 70,  columnFlags);
     header.addColumn ("Level",  levelCol,    110, 70, 200, columnFlags);
@@ -241,6 +242,11 @@ void OverviewComponent::sortRows()
         {
             case trackCol:    cmp = a.trackName.compareNatural (b.trackName); break;
             case modeCol:     cmp = a.mode - b.mode; break;
+            case groupCol:
+                if (a.group.isEmpty() != b.group.isEmpty())
+                    return b.group.isEmpty();   // sporen zonder groep altijd onderaan
+                cmp = a.group.compareNatural (b.group);
+                break;
             case channelsCol: cmp = a.numChannels - b.numChannels; break;
             case statusCol:   cmp = statusText (a).compareNatural (statusText (b)); break;
             case peakCol: case rmsCol: case levelCol: case autoCol:
@@ -273,6 +279,7 @@ juce::String OverviewComponent::getCellTooltip (int row, int columnId)
     switch (columnId)
     {
         case trackCol:  return r.trackName;
+        case groupCol:  return r.group.isEmpty() ? juce::String ("No group. Choose one in the Track view.") : r.group;
         case levelCol:
             return r.measured ? "Grey: level before RoughStart. Green: after Auto. White tick: peak after Auto."
                               : juce::String();
@@ -335,6 +342,7 @@ juce::String OverviewComponent::cellText (const InstanceRegistry::OverviewRow& r
     {
         case trackCol:    return r.trackName;
         case modeCol:     return r.mode == 1 ? "RMS" : "Peak";
+        case groupCol:    return r.group.isEmpty() ? dash : r.group;
         case channelsCol: return r.numChannels == 1 ? "Mono" : "St";
         case peakCol:     return r.liveValid ? juce::String (r.livePeakDb, 1) : r.measured ? juce::String (r.peakDb, 1) : dash;
         case rmsCol:      return r.liveValid ? juce::String (r.liveRmsDb, 1)  : r.measured ? juce::String (r.rmsDb, 1)  : dash;
@@ -448,6 +456,8 @@ void OverviewComponent::paintCell (juce::Graphics& g, int row, int columnId, int
     if (columnId == channelsCol || columnId == modeCol || columnId == peakCol || columnId == rmsCol)
         colour = ui::dimText;
     if (numeric && ! r.measured && columnId != totalCol)
+        colour = ui::faintText;
+    if (columnId == groupCol && r.group.isEmpty())
         colour = ui::faintText;
     if (r.liveValid && (columnId == peakCol || columnId == rmsCol))
         colour = ui::analyzeColour;   // live waarden tijdens meten

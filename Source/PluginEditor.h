@@ -64,6 +64,12 @@ private:
     void exportSelectedPreset();
     void deleteSelectedPreset();
     void applySettingsToAll();
+    void applySettingsToGroup();
+
+    // Groepen
+    void refreshGroupBox();
+    void groupBoxChanged();
+    void askNewGroup();
     void showNotice (const juce::String& text);
     juce::String getSelectedPresetName() const;
     const PresetEntry* getSelectedEntry() const;
@@ -91,6 +97,11 @@ private:
     juce::Label modeLabel { {}, "Mode" }, targetLabel { {}, "Target" }, ceilingLabel { {}, "Peak ceiling" };
     juce::ComboBox modeBox;
     juce::TextButton applyAllButton { "Apply to all" };
+
+    juce::Label groupLabel { {}, "Group" };
+    juce::ComboBox groupBox;
+    juce::TextButton applyGroupButton { "Apply to group" };
+    juce::StringArray groupChoices;   // namen achter de item-id's 2, 3, ...
     juce::Slider targetPeakSlider, targetRmsSlider, ceilingSlider;
 
     juce::TextButton analyzeButton { "Analyze" };

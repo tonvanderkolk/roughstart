@@ -28,6 +28,7 @@ int main (int argc, char** argv)
     juce::AudioProcessor::TrackProperties props;
     props.name = "YachtPop 2 - Be With You_Drums";
     p.updateTrackProperties (props);
+    p.setGroup ("Drums");
 
     // Nog niet geanalyseerd
     {
@@ -57,13 +58,13 @@ int main (int argc, char** argv)
     }
 
     // Extra sporen voor het overzicht
-    struct Fake { const char* name; float loud, quiet; int every; bool mono; bool analyze; float trim; };
+    struct Fake { const char* group; const char* name; float loud, quiet; int every; bool mono; bool analyze; float trim; };
     const Fake fakes[] = {
-        { "YachtPop 2 - Be With You_Bass",   0.34f, 0.10f, 4,  false, true,  -1.0f },
-        { "YachtPop 2 - Be With You_Guitar", 0.64f, 0.04f, 12, false, true,   0.0f },
-        { "YachtPop 2 - Be With You_Vocals", 0.79f, 0.09f, 10, false, true,   2.0f },
-        { "Fender Pbass 66",                 0.75f, 0.14f, 6,  true,  true,   0.0f },
-        { "Jazz Organ",                      0.0f,  0.0f,  1,  false, false,  0.0f },
+        { "Bass",   "YachtPop 2 - Be With You_Bass",   0.34f, 0.10f, 4,  false, true,  -1.0f },
+        { "",       "YachtPop 2 - Be With You_Guitar", 0.64f, 0.04f, 12, false, true,   0.0f },
+        { "Vocals", "YachtPop 2 - Be With You_Vocals", 0.79f, 0.09f, 10, false, true,   2.0f },
+        { "Bass",   "Fender Pbass 66",                 0.75f, 0.14f, 6,  true,  true,   0.0f },
+        { "Keys",   "Jazz Organ",                      0.0f,  0.0f,  1,  false, false,  0.0f },
     };
     std::vector<std::unique_ptr<juce::AudioProcessor>> others;
     for (const auto& f : fakes)
@@ -79,6 +80,7 @@ int main (int argc, char** argv)
         juce::AudioProcessor::TrackProperties tp;
         tp.name = f.name;
         o.updateTrackProperties (tp);
+        o.setGroup (f.group);
 
         if (f.analyze)
         {
@@ -95,6 +97,28 @@ int main (int argc, char** argv)
         }
         if (auto* t = o.parameters.getParameter ("trim"))
             t->setValueNotifyingHost (t->convertTo0to1 (f.trim));
+    }
+
+    // Groepscontrole: Apply to group raakt alleen de eigen groep, groep overleeft opslaan/laden
+    {
+        roughstart::TargetSettings keys;
+        keys.mode = 1; keys.targetPeakDb = -12.0f; keys.targetRmsDb = -20.0f; keys.ceilingDb = -6.0f;
+        const int n = p.getRegistry().applyTargetSettingsToGroup ("Bass", keys);
+        auto& bass = dynamic_cast<RoughStartProcessor&> (*others[0]);
+        auto& guitar = dynamic_cast<RoughStartProcessor&> (*others[1]);
+
+        juce::MemoryBlock mb;
+        bass.getStateInformation (mb);
+        std::unique_ptr<juce::AudioProcessor> copy (createPluginFilter());
+        auto& c = dynamic_cast<RoughStartProcessor&> (*copy);
+        c.setStateInformation (mb.getData(), (int) mb.getSize());
+
+        const bool ok = n == 2 && bass.getTargetSettings() == keys && guitar.getTargetSettings() != keys
+                        && c.getGroup() == "Bass" && guitar.getGroup().isEmpty()
+                        && p.getRegistry().getGroupNames().joinIntoString (",") == "Bass,Drums,Keys,Vocals";
+        std::printf ("Group check: %s (applied to %d)\n", ok ? "OK" : "FAILED", n);
+        if (! ok)
+            return 1;
     }
 
     p.lastEditorView = 1;

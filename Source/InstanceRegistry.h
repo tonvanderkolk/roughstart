@@ -70,6 +70,7 @@ public:
     {
         int instanceNumber = 0;
         juce::String trackName;
+        juce::String group;           // leeg = geen groep
         int numChannels = 2;          // 1 = mono, 2 = stereo
         int mode = 0;                 // 0 = Peak, 1 = RMS
         bool measured = false;
@@ -86,6 +87,12 @@ public:
 
     /** Zet methode, doelen en plafond van alle instances gelijk. Alleen vanaf de berichtthread. */
     int applyTargetSettingsToAll (const roughstart::TargetSettings& settings);
+
+    /** Als hierboven, maar alleen voor de instances in deze groep. Geeft het aantal terug. */
+    int applyTargetSettingsToGroup (const juce::String& group, const roughstart::TargetSettings& settings);
+
+    /** Alle groepsnamen die nu in het project voorkomen, alfabetisch, zonder lege. */
+    juce::StringArray getGroupNames() const;
 
     /** Zet Trim van één instance (op volgnummer). Alleen vanaf de berichtthread. */
     void setTrimDb (int instanceNumber, float trimDb);
