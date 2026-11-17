@@ -7,7 +7,7 @@ Bedankt dat je RoughStart wilt gebruiken! RoughStart is nog niet door Apple onde
 - **Mac:** macOS 12 of nieuwer, Apple Silicon en Intel. Als Audio Unit (Logic Pro, GarageBand, Ableton Live en andere) en als VST3 (bijvoorbeeld Cubase, Bitwig, Reaper).
 - **Windows:** 64-bit, als VST3 (bijvoorbeeld Ableton Live, Cubase, Studio One, Reaper). De Windows-versie is nieuw en nog niet in een DAW getest.
 
-Alleen Logic Pro op de Mac is echt getest. Ervaringen met andere programma's zijn welkom.
+Getest in Logic Pro en Cubase Pro 14 op de Mac. Ervaringen met andere programma's zijn welkom.
 
 ## Mac
 
@@ -34,10 +34,29 @@ xattr -dr com.apple.quarantine ~/Library/Audio/Plug-Ins/VST3/RoughStart.vst3
 
 Je krijgt geen melding terug; dat is goed.
 
+**Krijg je "No such file"?** Dan staat de plugin niet in je eigen Plug-Ins-map maar in die voor de hele Mac (`/Library/Audio/Plug-Ins`, zonder `~`). Daar staan bijvoorbeeld ook FabFilter, SSL en UAD. Gebruik dan deze regels. Terminal vraagt om je Mac-wachtwoord; dat blijft onzichtbaar tijdens het typen, druk daarna op Enter.
+
+```
+sudo xattr -dr com.apple.quarantine /Library/Audio/Plug-Ins/Components/RoughStart.component
+```
+
+```
+sudo xattr -dr com.apple.quarantine /Library/Audio/Plug-Ins/VST3/RoughStart.vst3
+```
+
+Zag je al een melding "Apple kon niet verifiëren dat RoughStart geen malware bevat"? Klik op **Gereed** (niet op Verplaats naar prullenmand) en doe daarna deze stap. De knop "Open toch" in Privacy en beveiliging is dan niet nodig.
+
 ### Stap 4: je DAW starten
 Start Logic Pro (opnieuw). RoughStart staat bij **Audio Units > TvdK > RoughStart**.
 
 **Ziet Logic de plugin niet, of meldt het dat hij niet werkt?** Ga in Logic naar Logic Pro > Instellingen > Plug-in Manager, zoek RoughStart, selecteer hem en klik op "Reset & Rescan Selection".
+
+### Cubase (Mac)
+Cubase onthoudt plugins die bij het zoeken werden geblokkeerd en slaat ze daarna over, ook als de blokkade weg is. Zie je RoughStart niet na stap 3:
+
+- Start Cubase opnieuw en open **Studio > VST Plug-in Manager**.
+- Staat RoughStart onderaan bij de geblokkeerde plugins (Blocklist)? Selecteer hem en klik op **Reactivate**. Lukt dat niet, klik dan op **Rescan All**.
+- RoughStart staat daarna bij de effecten onder **TvdK > RoughStart**.
 
 ### Ableton Live (Mac)
 Doe eerst stap 1 tot en met 3 hierboven. Daarna:
@@ -71,6 +90,7 @@ Klik in de plugin rechtsboven op **?** voor de handleiding. In het kort:
 
 1. Zet RoughStart op elk spoor: audiosporen op het eerste insert-slot, instrumentsporen direct na het instrument.
 2. Kies op één spoor een preset (bijvoorbeeld RMS -18) en klik op **Apply to all**.
+   Wil je drums anders instellen dan keys of zang? Kies per spoor een **Group** (Drums, Keys, Vocals...), stel per groep een preset in en klik op **Apply to group**.
 3. Klik op **Analyze all**, speel het nummer af en stop.
 4. Klaar: alle sporen staan op een gelijk startniveau, je faders blijven op 0. Balanceer daarna op het gehoor met Trim.
 
@@ -82,7 +102,7 @@ RoughStart is gratis en open source (AGPL-3.0). De broncode staat op github.com/
 
 ## Verwijderen
 
-- **Mac:** gooi `RoughStart.component` (in `~/Library/Audio/Plug-Ins/Components`) en eventueel `RoughStart.vst3` (in `~/Library/Audio/Plug-Ins/VST3`) in de prullenmand. Je presets staan in `~/Library/Application Support/RoughStart`.
+- **Mac:** gooi `RoughStart.component` (in `~/Library/Audio/Plug-Ins/Components`) en eventueel `RoughStart.vst3` (in `~/Library/Audio/Plug-Ins/VST3`) in de prullenmand. Staan ze in `/Library/Audio/Plug-Ins` (zonder `~`), kijk dan daar. Je presets staan in `~/Library/Application Support/RoughStart`.
 - **Windows:** verwijder de map `RoughStart.vst3` uit `C:\Program Files\Common Files\VST3`. Je presets staan in `%APPDATA%\RoughStart`.
 
 ## Feedback
@@ -103,7 +123,7 @@ Vermeld je computer (Mac met Apple Silicon of Intel, of Windows), de versie van 
 
 RoughStart is not yet signed by Apple, so one extra step is needed on the Mac.
 
-**Works on:** macOS 12 or later (Apple Silicon and Intel) as Audio Unit and VST3, and Windows 64-bit as VST3. Only Logic Pro on the Mac has been tested; the Windows version is new and untested in a DAW.
+**Works on:** macOS 12 or later (Apple Silicon and Intel) as Audio Unit and VST3, and Windows 64-bit as VST3. Tested in Logic Pro and Cubase Pro 14 on the Mac; the Windows version is new and untested in a DAW.
 
 ## Mac
 
@@ -126,8 +146,18 @@ If you installed the VST3 as well, do the same with this line:
 xattr -dr com.apple.quarantine ~/Library/Audio/Plug-Ins/VST3/RoughStart.vst3
 ```
 
+If Terminal says "No such file", the plug-in is in the folder for the whole Mac (`/Library/Audio/Plug-Ins`, without `~`). Use these lines instead and type your Mac password when asked:
+
+```
+sudo xattr -dr com.apple.quarantine /Library/Audio/Plug-Ins/Components/RoughStart.component
+```
+
+```
+sudo xattr -dr com.apple.quarantine /Library/Audio/Plug-Ins/VST3/RoughStart.vst3
+```
+
 ### Step 4: start your DAW
-(Re)start your DAW. In Logic, RoughStart is under Audio Units > TvdK > RoughStart. If Logic does not show it, use Plug-in Manager > Reset & Rescan Selection. In Ableton Live, turn on **Use Audio Units** in Settings > Plug-Ins and click **Rescan**.
+(Re)start your DAW. In Logic, RoughStart is under Audio Units > TvdK > RoughStart. If Logic does not show it, use Plug-in Manager > Reset & Rescan Selection. In Ableton Live, turn on **Use Audio Units** in Settings > Plug-Ins and click **Rescan**. In Cubase, open **Studio > VST Plug-in Manager**; if RoughStart is in the blocklist, select it and click **Reactivate** (or **Rescan All**).
 
 ## Windows
 
