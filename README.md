@@ -39,15 +39,9 @@ RoughStart finds its other instances inside the host process. Hosts that run eac
 
 1. Download the latest `-macos.zip` from [Releases](https://github.com/tonvanderkolk/roughstart/releases) and unzip it.
 2. Move `RoughStart.component` to `~/Library/Audio/Plug-Ins/Components` (Finder: Go > Go to Folder...). For VST3 hosts, also move `RoughStart.vst3` to `~/Library/Audio/Plug-Ins/VST3`.
-3. RoughStart is not signed with an Apple Developer ID, so macOS blocks it the first time. Remove that block once in Terminal:
+3. RoughStart is signed and notarized by Apple (from version 0.11.1), so no extra steps are needed. Plug-ins installed in `/Library/Audio/Plug-Ins` (without `~`) work too.
 
-   ```bash
-   xattr -dr com.apple.quarantine ~/Library/Audio/Plug-Ins/Components/RoughStart.component
-   ```
-
-   Do the same for `~/Library/Audio/Plug-Ins/VST3/RoughStart.vst3` if you installed the VST3.
-
-4. (Re)start your DAW. In Logic, RoughStart is under Audio Units > TvdK > RoughStart.
+4. (Re)start your DAW. In Logic, RoughStart is under Audio Units > TvdK > RoughStart. In Cubase, if an older blocked version is listed in Studio > VST Plug-in Manager, select it and click Reactivate.
 
 **Windows**
 

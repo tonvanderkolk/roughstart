@@ -175,17 +175,11 @@ jobs:
         with:
           files: dist/*.zip
           body: |
-            **macOS** (Apple Silicon and Intel, macOS 12 or later): Audio Unit and VST3. Tested in Logic Pro; other hosts should work but are untested.
+            **macOS** (Apple Silicon and Intel, macOS 12 or later): Audio Unit and VST3, signed and notarized by Apple. Tested in Logic Pro and Cubase Pro 14.
 
             1. Download `RoughStart-…-macos.zip` and unzip it.
             2. Move `RoughStart.component` to `~/Library/Audio/Plug-Ins/Components` (Finder: Go > Go to Folder...). For VST3 hosts such as Cubase or Bitwig, also move `RoughStart.vst3` to `~/Library/Audio/Plug-Ins/VST3`.
-            3. RoughStart is not signed with an Apple Developer ID, so remove the download block once in Terminal (and the same for the `.vst3` in its folder if you installed it):
-
-            ```
-            xattr -dr com.apple.quarantine ~/Library/Audio/Plug-Ins/Components/RoughStart.component
-            ```
-
-            4. (Re)start your DAW. In Logic, RoughStart is under Audio Units > TvdK > RoughStart.
+            3. (Re)start your DAW. In Logic, RoughStart is under Audio Units > TvdK > RoughStart. In Cubase, if an older blocked version is in Studio > VST Plug-in Manager, select it and click Reactivate.
 
             **Windows** (64-bit): VST3. New and not yet tested in a DAW; reports are very welcome.
 
