@@ -1,6 +1,6 @@
 # RoughStart installeren
 
-Bedankt dat je RoughStart wilt gebruiken! RoughStart is nog niet door Apple ondertekend. Daarom is er op de Mac één extra stap nodig.
+Bedankt dat je RoughStart wilt gebruiken! Vanaf versie 0.11.1 is RoughStart op de Mac door Apple ondertekend en gecontroleerd (genotariseerd). Uitpakken en in de pluginmap zetten is genoeg.
 
 **Werkt op:**
 
@@ -19,47 +19,28 @@ Kies in de Finder het menu **Ga > Ga naar map...**, plak `~/Library/Audio/Plug-I
 
 Gebruik je een DAW die VST3 laadt, zoals Cubase of Bitwig? Ga dan ook naar `~/Library/Audio/Plug-Ins/VST3` en sleep `RoughStart.vst3` daarheen. Voor Logic is dat niet nodig.
 
-### Stap 3: downloadblokkade opheffen
-Open Terminal (Programma's > Hulpprogramma's > Terminal). Kopieer de regel hieronder in zijn geheel, plak hem in Terminal en druk op Enter:
+### Oudere versie of melding van Apple?
+Krijg je toch "Apple kon niet verifiëren dat RoughStart geen malware bevat", dan heb je waarschijnlijk een versie van vóór 0.11.1. Download de nieuwste versie, of hef de blokkade op in Terminal (met `sudo` en je Mac-wachtwoord als de plugin in `/Library/Audio/Plug-Ins` staat):
 
 ```
 xattr -dr com.apple.quarantine ~/Library/Audio/Plug-Ins/Components/RoughStart.component
-```
-
-Heb je ook de VST3 geïnstalleerd, doe dan hetzelfde met deze regel:
-
-```
 xattr -dr com.apple.quarantine ~/Library/Audio/Plug-Ins/VST3/RoughStart.vst3
 ```
 
-Je krijgt geen melding terug; dat is goed.
-
-**Krijg je "No such file"?** Dan staat de plugin niet in je eigen Plug-Ins-map maar in die voor de hele Mac (`/Library/Audio/Plug-Ins`, zonder `~`). Daar staan bijvoorbeeld ook FabFilter, SSL en UAD. Gebruik dan deze regels. Terminal vraagt om je Mac-wachtwoord; dat blijft onzichtbaar tijdens het typen, druk daarna op Enter.
-
-```
-sudo xattr -dr com.apple.quarantine /Library/Audio/Plug-Ins/Components/RoughStart.component
-```
-
-```
-sudo xattr -dr com.apple.quarantine /Library/Audio/Plug-Ins/VST3/RoughStart.vst3
-```
-
-Zag je al een melding "Apple kon niet verifiëren dat RoughStart geen malware bevat"? Klik op **Gereed** (niet op Verplaats naar prullenmand) en doe daarna deze stap. De knop "Open toch" in Privacy en beveiliging is dan niet nodig.
-
-### Stap 4: je DAW starten
+### Stap 3: je DAW starten
 Start Logic Pro (opnieuw). RoughStart staat bij **Audio Units > TvdK > RoughStart**.
 
 **Ziet Logic de plugin niet, of meldt het dat hij niet werkt?** Ga in Logic naar Logic Pro > Instellingen > Plug-in Manager, zoek RoughStart, selecteer hem en klik op "Reset & Rescan Selection".
 
 ### Cubase (Mac)
-Cubase onthoudt plugins die bij het zoeken werden geblokkeerd en slaat ze daarna over, ook als de blokkade weg is. Zie je RoughStart niet na stap 3:
+Cubase onthoudt plugins die bij het zoeken werden geblokkeerd en slaat ze daarna over, ook als de blokkade weg is. Zie je RoughStart niet, bijvoorbeeld omdat een oudere versie eerder werd geblokkeerd:
 
 - Start Cubase opnieuw en open **Studio > VST Plug-in Manager**.
 - Staat RoughStart onderaan bij de geblokkeerde plugins (Blocklist)? Selecteer hem en klik op **Reactivate**. Lukt dat niet, klik dan op **Rescan All**.
 - RoughStart staat daarna bij de effecten onder **TvdK > RoughStart**.
 
 ### Ableton Live (Mac)
-Doe eerst stap 1 tot en met 3 hierboven. Daarna:
+Doe eerst stap 1 en 2 hierboven. Daarna:
 
 - Open in Live **Settings > Plug-Ins** (in oudere versies: Preferences) en zet **Use Audio Units** aan. Klik op **Rescan**.
 - RoughStart staat nu in de browser onder **Plug-Ins > Audio Units > TvdK > RoughStart**.
@@ -121,7 +102,7 @@ Vermeld je computer (Mac met Apple Silicon of Intel, of Windows), de versie van 
 
 # Installing RoughStart
 
-RoughStart is not yet signed by Apple, so one extra step is needed on the Mac.
+From version 0.11.1 RoughStart is signed and notarized by Apple on the Mac. Unzip it and move it to the plug-in folder; that is all.
 
 **Works on:** macOS 12 or later (Apple Silicon and Intel) as Audio Unit and VST3, and Windows 64-bit as VST3. Tested in Logic Pro and Cubase Pro 14 on the Mac; the Windows version is new and untested in a DAW.
 
@@ -133,31 +114,10 @@ Double-click the zip file. The folder contains `RoughStart.component` (Audio Uni
 ### Step 2: move the plug-in
 In the Finder choose **Go > Go to Folder...**, paste `~/Library/Audio/Plug-Ins/Components` and press Enter. Drag `RoughStart.component` into that folder. For DAWs that load VST3 (Cubase, Bitwig and others), also drag `RoughStart.vst3` to `~/Library/Audio/Plug-Ins/VST3`.
 
-### Step 3: remove the download block
-Open Terminal, paste this line in full and press Enter:
+If macOS still says it cannot verify RoughStart, you have a version older than 0.11.1. Download the latest version, or run `xattr -dr com.apple.quarantine` on the plug-in in Terminal (with `sudo` if it is in `/Library/Audio/Plug-Ins`).
 
-```
-xattr -dr com.apple.quarantine ~/Library/Audio/Plug-Ins/Components/RoughStart.component
-```
-
-If you installed the VST3 as well, do the same with this line:
-
-```
-xattr -dr com.apple.quarantine ~/Library/Audio/Plug-Ins/VST3/RoughStart.vst3
-```
-
-If Terminal says "No such file", the plug-in is in the folder for the whole Mac (`/Library/Audio/Plug-Ins`, without `~`). Use these lines instead and type your Mac password when asked:
-
-```
-sudo xattr -dr com.apple.quarantine /Library/Audio/Plug-Ins/Components/RoughStart.component
-```
-
-```
-sudo xattr -dr com.apple.quarantine /Library/Audio/Plug-Ins/VST3/RoughStart.vst3
-```
-
-### Step 4: start your DAW
-(Re)start your DAW. In Logic, RoughStart is under Audio Units > TvdK > RoughStart. If Logic does not show it, use Plug-in Manager > Reset & Rescan Selection. In Ableton Live, turn on **Use Audio Units** in Settings > Plug-Ins and click **Rescan**. In Cubase, open **Studio > VST Plug-in Manager**; if RoughStart is in the blocklist, select it and click **Reactivate** (or **Rescan All**).
+### Step 3: start your DAW
+(Re)start your DAW. In Logic, RoughStart is under Audio Units > TvdK > RoughStart. If Logic does not show it, use Plug-in Manager > Reset & Rescan Selection. In Ableton Live, turn on **Use Audio Units** in Settings > Plug-Ins and click **Rescan**. In Cubase, open **Studio > VST Plug-in Manager**; if an older, blocked version of RoughStart is in the blocklist, select it and click **Reactivate** (or **Rescan All**).
 
 ## Windows
 

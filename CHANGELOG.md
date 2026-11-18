@@ -2,6 +2,12 @@
 
 Alle noemenswaardige wijzigingen in RoughStart. Formaat volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/), versies volgen [SemVer](https://semver.org/lang/nl/).
 
+## [0.11.1] - 2026-11-18
+
+### Gewijzigd
+- **Mac: ondertekend en genotariseerd** met Developer ID. Geen melding "Apple kon niet verifiëren" meer en geen Terminal-stap bij installeren. `scripts/package.sh` ondertekent en notariseert zodra er een Developer ID is (lokaal via het sleutelhangerprofiel, in GitHub Actions via secrets).
+- Installatiebriefje: Terminal-stap alleen nog voor oudere versies; Cubase-uitleg voor plugins op de blocklist; `/Library`-map met `sudo`; groepen in "Hoe het werkt".
+
 ## [0.11.0] - 2026-11-16
 
 ### Toegevoegd
