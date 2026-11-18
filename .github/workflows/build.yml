@@ -63,6 +63,8 @@ jobs:
           NOTARY_KEY_P8: ${{ secrets.NOTARY_KEY_P8 }}
           NOTARY_KEY_ID: ${{ secrets.NOTARY_KEY_ID }}
           NOTARY_ISSUER: ${{ secrets.NOTARY_ISSUER }}
+          MACOS_INSTALLER_P12: ${{ secrets.MACOS_INSTALLER_P12 }}
+          MACOS_INSTALLER_PASSWORD: ${{ secrets.MACOS_INSTALLER_PASSWORD }}
         run: |
           if [ -z "$MACOS_CERT_P12" ]; then
             echo "Geen certificaat: het pakket blijft ongesigneerd."
@@ -80,6 +82,15 @@ jobs:
           rm "$RUNNER_TEMP/cert.p12"
           identity=$(security find-identity -v -p codesigning "$keychain" | grep -m1 'Developer ID Application' | sed 's/.*"\(.*\)"/\1/')
           echo "SIGN_IDENTITY=$identity" >>"$GITHUB_ENV"
+          if [ -n "$MACOS_INSTALLER_P12" ]; then
+            echo "$MACOS_INSTALLER_P12" | base64 --decode >"$RUNNER_TEMP/installer.p12"
+            security import "$RUNNER_TEMP/installer.p12" -k "$keychain" -P "$MACOS_INSTALLER_PASSWORD" \
+              -T /usr/bin/productbuild -T /usr/bin/productsign -T /usr/bin/pkgbuild
+            security set-key-partition-list -S apple-tool:,apple: -s -k "$keychain_password" "$keychain"
+            rm "$RUNNER_TEMP/installer.p12"
+            installer=$(security find-identity -v "$keychain" | grep -m1 'Developer ID Installer' | sed 's/.*"\(.*\)"/\1/')
+            echo "INSTALLER_IDENTITY=$installer" >>"$GITHUB_ENV"
+          fi
           if [ -n "$NOTARY_KEY_P8" ]; then
             echo "$NOTARY_KEY_P8" >"$RUNNER_TEMP/notary.p8"
             echo "NOTARY_KEY=$RUNNER_TEMP/notary.p8" >>"$GITHUB_ENV"
@@ -97,7 +108,9 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
         with:
           name: roughstart-macos
-          path: dist/*.zip
+          path: |
+            dist/*.zip
+            dist/*.pkg
 
       - uses: actions/upload-artifact@v7
         if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
@@ -173,9 +186,15 @@ jobs:
           merge-multiple: true
       - uses: softprops/action-gh-release@v3
         with:
-          files: dist/*.zip
+          files: |
+            dist/*.zip
+            dist/*.pkg
           body: |
             **macOS** (Apple Silicon and Intel, macOS 12 or later): Audio Unit and VST3, signed and notarized by Apple. Tested in Logic Pro and Cubase Pro 14.
+
+            Easiest: download `RoughStart-…-macos.pkg`, double-click it and follow the steps. It installs the Audio Unit and VST3 in `/Library/Audio/Plug-Ins` and asks for your Mac password.
+
+            Or by hand:
 
             1. Download `RoughStart-…-macos.zip` and unzip it.
             2. Move `RoughStart.component` to `~/Library/Audio/Plug-Ins/Components` (Finder: Go > Go to Folder...). For VST3 hosts such as Cubase or Bitwig, also move `RoughStart.vst3` to `~/Library/Audio/Plug-Ins/VST3`.

@@ -11,6 +11,11 @@ Getest in Logic Pro en Cubase Pro 14 op de Mac. Ervaringen met andere programma'
 
 ## Mac
 
+### Makkelijkst: het installatiepakket
+Download `RoughStart-<versie>-macos.pkg`, dubbelklik erop en klik door de stappen. Het pakket zet de Audio Unit en de VST3 in `/Library/Audio/Plug-Ins` en vraagt daarvoor om je Mac-wachtwoord. Ga daarna verder bij stap 3 (je DAW starten).
+
+Liever zelf? Gebruik dan de zip en volg stap 1 tot en met 3.
+
 ### Stap 1: uitpakken
 Dubbelklik op het zip-bestand. Er verschijnt een map met daarin `RoughStart.component` (Audio Unit) en `RoughStart.vst3` (VST3).
 
@@ -107,6 +112,8 @@ From version 0.11.1 RoughStart is signed and notarized by Apple on the Mac. Unzi
 **Works on:** macOS 12 or later (Apple Silicon and Intel) as Audio Unit and VST3, and Windows 64-bit as VST3. Tested in Logic Pro and Cubase Pro 14 on the Mac; the Windows version is new and untested in a DAW.
 
 ## Mac
+
+Easiest: download `RoughStart-<version>-macos.pkg`, double-click it and follow the steps. It installs the Audio Unit and VST3 in `/Library/Audio/Plug-Ins` and asks for your Mac password. Then continue with step 3. Prefer to do it yourself? Use the zip:
 
 ### Step 1: unzip
 Double-click the zip file. The folder contains `RoughStart.component` (Audio Unit) and `RoughStart.vst3` (VST3).

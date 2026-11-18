@@ -66,9 +66,55 @@ cp Resources/fonts/Inter-LICENSE.txt "$OUT/Inter-LICENSE.txt"
 rm -rf dist/docs && mkdir -p dist/docs
 cp "$OUT/LEESMIJ - Installeren.pdf" "$OUT/RoughStart Manual.pdf" "$OUT/LICENSE.txt" "$OUT/Inter-LICENSE.txt" dist/docs/
 
+# Installatiepakket (.pkg): zet AU en VST3 in /Library/Audio/Plug-Ins. Alleen als er ook een
+# Developer ID Installer-certificaat is (INSTALLER_IDENTITY); anders alleen de zip.
+INSTALLER_IDENTITY="${INSTALLER_IDENTITY:-$(security find-identity -v 2>/dev/null | sed -n 's/.*"\(Developer ID Installer:[^"]*\)".*/\1/p' | head -1)}"
+PKG="dist/RoughStart-$VERSION-macos.pkg"
+rm -f "$PKG"
+if [[ $SIGNED == 1 && -n "$INSTALLER_IDENTITY" ]]; then
+    echo "Installatiepakket maken, ondertekenen met: $INSTALLER_IDENTITY"
+    WORK="dist/pkgwork"
+    rm -rf "$WORK" && mkdir -p "$WORK/root/Library/Audio/Plug-Ins/Components" "$WORK/root/Library/Audio/Plug-Ins/VST3"
+    ditto "$OUT/RoughStart.component" "$WORK/root/Library/Audio/Plug-Ins/Components/RoughStart.component"
+    ditto "$OUT/RoughStart.vst3" "$WORK/root/Library/Audio/Plug-Ins/VST3/RoughStart.vst3"
+
+    # Niet laten "verhuizen" naar een oude kopie elders op de schijf: altijd op deze plek installeren
+    pkgbuild --analyze --root "$WORK/root" "$WORK/components.plist" > /dev/null
+    plutil -replace 0.BundleIsRelocatable -bool NO "$WORK/components.plist"
+    plutil -replace 1.BundleIsRelocatable -bool NO "$WORK/components.plist"
+
+    pkgbuild --root "$WORK/root" --component-plist "$WORK/components.plist" --install-location / \
+        --identifier com.tvdk.roughstart.plugins --version "$VERSION" "$WORK/RoughStart-plugins.pkg" > /dev/null
+
+    cat > "$WORK/distribution.xml" <<XML
+<?xml version="1.0" encoding="utf-8"?>
+<installer-gui-script minSpecVersion="2">
+    <title>RoughStart $VERSION</title>
+    <options customize="never" require-scripts="false" hostArchitectures="arm64,x86_64"/>
+    <domains enable_localSystem="true"/>
+    <choices-outline><line choice="plugins"/></choices-outline>
+    <choice id="plugins" title="RoughStart (Audio Unit and VST3)">
+        <pkg-ref id="com.tvdk.roughstart.plugins"/>
+    </choice>
+    <pkg-ref id="com.tvdk.roughstart.plugins" version="$VERSION">RoughStart-plugins.pkg</pkg-ref>
+</installer-gui-script>
+XML
+    productbuild --distribution "$WORK/distribution.xml" --package-path "$WORK" \
+        --sign "$INSTALLER_IDENTITY" --timestamp "$PKG" > /dev/null
+    rm -rf "$WORK"
+
+    echo "Installatiepakket notariseren..."
+    xcrun notarytool submit "$PKG" "${NOTARY_AUTH[@]}" --wait | tee dist/notary.log
+    grep -q "status: Accepted" dist/notary.log || { echo "Notariseren van de pkg mislukt, zie dist/notary.log"; exit 1; }
+    rm -f dist/notary.log
+    xcrun stapler staple "$PKG"
+fi
+
 # ditto behoudt de bundelstructuur van de .component
 ditto -c -k --norsrc --keepParent "$OUT" "dist/$NAME.zip"
 rm -rf "$OUT"
 
 echo "Ondertekend en genotariseerd: $([[ $SIGNED == 1 ]] && echo ja || echo nee)"
 echo "Klaar: dist/$NAME.zip ($(du -h "dist/$NAME.zip" | cut -f1))"
+[[ -f "$PKG" ]] && echo "Klaar: $PKG ($(du -h "$PKG" | cut -f1))"
+true

@@ -37,6 +37,8 @@ RoughStart finds its other instances inside the host process. Hosts that run eac
 
 **Mac**
 
+Easiest: download the latest `-macos.pkg` from [Releases](https://github.com/tonvanderkolk/roughstart/releases), double-click it and follow the steps. Or by hand:
+
 1. Download the latest `-macos.zip` from [Releases](https://github.com/tonvanderkolk/roughstart/releases) and unzip it.
 2. Move `RoughStart.component` to `~/Library/Audio/Plug-Ins/Components` (Finder: Go > Go to Folder...). For VST3 hosts, also move `RoughStart.vst3` to `~/Library/Audio/Plug-Ins/VST3`.
 3. RoughStart is signed and notarized by Apple (from version 0.11.1), so no extra steps are needed. Plug-ins installed in `/Library/Audio/Plug-Ins` (without `~`) work too.
