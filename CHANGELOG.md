@@ -2,7 +2,7 @@
 
 Alle noemenswaardige wijzigingen in RoughStart. Formaat volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/), versies volgen [SemVer](https://semver.org/lang/nl/).
 
-## [Unreleased]
+## [0.11.2] - 2026-11-18
 
 ### Toegevoegd
 - **Mac-installatiepakket (.pkg)**, ondertekend met Developer ID Installer en genotariseerd. Zet AU en VST3 in `/Library/Audio/Plug-Ins`. De zip blijft er ook. In GitHub Actions alleen als de secrets `MACOS_INSTALLER_P12` en `MACOS_INSTALLER_PASSWORD` bestaan.
