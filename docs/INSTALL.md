@@ -22,7 +22,7 @@ Dubbelklik op het zip-bestand. Er verschijnt een map met daarin `RoughStart.comp
 ### Stap 2: naar de pluginmap slepen
 Kies in de Finder het menu **Ga > Ga naar map...**, plak `~/Library/Audio/Plug-Ins/Components` en druk op Enter. Sleep `RoughStart.component` naar die map.
 
-Gebruik je een DAW die VST3 laadt, zoals Cubase of Bitwig? Ga dan ook naar `~/Library/Audio/Plug-Ins/VST3` en sleep `RoughStart.vst3` daarheen. Voor Logic is dat niet nodig.
+Gebruik je een DAW die VST3 laadt, zoals Cubase of Bitwig? Ga dan ook naar `~/Library/Audio/Plug-Ins/VST3` en sleep `RoughStart.vst3` daarheen. Voor Logic Pro en GarageBand is dat niet nodig.
 
 ### Oudere versie of melding van Apple?
 Krijg je toch "Apple kon niet verifiëren dat RoughStart geen malware bevat", dan heb je waarschijnlijk een versie van vóór 0.11.1. Download de nieuwste versie, of hef de blokkade op in Terminal (met `sudo` en je Mac-wachtwoord als de plugin in `/Library/Audio/Plug-Ins` staat):
@@ -33,7 +33,7 @@ xattr -dr com.apple.quarantine ~/Library/Audio/Plug-Ins/VST3/RoughStart.vst3
 ```
 
 ### Stap 3: je DAW starten
-Start Logic Pro (opnieuw). RoughStart staat bij **Audio Units > TvdK > RoughStart**.
+Start je DAW (opnieuw). In Logic Pro staat RoughStart bij **Audio Units > TvdK > RoughStart**, in Cubase en andere VST3-programma's bij de effecten onder **TvdK > RoughStart**.
 
 **Ziet Logic de plugin niet, of meldt het dat hij niet werkt?** Ga in Logic naar Logic Pro > Instellingen > Plug-in Manager, zoek RoughStart, selecteer hem en klik op "Reset & Rescan Selection".
 
@@ -52,7 +52,7 @@ Doe eerst stap 1 en 2 hierboven. Daarna:
 - Sleep RoughStart als **eerste device** op elk spoor. Bij een instrumentspoor direct ná het instrument.
 - Snel op meer sporen: klik op de titelbalk van RoughStart, kopieer met Cmd+C, selecteer een ander spoor en plak met Cmd+V.
 - Het venster van de plugin open je met het kleine icoontje in de titelbalk van het device.
-- Analyze All werkt hetzelfde als in Logic: klik erop, speel af (Arrangement of Session) en stop.
+- Analyze All werkt hetzelfde als in andere programma's: klik erop, speel af (Arrangement of Session) en stop.
 
 ## Windows
 

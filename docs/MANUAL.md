@@ -6,8 +6,8 @@ RoughStart sets the level of every track before you start mixing. Put one instan
 
 - Audio tracks: the first insert slot.
 - Software instrument tracks: the first effect slot, directly after the instrument.
-- RoughStart works in mono and in stereo. Logic picks the right version for each track, also when you insert it on several tracks at once. The track name at the top shows which one is in use.
-- Logic only loads plug-ins on tracks that contain regions. Empty tracks do not show up until you add something to them.
+- RoughStart works in mono and in stereo. Your DAW picks the right version for each track, also when you insert it on several tracks at once. The track name at the top shows which one is in use.
+- Logic Pro only loads plug-ins on tracks that contain regions. Empty tracks do not show up there until you add something to them.
 
 ## Formats and platforms
 
@@ -80,7 +80,7 @@ Drums, keys and vocals often need different settings: drums have peaks far above
 ## Analyzing
 
 - Analyze track measures only this track. Analyze all measures every RoughStart instance in the project at the same time; the button shows how many tracks it will measure.
-- Measuring only happens while Logic is playing. If you click Analyze while Logic is stopped, RoughStart waits for playback.
+- Measuring only happens while your DAW is playing. If you click Analyze while it is stopped, RoughStart waits for playback.
 - When playback stops, the analysis stops and the measurement is stored. You can also click Stop (or Stop All) yourself to measure only part of the song.
 - Silence is ignored: passages below -60 dBFS do not count. In RMS mode, short passages more than 20 dB below the track's average (such as decaying drum tails) do not count either.
 - RoughStart measures the incoming signal, before its own gain, so analyzing again gives the same result whatever Auto and Trim are set to.
@@ -92,7 +92,7 @@ Drums, keys and vocals often need different settings: drums have peaks far above
 - Click a column header to sort; click again to reverse. Tracks that have not been analyzed always sort to the bottom.
 - The track you opened RoughStart on is highlighted.
 - Level shows a small meter per track: grey before RoughStart, green after Auto, white tick for the peak after Auto. While analyzing, Level and the Peak and RMS columns show the live measurement in orange.
-- Trim can be changed right in the table: drag the value left or right, double-click to reset it to 0, or Alt-click to type a value. You can balance the whole song from this one window. Undo and Redo next to Analyze all (or Cmd+Z / Cmd+Shift+Z while the RoughStart window is active) step back through Trim changes made in the table, across all tracks. Logic's own Undo in the plug-in window header only covers that one track.
+- Trim can be changed right in the table: drag the value left or right, double-click to reset it to 0, or Alt-click to type a value. You can balance the whole song from this one window. Undo and Redo next to Analyze all (or Cmd+Z / Cmd+Shift+Z while the RoughStart window is active) step back through Trim changes made in the table, across all tracks. The DAW's own Undo (for example in Logic's plug-in window header) only covers that one track.
 - Status: OK, Ceiling (peak at the Peak ceiling), No signal, Not analyzed, or Waiting/Measuring during an analysis.
 
 ## Presets
@@ -107,7 +107,7 @@ Drums, keys and vocals often need different settings: drums have peaks far above
 
 - Window size: click the percentage at the top right to choose 100, 125, 150 or 175%. The choice applies to every RoughStart and is remembered.
 
-- All settings and measurements are saved in the Logic project.
+- All settings, measurements and groups are saved in your DAW project.
 - RoughStart adds no latency and almost no CPU load, even with 80 instances.
 - Gain changes are smoothed over 50 ms, so there are no clicks.
 - If you send a project to someone who does not have RoughStart, the gain is gone. Bounce or export the tracks first so the gain is part of the audio.

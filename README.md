@@ -2,9 +2,9 @@
 
 **Gain staging for every track in your session, in one click.**
 
-RoughStart is a free plug-in for Logic Pro and other DAWs: Audio Unit and VST3 on macOS, VST3 on Windows. Put it first on every track, click **Analyze all**, play the song, and every track lands at the same healthy starting level. Your faders stay at 0 dB, every plug-in after RoughStart gets a sensible input level, and what you hear is already a rough mix. Then you balance by ear with Trim.
+RoughStart is a free gain-staging plug-in for any DAW: Audio Unit and VST3 on macOS (Logic Pro, Cubase, Ableton Live, Bitwig and others), VST3 on Windows. Put it first on every track, click **Analyze all**, play the song, and every track lands at the same healthy starting level. Your faders stay at 0 dB, every plug-in after RoughStart gets a sensible input level, and what you hear is already a rough mix. Then you balance by ear with Trim.
 
-It works on software instrument tracks too, which Logic's Normalize Region Gain does not cover.
+It works on software instrument tracks too, where clip or region normalizing in your DAW cannot help.
 
 A hobby project by Ton van der Kolk. Free and open source. The development notes are in Dutch.
 
@@ -29,7 +29,7 @@ Like RoughStart? You can [support it with a coffee](https://buymeacoffee.com/tvd
 
 - **macOS** 12 or later, Apple Silicon or Intel: Audio Unit and VST3.
 - **Windows** 64-bit: VST3. New, and not yet tested in a DAW.
-- Developed and tested in **Logic Pro**. Other hosts, such as GarageBand, Ableton Live, Cubase, Studio One, Reaper, Digital Performer and Bitwig, should work too but have not been tested yet. Reports are welcome.
+- Tested in **Logic Pro** and **Cubase Pro 14** on the Mac. Other hosts, such as Ableton Live, Studio One, Reaper, Bitwig, Digital Performer and GarageBand, should work too. Reports are welcome.
 
 RoughStart finds its other instances inside the host process. Hosts that run each plug-in in a separate sandbox (an option in Bitwig and Reaper) still work per track, but Analyze all and the Overview only see one track.
 
@@ -74,7 +74,7 @@ RoughStart was built with Claude Code. Besides the source in `Source/`, the repo
 
 ## Feedback and contributions
 
-Questions, ideas and experiences are welcome in [Discussions](https://github.com/tonvanderkolk/roughstart/discussions); bug reports go in [Issues](https://github.com/tonvanderkolk/roughstart/issues). Especially useful: results in DAWs other than Logic, and on Windows.
+Questions, ideas and experiences are welcome in [Discussions](https://github.com/tonvanderkolk/roughstart/discussions); bug reports go in [Issues](https://github.com/tonvanderkolk/roughstart/issues). Especially useful: results in DAWs that have not been tested yet, and on Windows.
 
 ## License
 

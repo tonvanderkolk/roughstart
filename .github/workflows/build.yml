@@ -198,7 +198,7 @@ jobs:
 
             1. Download `RoughStart-…-macos.zip` and unzip it.
             2. Move `RoughStart.component` to `~/Library/Audio/Plug-Ins/Components` (Finder: Go > Go to Folder...). For VST3 hosts such as Cubase or Bitwig, also move `RoughStart.vst3` to `~/Library/Audio/Plug-Ins/VST3`.
-            3. (Re)start your DAW. In Logic, RoughStart is under Audio Units > TvdK > RoughStart. In Cubase, if an older blocked version is in Studio > VST Plug-in Manager, select it and click Reactivate.
+            3. (Re)start your DAW. RoughStart is under TvdK > RoughStart (in Logic: Audio Units > TvdK). In Cubase, if an older blocked version is in Studio > VST Plug-in Manager, select it and click Reactivate.
 
             **Windows** (64-bit): VST3. New and not yet tested in a DAW; reports are very welcome.
 
