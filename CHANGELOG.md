@@ -2,6 +2,11 @@
 
 Alle noemenswaardige wijzigingen in RoughStart. Formaat volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/), versies volgen [SemVer](https://semver.org/lang/nl/).
 
+## [0.11.3] - 2026-11-19
+
+### Documentatie
+- Handleiding (ook in de plugin), README, installatiebriefje en releasetekst DAW-neutraal: niet langer alsof RoughStart alleen voor Logic is. Getest in Logic Pro en Cubase Pro 14.
+
 ## [0.11.2] - 2026-11-18
 
 ### Toegevoegd
