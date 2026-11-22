@@ -42,7 +42,7 @@ auval -v aufx RgSt TvdK
 ```
 
 ## Structuur
-- `Source/InstanceRegistry.*`: gedeelde lijst van alle instances in het hostproces (via `juce::SharedResourcePointer`), plus Analyze All / Stop All en de batchstatus. Werkt omdat Logic AUv2 in-process laadt.
+- `Source/InstanceRegistry.*`: gedeelde lijst van alle instances in het hostproces (via `juce::SharedResourcePointer`), plus Analyze All / Stop All en de batchstatus. Werkt alleen zolang alle instances in hetzelfde proces draaien. Dat hoeft niet het proces van de DAW zelf te zijn: op 2026-11-22 laadde Logic op Apple Silicon RoughStart in `AUHostingServiceXPC_arrow`, een hostproces van macOS, samen met een plugin van een andere maker. Ontbreken er sporen in Overview, controleer dan eerst of de instances over meer processen zijn verdeeld.
 - `Source/LevelMeter.h`: meting (piek/RMS, absolute + relatieve stiltedrempel), Auto-berekening met plafond en dB-rekenwerk, zonder JUCE; getest in `Tests/`.
 - `Source/PluginProcessor.*`: parameters, analyse, Auto + Trim, state, spoornaam, ping-teller.
 - `Source/PluginEditor.*`: `RoughStartView` (interface op 100%) en `RoughStartEditor` (plug-invenster, schaalt de view); UI in het Engels, weergaven Track en Overview, presetmenu, Analyze All.
