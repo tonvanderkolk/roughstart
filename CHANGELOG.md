@@ -2,6 +2,11 @@
 
 Alle noemenswaardige wijzigingen in RoughStart. Formaat volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/), versies volgen [SemVer](https://semver.org/lang/nl/).
 
+## [0.11.4] - 2026-11-22
+
+### Opgelost
+- AU en VST3 exporteren op de Mac alleen nog hun officiële ingangen (Apple Silicon en Intel). De meegebakken libwebp, BinaryData en libc++-typeinformatie waren zichtbaar voor de host. Daardoor konden ze botsen in hosts die zelf JUCE gebruiken.
+
 ## [0.11.3] - 2026-11-19
 
 ### Documentatie

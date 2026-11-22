@@ -14,6 +14,14 @@ project(RoughStart VERSION ${ROUGHSTART_VERSION} LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Alleen de officiële ingangen van de plugin exporteren. Anders botsen interne symbolen
+# (zoals BinaryData) met die van een host die zelf ook JUCE gebruikt.
+set(CMAKE_C_VISIBILITY_PRESET hidden)
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_OBJC_VISIBILITY_PRESET hidden)
+set(CMAKE_OBJCXX_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
+
 add_subdirectory(JUCE)
 
 # Formaten: AU (alleen macOS) en VST3 (macOS en Windows).
@@ -42,6 +50,19 @@ juce_add_plugin(RoughStart
     EDITOR_WANTS_KEYBOARD_FOCUS FALSE
     AU_MAIN_TYPE kAudioUnitType_Effect
     COPY_PLUGIN_AFTER_BUILD ${ROUGHSTART_COPY})
+
+# De libwebp die JUCE meelevert maakt zijn C-functies zelf zichtbaar; ook die verbergen.
+# Op Intel doet libc++ hetzelfde met typeinformatie van zijn templates (__ZTI, __ZTS).
+if(APPLE)
+    foreach(format_target RoughStart_AU RoughStart_VST3)
+        target_link_options(${format_target} PRIVATE
+            "LINKER:-unexported_symbol,_WebP*"
+            "LINKER:-unexported_symbol,_VP8*"
+            "LINKER:-unexported_symbol,_SharpYuv*"
+            "LINKER:-unexported_symbol,__ZTINSt3__1*"
+            "LINKER:-unexported_symbol,__ZTSNSt3__1*")
+    endforeach()
+endif()
 
 juce_add_binary_data(RoughStartData SOURCES
     docs/MANUAL.md
@@ -115,7 +136,14 @@ target_compile_definitions(RoughStartHostCheck PRIVATE
     JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0
     JUCE_PLUGINHOST_VST3=1 JUCE_PLUGINHOST_AU=1)
 target_link_libraries(RoughStartHostCheck PRIVATE juce::juce_audio_utils PUBLIC juce::juce_recommended_config_flags)
-set_target_properties(RoughStartHostCheck PROPERTIES EXCLUDE_FROM_ALL TRUE)
+# De host houdt zijn JUCE-symbolen wel zichtbaar: zo test hij mee op botsingen met de plugin.
+set_target_properties(RoughStartHostCheck PROPERTIES
+    EXCLUDE_FROM_ALL TRUE
+    C_VISIBILITY_PRESET default
+    CXX_VISIBILITY_PRESET default
+    OBJC_VISIBILITY_PRESET default
+    OBJCXX_VISIBILITY_PRESET default
+    VISIBILITY_INLINES_HIDDEN OFF)
 
 #==============================================================================
 # AnalyzeSim: speelt Analyze All na met sporen die de host tijdelijk overslaat.
